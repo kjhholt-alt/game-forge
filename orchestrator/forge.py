@@ -129,18 +129,21 @@ class GameForge:
             return {"status": "no_project", "message": "No active project."}
 
         p = self._project
+        regions = p.world.overworld.regions if p.world and p.world.overworld else []
         return {
             "status": "active",
             "title": p.concept.title,
-            "genre": p.concept.genre,
-            "regions": len(p.world.regions) if p.world else 0,
+            "genre": p.concept.genre.value,
+            "regions": len(regions),
+            "dungeons": len(p.world.dungeons) if p.world else 0,
             "quests": len(p.quests),
             "npcs": len(p.npcs),
             "items": len(p.items),
-            "art_specs": len(p.art_specs),
+            "encounters": len(p.encounters),
+            "has_style_guide": p.style_guide is not None,
             "scenes_generated": len(p.scenes_generated),
             "scripts_generated": len(p.scripts_generated),
-            "qa_passed": p.qa_report.passed if p.qa_report else None,
+            "qa_playable": p.qa_report.playable if p.qa_report else None,
             "qa_score": p.qa_report.overall_score if p.qa_report else None,
         }
 

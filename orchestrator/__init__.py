@@ -12,5 +12,6 @@ __version__ = "0.1.0"
 
 from orchestrator.config import GameConfig
 from orchestrator.forge import GameForge
+from schemas import GameGenre
 
-__all__ = ["GameConfig", "GameForge", "__version__"]
+__all__ = ["GameConfig", "GameForge", "GameGenre", "__version__"]

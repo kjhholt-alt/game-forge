@@ -189,8 +189,7 @@ game-forge/
 
 ```python
 import asyncio
-from orchestrator import GameForge, GameConfig
-from orchestrator.config import GameGenre
+from orchestrator import GameForge, GameConfig, GameGenre
 
 async def main():
     config = GameConfig(anthropic_api_key="sk-ant-...")
@@ -202,7 +201,7 @@ async def main():
         GameGenre.RPG,
     )
     print(f"Created: {project.concept.title}")
-    print(f"Regions: {len(project.world.regions)}")
+    print(f"Regions: {len(project.world.overworld.regions)}")
     print(f"Quests: {len(project.quests)}")
 
     # Iterate

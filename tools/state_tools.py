@@ -14,7 +14,7 @@ from typing import Any
 
 import aiosqlite
 
-from schemas.game import GameProject, WorldDefinition
+from schemas import GameProject, WorldDefinition
 
 logger = logging.getLogger(__name__)
 

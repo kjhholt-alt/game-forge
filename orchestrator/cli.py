@@ -14,8 +14,9 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from orchestrator.config import GameConfig, GameGenre
+from orchestrator.config import GameConfig
 from orchestrator.forge import GameForge
+from schemas import GameGenre
 
 console = Console()
 
@@ -162,19 +163,21 @@ def status(ctx: click.Context) -> None:
 
     table.add_row("Genre", str(info["genre"]))
     table.add_row("Regions", str(info["regions"]))
+    table.add_row("Dungeons", str(info["dungeons"]))
     table.add_row("Quests", str(info["quests"]))
     table.add_row("NPCs", str(info["npcs"]))
     table.add_row("Items", str(info["items"]))
-    table.add_row("Art Specs", str(info["art_specs"]))
+    table.add_row("Encounters", str(info["encounters"]))
+    table.add_row("Style Guide", "Yes" if info["has_style_guide"] else "No")
     table.add_row("Scenes Generated", str(info["scenes_generated"]))
     table.add_row("Scripts Generated", str(info["scripts_generated"]))
 
     qa_status = "Not run"
-    if info["qa_passed"] is not None:
+    if info["qa_playable"] is not None:
         qa_status = (
-            f"[green]Passed ({info['qa_score']}/10)[/green]"
-            if info["qa_passed"]
-            else f"[red]Failed ({info['qa_score']}/10)[/red]"
+            f"[green]Playable ({info['qa_score']}/10)[/green]"
+            if info["qa_playable"]
+            else f"[red]Not Playable ({info['qa_score']}/10)[/red]"
         )
     table.add_row("QA Status", qa_status)
 
