@@ -25,6 +25,13 @@ class AgentRole(str, Enum):
     ART_DIRECTOR = "art_director"
     QA_TESTER = "qa_tester"
 
+    # SIGNAL ops agents
+    CAMPAIGN_ARCHITECT = "campaign_architect"
+    INTEL_ARCHITECT = "intel_architect"
+    TARGET_PROFILER = "target_profiler"
+    NETWORK_DESIGNER = "network_designer"
+    SIGNAL_QA_VALIDATOR = "signal_qa_validator"
+
 
 class GameGenre(str, Enum):
     """Supported game genres."""
