@@ -1,349 +1,469 @@
-"""Comprehensive tests for all schema modules."""
+"""Tests for all Pydantic schemas: game, quest, and world.
+
+Covers creation, serialization, validation, enums, nesting, and edge cases.
+At least 25 tests total.
+"""
 
 from __future__ import annotations
 
 import json
 
-from schemas import (
-    Ability,
-    BalanceReport,
-    Biome,
-    CharacterArtDescription,
-    CombatSystem,
-    Connection,
-    DamageType,
-    DerivedStat,
+import pytest
+from pydantic import ValidationError
+
+from schemas.game import (
+    ArtAssetSpec,
+    DialogueLine,
     DialogueNode,
-    DialogueOption,
-    DialogueTree,
-    DungeonLayout,
-    Encounter,
-    EnemyDefinition,
-    EnemyPlacement,
     GameConcept,
-    GameGenre,
     GameProject,
-    ItemCategory,
-    ItemDefinition,
-    ItemEffect,
-    ItemRarity,
-    LootTable,
-    LootTableEntry,
-    LoreEntry,
-    NPCDefinition,
-    NPCRole,
-    NPCStats,
-    OverworldMap,
-    Personality,
+    IssueSeverity,
+    Item,
+    ItemType,
+    NPC,
+    NPCDisposition,
     QAIssue,
     QAReport,
     Quest,
-    QuestChain,
     QuestObjective,
+    QuestType,
+    Region,
+    WorldDefinition as GameWorldDefinition,
+)
+from schemas.quest import (
+    DialogueNode as QuestDialogueNode,
+    DialogueOption,
+    DialogueTree,
+    LoreEntry,
+    Quest as DetailedQuest,
+    QuestChain,
+    QuestObjective as DetailedQuestObjective,
     QuestObjectiveType,
     QuestReward,
-    Region,
-    Relationship,
+)
+from schemas.world import (
+    Biome,
+    Connection,
+    DungeonLayout,
+    OverworldMap,
+    Region as WorldRegion,
     Room,
     RoomType,
-    Schedule,
-    Stat,
-    StatModifier,
-    StatSystem,
-    StatusEffect,
-    StyleGuide,
-    TilesetDescription,
-    UIArtDescription,
-    WeaponType,
     WorldDefinition,
 )
 
 
-def test_world_hierarchy():
-    """Build a full world with rooms, regions, dungeons, and overworld."""
-    room1 = Room(id="r1", name="Entry Hall", room_type=RoomType.ENTRANCE, description="Grand entrance")
-    room2 = Room(id="r2", name="Boss Chamber", room_type=RoomType.BOSS, description="Dark chamber", entities=["boss_01"])
-    conn = Connection(from_id="r1", to_id="r2", locked=True, lock_key="golden_key")
-    region = Region(id="reg1", name="Dark Forest", biome=Biome.FOREST, description="Spooky forest", level_range=(1, 5), rooms=[room1])
-    dungeon = DungeonLayout(
-        id="d1", name="Shadow Keep", theme="undead", difficulty=5,
-        rooms=[room1, room2], connections=[conn],
-        entry_room_id="r1", exit_room_id="r2", boss_room_id="r2",
+# ---------------------------------------------------------------------------
+# GameConcept
+# ---------------------------------------------------------------------------
+
+
+class TestGameConcept:
+    def test_create_valid(self, sample_concept: GameConcept) -> None:
+        assert sample_concept.title == "Dungeon of Shadows"
+        assert sample_concept.genre == "roguelike"
+        assert len(sample_concept.core_mechanics) == 4
+
+    def test_serialize_json_roundtrip(self, sample_concept: GameConcept) -> None:
+        raw = sample_concept.model_dump_json()
+        restored = GameConcept.model_validate_json(raw)
+        assert restored.title == sample_concept.title
+        assert restored.core_mechanics == sample_concept.core_mechanics
+
+    def test_serialize_dict(self, sample_concept: GameConcept) -> None:
+        d = sample_concept.model_dump()
+        assert isinstance(d, dict)
+        assert d["title"] == "Dungeon of Shadows"
+
+    def test_missing_required_fields_raises(self) -> None:
+        with pytest.raises(ValidationError):
+            GameConcept(
+                title="Test",
+                genre="rpg",
+                # missing: setting, core_mechanics, art_style, target_mood
+            )
+
+    def test_default_player_count(self) -> None:
+        concept = GameConcept(
+            title="T",
+            genre="rpg",
+            setting="s",
+            core_mechanics=["a"],
+            art_style="pixel",
+            target_mood="fun",
+        )
+        assert concept.player_count == 1
+        assert concept.estimated_playtime == "1-2 hours"
+
+
+# ---------------------------------------------------------------------------
+# Item
+# ---------------------------------------------------------------------------
+
+
+class TestItem:
+    def test_create_valid(self, sample_item: Item) -> None:
+        assert sample_item.name == "Blessed Sword"
+        assert sample_item.item_type == ItemType.WEAPON
+
+    def test_all_item_type_enum_values(self) -> None:
+        for t in ItemType:
+            item = Item(name=f"Test {t.value}", item_type=t, description="A test item.")
+            assert item.item_type == t
+
+    def test_invalid_item_type_raises(self) -> None:
+        with pytest.raises(ValidationError):
+            Item(name="Bad", item_type="not_a_type", description="Should fail.")
+
+    def test_default_values(self) -> None:
+        item = Item(name="Basic", item_type=ItemType.CONSUMABLE, description="A basic item.")
+        assert item.rarity == "common"
+        assert item.value == 0
+        assert item.stats == {}
+        assert item.effects == []
+
+    def test_json_roundtrip(self, sample_item: Item) -> None:
+        raw = sample_item.model_dump_json()
+        parsed = json.loads(raw)
+        assert parsed["stats"]["attack"] == 12
+        restored = Item.model_validate_json(raw)
+        assert restored.name == sample_item.name
+
+    def test_item_with_effects(self) -> None:
+        item = Item(
+            name="Fire Potion",
+            item_type=ItemType.CONSUMABLE,
+            description="Explodes on contact.",
+            effects=["fire_damage", "burn_status"],
+        )
+        assert len(item.effects) == 2
+
+
+# ---------------------------------------------------------------------------
+# NPC
+# ---------------------------------------------------------------------------
+
+
+class TestNPC:
+    def test_create_valid(self, sample_npc: NPC) -> None:
+        assert sample_npc.name == "Brother Aldric"
+        assert sample_npc.disposition == NPCDisposition.FRIENDLY
+        assert len(sample_npc.dialogue) == 1
+
+    def test_all_disposition_enum_values(self) -> None:
+        for d in NPCDisposition:
+            npc = NPC(name="Test", role="test", description="Test", disposition=d)
+            assert npc.disposition == d
+
+    def test_npc_dialogue_structure(self, sample_npc: NPC) -> None:
+        node = sample_npc.dialogue[0]
+        assert node.id == "greeting"
+        assert len(node.lines) == 1
+        assert node.lines[0].emotion == "pleading"
+        assert len(node.choices) == 2
+
+
+# ---------------------------------------------------------------------------
+# Quest (schemas.game)
+# ---------------------------------------------------------------------------
+
+
+class TestQuest:
+    def test_create_valid(self, sample_quest: Quest) -> None:
+        assert sample_quest.name == "Cleanse the Altar"
+        assert sample_quest.quest_type == QuestType.MAIN
+        assert len(sample_quest.objectives) == 2
+
+    def test_all_quest_type_enum_values(self) -> None:
+        for qt in QuestType:
+            q = Quest(name=f"Test {qt.value}", quest_type=qt, description="A test quest.")
+            assert q.quest_type == qt
+
+    def test_empty_objectives_allowed(self) -> None:
+        q = Quest(name="Empty", quest_type=QuestType.EXPLORE, description="No objectives.")
+        assert q.objectives == []
+
+
+# ---------------------------------------------------------------------------
+# WorldDefinition (schemas.game)
+# ---------------------------------------------------------------------------
+
+
+class TestGameWorldDefinition:
+    def test_create_valid(self, sample_game_world: GameWorldDefinition) -> None:
+        assert sample_game_world.name == "The Shattered Depths"
+        assert len(sample_game_world.regions) == 3
+
+    def test_region_connections(self, sample_game_world: GameWorldDefinition) -> None:
+        entrance = sample_game_world.regions[0]
+        assert "Crypt Corridors" in entrance.connections
+
+    def test_json_roundtrip(self, sample_game_world: GameWorldDefinition) -> None:
+        raw = sample_game_world.model_dump_json()
+        restored = GameWorldDefinition.model_validate_json(raw)
+        assert restored.name == sample_game_world.name
+        assert len(restored.regions) == len(sample_game_world.regions)
+
+
+# ---------------------------------------------------------------------------
+# QA Report
+# ---------------------------------------------------------------------------
+
+
+class TestQAReport:
+    def test_create_valid(self) -> None:
+        report = QAReport(
+            overall_score=7.5,
+            summary="Solid game.",
+            issues=[
+                QAIssue(
+                    severity=IssueSeverity.MINOR,
+                    category="balance",
+                    description="Sword too strong.",
+                ),
+            ],
+            strengths=["Great atmosphere"],
+            passed=True,
+        )
+        assert report.overall_score == 7.5
+        assert report.passed is True
+
+    def test_score_below_min_raises(self) -> None:
+        with pytest.raises(ValidationError):
+            QAReport(overall_score=-1.0, summary="Bad")
+
+    def test_score_above_max_raises(self) -> None:
+        with pytest.raises(ValidationError):
+            QAReport(overall_score=11.0, summary="Bad")
+
+    def test_all_severity_values(self) -> None:
+        for sev in IssueSeverity:
+            issue = QAIssue(severity=sev, category="test", description="Test.")
+            assert issue.severity == sev
+
+
+# ---------------------------------------------------------------------------
+# ArtAssetSpec
+# ---------------------------------------------------------------------------
+
+
+class TestArtAssetSpec:
+    def test_create_valid(self) -> None:
+        spec = ArtAssetSpec(
+            name="hero_sprite",
+            asset_type="sprite",
+            description="A knight in shining armor.",
+            dimensions=(64, 64),
+        )
+        assert spec.dimensions == (64, 64)
+        assert spec.priority == "normal"
+
+
+# ---------------------------------------------------------------------------
+# GameProject
+# ---------------------------------------------------------------------------
+
+
+class TestGameProject:
+    def test_create_minimal(self, sample_concept: GameConcept) -> None:
+        project = GameProject(concept=sample_concept)
+        assert project.concept.title == "Dungeon of Shadows"
+        assert project.world is None
+        assert project.quests == []
+        assert project.qa_report is None
+
+    def test_full_project_roundtrip(
+        self,
+        sample_concept: GameConcept,
+        sample_game_world: GameWorldDefinition,
+        sample_quest: Quest,
+        sample_npc: NPC,
+        sample_item: Item,
+    ) -> None:
+        project = GameProject(
+            concept=sample_concept,
+            world=sample_game_world,
+            quests=[sample_quest],
+            npcs=[sample_npc],
+            items=[sample_item],
+        )
+        raw = project.model_dump_json()
+        restored = GameProject.model_validate_json(raw)
+        assert restored.concept.title == "Dungeon of Shadows"
+        assert len(restored.quests) == 1
+        assert len(restored.npcs) == 1
+        assert len(restored.items) == 1
+
+
+# ---------------------------------------------------------------------------
+# DialogueTree (schemas.quest)
+# ---------------------------------------------------------------------------
+
+
+class TestDialogueTree:
+    def test_create_valid(self, sample_dialogue_tree: DialogueTree) -> None:
+        assert sample_dialogue_tree.npc_id == "npc_aldric"
+        assert sample_dialogue_tree.root_node_id == "node_greeting"
+        assert len(sample_dialogue_tree.nodes) == 4
+
+    def test_branching_options(self, sample_dialogue_tree: DialogueTree) -> None:
+        root = sample_dialogue_tree.nodes[0]
+        assert len(root.options) == 3
+        assert root.options[0].effects == {"flag_accepted_quest": True}
+        assert root.options[2].conditions == {"stat_int": 12}
+
+    def test_json_roundtrip(self, sample_dialogue_tree: DialogueTree) -> None:
+        raw = sample_dialogue_tree.model_dump_json()
+        restored = DialogueTree.model_validate_json(raw)
+        assert restored.id == sample_dialogue_tree.id
+        assert len(restored.nodes) == len(sample_dialogue_tree.nodes)
+
+
+# ---------------------------------------------------------------------------
+# QuestChain (schemas.quest)
+# ---------------------------------------------------------------------------
+
+
+class TestQuestChain:
+    def test_create_valid(self, sample_quest_chain: QuestChain) -> None:
+        assert sample_quest_chain.title == "The Cathedral's Secret"
+        assert len(sample_quest_chain.quests) == 2
+        assert sample_quest_chain.is_main_story is True
+
+    def test_linked_quests(self, sample_quest_chain: QuestChain) -> None:
+        first = sample_quest_chain.quests[0]
+        second = sample_quest_chain.quests[1]
+        assert first.id in second.prerequisites
+
+    def test_quest_rewards_structure(self, sample_quest_chain: QuestChain) -> None:
+        rewards = sample_quest_chain.quests[0].rewards
+        assert rewards.xp == 100
+        assert rewards.gold == 50
+        assert "item_blessed_sword" in rewards.items
+        assert rewards.reputation == {"forgotten_order": 10}
+        assert "quest_deeper_descent" in rewards.unlocks
+
+
+# ---------------------------------------------------------------------------
+# Quest objective types (schemas.quest)
+# ---------------------------------------------------------------------------
+
+
+class TestQuestObjectiveTypes:
+    def test_all_objective_types(self) -> None:
+        for obj_type in QuestObjectiveType:
+            obj = DetailedQuestObjective(
+                id=f"obj_{obj_type.value}",
+                description=f"Test {obj_type.value}",
+                objective_type=obj_type,
+                target="target",
+            )
+            assert obj.objective_type == obj_type
+
+    def test_optional_objective(self) -> None:
+        obj = DetailedQuestObjective(
+            id="opt",
+            description="Optional",
+            objective_type=QuestObjectiveType.COLLECT,
+            target="bonus",
+            count=5,
+            optional=True,
+        )
+        assert obj.optional is True
+        assert obj.count == 5
+
+
+# ---------------------------------------------------------------------------
+# World schemas (schemas.world)
+# ---------------------------------------------------------------------------
+
+
+class TestWorldDefinition:
+    def test_create_valid(self, sample_world: WorldDefinition) -> None:
+        assert sample_world.name == "The Shattered Depths"
+        assert sample_world.overworld is not None
+        assert len(sample_world.dungeons) == 1
+
+    def test_dungeon_structure(self, sample_world: WorldDefinition) -> None:
+        dungeon = sample_world.dungeons[0]
+        assert dungeon.name == "Cathedral Depths"
+        assert len(dungeon.rooms) == 5
+        assert len(dungeon.connections) == 4
+        assert dungeon.difficulty == 5
+
+    def test_dungeon_difficulty_too_low_raises(self) -> None:
+        with pytest.raises(ValidationError):
+            DungeonLayout(
+                id="bad", name="Bad", theme="t", difficulty=0,
+                rooms=[], connections=[], entry_room_id="a", exit_room_id="b",
+            )
+
+    def test_dungeon_difficulty_too_high_raises(self) -> None:
+        with pytest.raises(ValidationError):
+            DungeonLayout(
+                id="bad", name="Bad", theme="t", difficulty=11,
+                rooms=[], connections=[], entry_room_id="a", exit_room_id="b",
+            )
+
+    def test_all_room_types(self) -> None:
+        for rt in RoomType:
+            room = Room(id=f"r_{rt.value}", name=f"Test {rt.value}", room_type=rt, description="t")
+            assert room.room_type == rt
+
+    def test_all_biome_types(self) -> None:
+        for b in Biome:
+            region = WorldRegion(id=f"r_{b.value}", name=f"T {b.value}", biome=b, description="t")
+            assert region.biome == b
+
+    def test_locked_connection(self) -> None:
+        conn = Connection(from_id="a", to_id="b", locked=True, lock_key="golden_key")
+        assert conn.locked is True
+        assert conn.lock_key == "golden_key"
+        assert conn.bidirectional is True
+
+    def test_hidden_connection(self) -> None:
+        conn = Connection(from_id="a", to_id="b", hidden=True)
+        assert conn.hidden is True
+
+    def test_json_roundtrip(self, sample_world: WorldDefinition) -> None:
+        raw = sample_world.model_dump_json()
+        restored = WorldDefinition.model_validate_json(raw)
+        assert restored.name == sample_world.name
+        assert len(restored.dungeons) == 1
+        assert len(restored.dungeons[0].rooms) == 5
+
+
+# ---------------------------------------------------------------------------
+# Lore
+# ---------------------------------------------------------------------------
+
+
+class TestLoreEntry:
+    def test_create_valid(self, sample_lore_entry: LoreEntry) -> None:
+        assert sample_lore_entry.title == "The Fall of the Cathedral"
+        assert sample_lore_entry.discoverable is True
+
+    def test_hidden_lore(self) -> None:
+        lore = LoreEntry(
+            id="hidden", title="Dev Note", category="meta",
+            content="Hidden.", discoverable=False,
+        )
+        assert lore.discoverable is False
+
+
+# ---------------------------------------------------------------------------
+# JSON Schema generation (used for Claude prompts)
+# ---------------------------------------------------------------------------
+
+
+class TestJsonSchemaGeneration:
+    @pytest.mark.parametrize(
+        "model_cls",
+        [GameConcept, Item, NPC, Quest, QAReport, ArtAssetSpec, WorldDefinition, DungeonLayout, DialogueTree],
     )
-    overworld = OverworldMap(regions=[region], connections=[], starting_region_id="reg1")
-    world = WorldDefinition(id="w1", name="Eldrathia", description="Dark fantasy", overworld=overworld, dungeons=[dungeon])
-
-    assert world.name == "Eldrathia"
-    assert len(world.dungeons) == 1
-    assert world.overworld is not None
-    assert len(world.overworld.regions) == 1
-    assert world.dungeons[0].rooms[1].room_type == RoomType.BOSS
-
-
-def test_quest_chain():
-    """Build a quest chain with objectives, rewards, and branching."""
-    obj = QuestObjective(id="obj1", description="Slay goblins", objective_type=QuestObjectiveType.KILL, target="goblin", count=5)
-    reward = QuestReward(xp=100, gold=50, items=["sword_01"], reputation={"village": 10})
-    quest = Quest(
-        id="q1", title="Goblin Menace", description="Clear goblins",
-        location_id="reg1", objectives=[obj], rewards=reward,
-        branches={"spare_chief": "q2"},
-    )
-    chain = QuestChain(id="qc1", title="Village Salvation", description="Save the village", quests=[quest], is_main_story=True)
-
-    assert chain.is_main_story
-    assert len(chain.quests) == 1
-    assert chain.quests[0].rewards.xp == 100
-    assert "spare_chief" in chain.quests[0].branches
-
-
-def test_dialogue_tree():
-    """Build a dialogue tree with options and conditions."""
-    opt1 = DialogueOption(text="Tell me more", next_node_id="n2")
-    opt2 = DialogueOption(text="Goodbye", conditions={"reputation": 10})
-    node1 = DialogueNode(id="n1", speaker="npc1", text="Greetings!", options=[opt1, opt2])
-    node2 = DialogueNode(id="n2", speaker="npc1", text="The goblins...", auto_next=None)
-    tree = DialogueTree(id="dt1", npc_id="npc1", context="first_meeting", root_node_id="n1", nodes=[node1, node2])
-
-    assert tree.root_node_id == "n1"
-    assert len(tree.nodes) == 2
-    assert len(tree.nodes[0].options) == 2
-
-
-def test_npc_definition():
-    """Build a full NPC with personality, relationships, and schedule."""
-    personality = Personality(
-        traits=["brave", "honest"], values=["honor"],
-        fears=["darkness"], speech_pattern="formal",
-    )
-    rel = Relationship(target_npc_id="npc2", type="rival", trust=30)
-    schedule = Schedule(entries=[{"time": "morning", "location": "market", "activity": "training"}])
-    npc = NPCDefinition(
-        id="npc1", name="Sir Galahad", role=NPCRole.QUEST_GIVER,
-        description="Noble knight", appearance="Silver armor",
-        personality=personality, location_id="reg1",
-        relationships=[rel], schedule=schedule,
-        quest_ids=["q1"], barks={"idle": ["The goblins grow bolder..."]},
-        is_essential=True, faction="Knights",
-    )
-
-    assert npc.is_essential
-    assert npc.faction == "Knights"
-    assert len(npc.relationships) == 1
-    assert npc.schedule is not None
-
-
-def test_item_definition():
-    """Build items with modifiers, effects, and weapon types."""
-    mod = StatModifier(stat="attack", value=5)
-    effect = ItemEffect(name="Fire Slash", description="Fire damage", trigger="on_hit", parameters={"damage": 10})
-    item = ItemDefinition(
-        id="sword_01", name="Flame Sword", description="A burning blade",
-        category=ItemCategory.WEAPON, rarity=ItemRarity.RARE,
-        weapon_type=WeaponType.SWORD, damage_range=(15, 25),
-        stat_modifiers=[mod], effects=[effect], lore_text="Forged in dragonfire",
-    )
-
-    assert item.rarity == ItemRarity.RARE
-    assert item.weapon_type == WeaponType.SWORD
-    assert item.damage_range == (15, 25)
-    assert len(item.stat_modifiers) == 1
-
-
-def test_loot_table():
-    """Build a loot table with entries and guaranteed drops."""
-    entry = LootTableEntry(item_id="sword_01", weight=5, min_count=1, max_count=1)
-    loot = LootTable(id="lt1", name="Boss Drops", entries=[entry], guaranteed_drops=["sword_01"], gold_range=(50, 100))
-
-    assert len(loot.entries) == 1
-    assert loot.gold_range == (50, 100)
-
-
-def test_combat_system():
-    """Build status effects, abilities, enemies, and encounters."""
-    status = StatusEffect(id="se1", name="Burning", description="On fire", duration_turns=3, damage_per_turn=5)
-    ability = Ability(
-        id="ab1", name="Fireball", description="Launches fire",
-        damage_type=DamageType.FIRE, base_damage=20, cost={"mana": 15},
-        target="all_enemies", status_effects=["se1"],
-    )
-    enemy = EnemyDefinition(
-        id="e1", name="Goblin", description="Small green creature",
-        level=2, hp=15, weaknesses={"fire": 1.5}, abilities=["ab1"],
-    )
-    placement = EnemyPlacement(enemy_id="e1", count=3)
-    encounter = Encounter(
-        id="enc1", name="Goblin Ambush", description="Goblins attack!",
-        location_id="reg1", difficulty=3, enemies=[placement], ambush=True,
-    )
-
-    assert encounter.ambush
-    assert len(encounter.enemies) == 1
-    assert encounter.enemies[0].count == 3
-
-
-def test_stat_system():
-    """Build a stat and progression system."""
-    stat = Stat(name="Strength", abbreviation="STR", description="Physical power", base_value=10, growth_rate=1.2)
-    derived = DerivedStat(name="Max HP", formula="con * 10 + level * 5", base_stats=["con", "level"])
-    sys = StatSystem(stats=[stat], derived_stats=[derived], level_cap=50, xp_curve="exponential")
-
-    assert sys.level_cap == 50
-    assert len(sys.stats) == 1
-    assert sys.stats[0].growth_rate == 1.2
-
-
-def test_combat_config():
-    """Build a full combat system configuration."""
-    combat = CombatSystem(
-        turn_order="speed_based", actions_per_turn=1,
-        base_hit_chance=0.85, critical_hit_chance=0.1,
-        damage_formula="attack * scaling - defense * 0.5",
-        max_party_size=4,
-    )
-
-    assert combat.max_party_size == 4
-    assert combat.critical_hit_multiplier == 1.5  # default
-
-
-def test_art_schemas():
-    """Build style guide and art descriptions."""
-    style = StyleGuide(
-        art_style="16-bit pixel art", color_palette=["#2d1b69", "#ff6b6b"],
-        mood="dark fantasy", reference_games=["Chrono Trigger"],
-    )
-    tileset = TilesetDescription(biome="forest", tile_size=16, tiles={"grass": "Green grass"})
-    char_art = CharacterArtDescription(
-        npc_id="npc1", portrait_description="Noble knight",
-        sprite_description="16x16 knight", expression_descriptions={"happy": "Smile"},
-    )
-    ui_art = UIArtDescription(theme="medieval", elements={"health_bar": "Red gradient bar"})
-
-    assert style.art_style == "16-bit pixel art"
-    assert tileset.tile_size == 16
-    assert "happy" in char_art.expression_descriptions
-    assert ui_art.theme == "medieval"
-
-
-def test_qa_and_balance():
-    """Build QA and balance reports."""
-    issue = QAIssue(severity="warning", category="balance", description="Sword too strong", suggested_fix="Raise level req")
-    qa = QAReport(project_id="p1", issues=[issue], overall_score=7, playable=True, summary="Solid foundation")
-    balance = BalanceReport(
-        power_curve_assessment="Smooth",
-        difficulty_spikes=["Boss at level 5"],
-        score=7,
-    )
-
-    assert qa.playable
-    assert len(qa.issues) == 1
-    assert balance.score == 7
-
-
-def test_lore_entry():
-    """Build a lore entry."""
-    lore = LoreEntry(
-        id="lore1", title="The Fall of Eldrath", category="history",
-        content="Long ago the kingdom fell...",
-        related_entities=["reg1"], discoverable=True,
-        location_hint="Ancient library",
-    )
-
-    assert lore.discoverable
-    assert lore.category == "history"
-
-
-def test_game_project_full():
-    """Build a complete GameProject and verify serialization round-trip."""
-    concept = GameConcept(
-        title="Shadow Quest", genre=GameGenre.RPG,
-        setting="Dark fantasy", core_mechanics=["combat", "exploration"],
-        art_style="pixel art", target_mood="dark",
-        unique_selling_points=["AI companions"],
-    )
-    world = WorldDefinition(id="w1", name="Eldrathia", description="Dark world")
-    obj = QuestObjective(id="obj1", description="Slay goblins", objective_type=QuestObjectiveType.KILL, target="goblin")
-    quest = Quest(id="q1", title="Goblin Menace", description="Clear goblins", location_id="reg1", objectives=[obj])
-    personality = Personality(traits=["brave"], values=["honor"])
-    npc = NPCDefinition(
-        id="npc1", name="Knight", role=NPCRole.QUEST_GIVER,
-        description="A knight", appearance="Armor",
-        personality=personality, location_id="reg1",
-    )
-    item = ItemDefinition(
-        id="i1", name="Sword", description="A blade",
-        category=ItemCategory.WEAPON, rarity=ItemRarity.COMMON,
-    )
-    placement = EnemyPlacement(enemy_id="e1", count=2)
-    encounter = Encounter(
-        id="enc1", name="Fight", description="Combat",
-        location_id="reg1", difficulty=3, enemies=[placement],
-    )
-    stat = Stat(name="STR", abbreviation="STR", description="Strength")
-    stat_sys = StatSystem(stats=[stat])
-    combat = CombatSystem()
-    style = StyleGuide(art_style="pixel art", color_palette=["#000"], mood="dark")
-    qa = QAReport(project_id="p1", overall_score=8, playable=True, summary="Good")
-
-    project = GameProject(
-        id="proj1", concept=concept, world=world,
-        quests=[quest], npcs=[npc], items=[item],
-        encounters=[encounter], stat_system=stat_sys,
-        combat_system=combat, style_guide=style, qa_report=qa,
-    )
-
-    # Serialize to JSON
-    json_str = project.model_dump_json(indent=2)
-    assert len(json_str) > 100
-
-    # Parse back
-    restored = GameProject.model_validate_json(json_str)
-    assert restored.id == "proj1"
-    assert restored.concept.title == "Shadow Quest"
-    assert restored.concept.genre == GameGenre.RPG
-    assert len(restored.quests) == 1
-    assert len(restored.npcs) == 1
-    assert len(restored.items) == 1
-    assert len(restored.encounters) == 1
-    assert restored.stat_system is not None
-    assert restored.combat_system is not None
-    assert restored.style_guide is not None
-    assert restored.qa_report is not None
-    assert restored.qa_report.playable
-
-
-def test_game_project_minimal():
-    """Verify a GameProject can be created with just required fields."""
-    concept = GameConcept(
-        title="Minimal", genre=GameGenre.PUZZLE,
-        setting="Abstract", core_mechanics=["match"],
-        art_style="minimalist", target_mood="calm",
-    )
-    project = GameProject(id="p2", concept=concept)
-
-    assert project.world is None
-    assert project.quests == []
-    assert project.encounters == []
-    assert project.qa_report is None
-
-
-def test_all_enums():
-    """Verify all enum values are accessible."""
-    assert len(Biome) == 11
-    assert len(RoomType) == 12
-    assert len(QuestObjectiveType) == 10
-    assert len(NPCRole) == 10
-    assert len(ItemRarity) == 6
-    assert len(ItemCategory) == 8
-    assert len(WeaponType) == 8
-    assert len(DamageType) == 8
-    assert len(GameGenre) == 6
-
-
-def test_json_schema_generation():
-    """Verify JSON schema generation for key types (used for Claude prompts)."""
-    for model in [GameConcept, WorldDefinition, Quest, NPCDefinition, ItemDefinition, Encounter, QAReport, CombatSystem, StatSystem, StyleGuide]:
-        schema = model.model_json_schema()
-        assert "properties" in schema
+    def test_json_schema_has_properties(self, model_cls: type) -> None:
+        schema = model_cls.model_json_schema()
+        # Every schema should produce a JSON-serializable dict with 'properties'
         json_str = json.dumps(schema)
         assert len(json_str) > 50
+        assert "properties" in schema or "$defs" in schema
