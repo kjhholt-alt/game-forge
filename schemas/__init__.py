@@ -1,45 +1,145 @@
 """Game schema definitions for GameForge.
 
 All Pydantic models that define the structure of game worlds,
-characters, items, quests, and other game entities.
+characters, items, quests, combat, and other game entities.
+
+Every model is re-exported here for convenience::
+
+    from schemas import WorldDefinition, Quest, NPCDefinition
 """
 
-from schemas.game import (
-    ArtAssetSpec,
-    DialogueLine,
-    DialogueNode,
-    GameConcept,
-    GameProject,
-    Item,
-    ItemType,
-    NPC,
-    NPCDisposition,
-    Quest,
-    QuestObjective,
-    QuestType,
-    QAReport,
-    QAIssue,
-    IssueSeverity,
+# -- World & level structure ------------------------------------------------
+from schemas.world import (
+    Biome,
+    Connection,
+    DungeonLayout,
+    OverworldMap,
     Region,
+    Room,
+    RoomType,
     WorldDefinition,
 )
 
+# -- Quest & narrative ------------------------------------------------------
+from schemas.quest import (
+    DialogueNode,
+    DialogueOption,
+    DialogueTree,
+    LoreEntry,
+    Quest,
+    QuestChain,
+    QuestObjective,
+    QuestObjectiveType,
+    QuestReward,
+)
+
+# -- NPCs ------------------------------------------------------------------
+from schemas.npc import (
+    NPCDefinition,
+    NPCRole,
+    NPCStats,
+    Personality,
+    Relationship,
+    Schedule,
+)
+
+# -- Items ------------------------------------------------------------------
+from schemas.item import (
+    ItemCategory,
+    ItemDefinition,
+    ItemEffect,
+    ItemRarity,
+    LootTable,
+    LootTableEntry,
+    StatModifier,
+    WeaponType,
+)
+
+# -- Combat, stats, art, QA ------------------------------------------------
+from schemas.combat import (
+    Ability,
+    BalanceReport,
+    CharacterArtDescription,
+    CombatSystem,
+    DamageType,
+    DerivedStat,
+    Encounter,
+    EnemyDefinition,
+    EnemyPlacement,
+    QAIssue,
+    QAReport,
+    Stat,
+    StatSystem,
+    StatusEffect,
+    StyleGuide,
+    TilesetDescription,
+    UIArtDescription,
+)
+
+# -- Project-level ----------------------------------------------------------
+from schemas.project import (
+    GameConcept,
+    GameGenre,
+    GameProject,
+)
+
+
 __all__ = [
-    "ArtAssetSpec",
-    "DialogueLine",
-    "DialogueNode",
-    "GameConcept",
-    "GameProject",
-    "Item",
-    "ItemType",
-    "NPC",
-    "NPCDisposition",
-    "Quest",
-    "QuestObjective",
-    "QuestType",
-    "QAReport",
-    "QAIssue",
-    "IssueSeverity",
+    # world
+    "Biome",
+    "Connection",
+    "DungeonLayout",
+    "OverworldMap",
     "Region",
+    "Room",
+    "RoomType",
     "WorldDefinition",
+    # quest
+    "DialogueNode",
+    "DialogueOption",
+    "DialogueTree",
+    "LoreEntry",
+    "Quest",
+    "QuestChain",
+    "QuestObjective",
+    "QuestObjectiveType",
+    "QuestReward",
+    # npc
+    "NPCDefinition",
+    "NPCRole",
+    "NPCStats",
+    "Personality",
+    "Relationship",
+    "Schedule",
+    # item
+    "ItemCategory",
+    "ItemDefinition",
+    "ItemEffect",
+    "ItemRarity",
+    "LootTable",
+    "LootTableEntry",
+    "StatModifier",
+    "WeaponType",
+    # combat
+    "Ability",
+    "BalanceReport",
+    "CharacterArtDescription",
+    "CombatSystem",
+    "DamageType",
+    "DerivedStat",
+    "Encounter",
+    "EnemyDefinition",
+    "EnemyPlacement",
+    "QAIssue",
+    "QAReport",
+    "Stat",
+    "StatSystem",
+    "StatusEffect",
+    "StyleGuide",
+    "TilesetDescription",
+    "UIArtDescription",
+    # project
+    "GameConcept",
+    "GameGenre",
+    "GameProject",
 ]

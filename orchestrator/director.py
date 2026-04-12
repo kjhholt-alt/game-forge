@@ -17,16 +17,17 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from orchestrator.config import AgentRole, GameConfig, GameGenre
+from orchestrator.config import AgentRole, GameConfig
 from orchestrator.prompts import ROLE_PROMPTS
-from schemas.game import (
-    ArtAssetSpec,
+from schemas import (
     GameConcept,
+    GameGenre,
     GameProject,
-    Item,
-    NPC,
+    ItemDefinition,
+    NPCDefinition,
     QAReport,
     Quest,
+    StyleGuide,
     WorldDefinition,
 )
 
