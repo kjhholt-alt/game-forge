@@ -67,6 +67,68 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
+[sub_resource type="StyleBoxFlat" id="panel_normal"]
+bg_color = Color(0.04, 0.05, 0.07, 0.95)
+border_color = Color(0.12, 0.15, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="lineedit_normal"]
+bg_color = Color(0.03, 0.035, 0.05, 0.95)
+border_color = Color(0.12, 0.15, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="lineedit_focus"]
+bg_color = Color(0.04, 0.045, 0.06, 0.95)
+border_color = Color(0.3, 0.5, 0.8, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="scrollbar_bg"]
+bg_color = Color(0.04, 0.045, 0.06, 0.5)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="scrollbar_grab"]
+bg_color = Color(0.15, 0.18, 0.25, 0.8)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [resource]
 default_font_size = 14
 
@@ -81,3 +143,15 @@ Label/colors/font_color = Color(0.7, 0.75, 0.8, 1)
 
 ProgressBar/styles/background = SubResource("progress_bg")
 ProgressBar/styles/fill = SubResource("progress_fill")
+
+PanelContainer/styles/panel = SubResource("panel_normal")
+
+LineEdit/styles/normal = SubResource("lineedit_normal")
+LineEdit/styles/focus = SubResource("lineedit_focus")
+LineEdit/colors/font_color = Color(0.8, 0.83, 0.87, 1)
+LineEdit/colors/font_placeholder_color = Color(0.35, 0.4, 0.45, 1)
+LineEdit/colors/caret_color = Color(0.2, 0.9, 0.4, 1)
+
+VScrollBar/styles/scroll = SubResource("scrollbar_bg")
+VScrollBar/styles/grabber = SubResource("scrollbar_grab")
+VScrollBar/styles/grabber_highlight = SubResource("scrollbar_grab")

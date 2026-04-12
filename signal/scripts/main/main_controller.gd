@@ -256,8 +256,20 @@ func _unhandled_input(event: InputEvent) -> void:
 					_enter_blacksite_phase()
 			KEY_ESCAPE:
 				if GameState.current_phase == "blacksite":
-					# Emergency extract — lower grade
 					_enter_debrief_phase("extract")
+			KEY_SLASH:
+				# ? key — ask handler for advice
+				_ask_for_advice()
+
+
+func _ask_for_advice() -> void:
+	VoiceHandler.speak("Analyzing situation...")
+	ClaudeDM.get_advice(_build_game_state(), func(ai_text: String):
+		if not ai_text.is_empty():
+			VoiceHandler.speak(ai_text)
+		else:
+			VoiceHandler.speak("No advisory available.")
+	)
 
 
 # ===========================================================================
@@ -358,7 +370,13 @@ func _on_blip_clicked(blip_id: String) -> void:
 		if td.is_empty():
 			return
 		tactical_map.classify_blip(blip_id, td.get("type", "hostile"), td.get("label", "TARGET"))
-		VoiceHandler.speak(td.get("handler_classify", "Target classified."))
+
+		# Claude intel assessment — or fall back to pre-written line
+		var fallback_line: String = td.get("handler_classify", "Target classified.")
+		ClaudeDM.get_intel_assessment(td, _build_game_state(), func(ai_text: String):
+			VoiceHandler.speak(ai_text if not ai_text.is_empty() else fallback_line)
+		)
+
 		Juice.float_text(
 			tactical_map, td.get("label", ""),
 			tactical_map._world_to_screen(blip.pos) + Vector2(0, -30),
@@ -366,7 +384,7 @@ func _on_blip_clicked(blip_id: String) -> void:
 		)
 
 	elif blip.blip_type == "asset" and not blip.busy:
-		VoiceHandler.speak("Drag %s to a target to assign." % blip.label)
+		VoiceHandler.speak("Drag %s to a target." % blip.label)
 
 
 func _on_coa_requested(blip_id: String) -> void:
@@ -417,7 +435,11 @@ func _start_tactical_mission(target_id: String, coa_id: String, asset_id: String
 	var det_cost: float = DETECTION_COSTS.get(coa_id, 0.05)
 	OpState.add_detection(coa_id)
 
-	VoiceHandler.speak(coa.get("handler_assign", "Asset assigned."))
+	# Claude handler commentary — or fall back to pre-written line
+	var fallback_assign: String = coa.get("handler_assign", "Asset assigned.")
+	ClaudeDM.get_handler_commentary("assign", _build_game_state(), func(ai_text: String):
+		VoiceHandler.speak(ai_text if not ai_text.is_empty() else fallback_assign)
+	)
 
 	var speed: float = _assets.get(asset_id, {}).get("speed", 0.4)
 	tactical_map.move_asset(asset_id, target_id, speed)
@@ -708,3 +730,38 @@ func _find_free_asset() -> String:
 		if not tactical_map.is_asset_busy(aid):
 			return aid
 	return ""
+
+
+func _build_game_state() -> Dictionary:
+	var targets_info := []
+	for t in _mission_data.get("targets", []):
+		var tid: String = t.get("id", "")
+		var blip = tactical_map.get_blip(tid)
+		var status := "unknown"
+		if blip:
+			status = blip.blip_type
+		targets_info.append({
+			"id": tid,
+			"label": t.get("label", ""),
+			"status": status,
+		})
+
+	var assets_info := []
+	for aid in _assets:
+		assets_info.append({
+			"id": aid,
+			"label": _assets[aid].get("label", ""),
+			"busy": tactical_map.is_asset_busy(aid),
+		})
+
+	return {
+		"codename": _mission_data.get("codename", ""),
+		"phase": GameState.current_phase,
+		"detection": OpState.detection_value,
+		"budget": _budget,
+		"targets_neutralized": _targets_neutralized,
+		"total_targets": _total_targets,
+		"targets": targets_info,
+		"assets": assets_info,
+		"active_missions": _active_missions.size(),
+	}

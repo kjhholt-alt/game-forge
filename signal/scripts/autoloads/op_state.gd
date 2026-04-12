@@ -187,3 +187,64 @@ func exfiltrate_file(file_id: String) -> void:
 	if file_id not in exfiltrated_files:
 		exfiltrated_files.append(file_id)
 		EventBus.file_exfiltrated.emit(file_id)
+
+
+func get_network_data() -> Dictionary:
+	var op: Dictionary = GameState.get_current_operation()
+	return op.get("blacksite_target", {}).get("network", {})
+
+
+func get_employees() -> Array:
+	var op: Dictionary = GameState.get_current_operation()
+	return op.get("blacksite_target", {}).get("employees", [])
+
+
+func get_employee(emp_id: String) -> Dictionary:
+	for emp in get_employees():
+		if emp.get("id", "") == emp_id:
+			return emp
+	return {}
+
+
+func get_host_by_ip(ip: String) -> Dictionary:
+	var net: Dictionary = get_network_data()
+	for host in net.get("hosts", []):
+		if host.get("ip", "") == ip:
+			return host
+	return {}
+
+
+func get_host_by_id(host_id: String) -> Dictionary:
+	var net: Dictionary = get_network_data()
+	for host in net.get("hosts", []):
+		if host.get("id", "") == host_id:
+			return host
+	return {}
+
+
+func check_credentials(username: String, password: String, host_id: String) -> bool:
+	var host: Dictionary = get_host_by_id(host_id)
+	for cred in host.get("credentials", []):
+		if cred.get("username", "") == username and cred.get("password", "") == password:
+			return true
+	# Also check found credentials
+	for cred in found_credentials:
+		if cred.get("username", "") == username and cred.get("password", "") == password:
+			if cred.get("host_id", "") == host_id or host_id.is_empty():
+				return true
+	return false
+
+
+func discover_host(ip: String) -> void:
+	var host: Dictionary = get_host_by_ip(ip)
+	if not host.is_empty() and host.get("id", "") not in discovered_hosts:
+		discovered_hosts[host.get("id", "")] = host
+
+
+func is_exploited(host_id: String) -> bool:
+	return discovered_hosts.has(host_id) and discovered_hosts[host_id].get("_exploited", false)
+
+
+func mark_exploited(host_id: String) -> void:
+	if discovered_hosts.has(host_id):
+		discovered_hosts[host_id]["_exploited"] = true

@@ -23,6 +23,7 @@ GameState="*res://scripts/autoloads/game_state.gd"
 OpState="*res://scripts/autoloads/op_state.gd"
 VoiceHandler="*res://scripts/autoloads/voice_handler.gd"
 Juice="*res://scripts/ui/juice.gd"
+ClaudeDM="*res://scripts/systems/claude_dm.gd"
 
 [display]
 
