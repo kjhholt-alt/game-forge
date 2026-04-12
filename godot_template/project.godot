@@ -12,6 +12,7 @@ config/features=PackedStringArray("4.6")
 
 GameState="*res://scripts/game_state.gd"
 EventBus="*res://scripts/event_bus.gd"
+MCPServer="*res://scripts/mcp_server.gd"
 
 [display]
 
