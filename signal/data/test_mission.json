@@ -1,0 +1,114 @@
+{
+  "codename": "MERIDIAN SHADOW",
+  "budget": 50000,
+  "base_x": 100,
+  "base_y": 400,
+  "handler_open": "New operation. We've got three contacts on the board. Click them to classify.",
+  "targets": [
+    {
+      "id": "tgt-convoy",
+      "x": 500,
+      "y": 200,
+      "type": "hostile",
+      "label": "CONVOY",
+      "handler_detect": "Movement detected, sector 7.",
+      "handler_classify": "Three vehicles heading east. Appears to be an arms shipment.",
+      "handler_coa": "Three options for the convoy.",
+      "handler_resolve": "Convoy intercepted. Good work.",
+      "coas": [
+        {
+          "id": "surveil",
+          "label": "Surveil",
+          "risk": 0.2,
+          "handler_assign": "Drone deployed for surveillance."
+        },
+        {
+          "id": "intercept",
+          "label": "Intercept",
+          "risk": 0.5,
+          "handler_assign": "Alpha team moving to intercept."
+        },
+        {
+          "id": "strike",
+          "label": "Strike",
+          "risk": 0.8,
+          "handler_assign": "Air strike authorized. Weapons hot."
+        }
+      ]
+    },
+    {
+      "id": "tgt-compound",
+      "x": 700,
+      "y": 350,
+      "type": "hostile",
+      "label": "COMPOUND",
+      "handler_detect": "Thermal signature, south sector.",
+      "handler_classify": "Fortified compound. Possible command post.",
+      "handler_coa": "High value target. Choose carefully.",
+      "handler_resolve": "Compound secured. Intel recovered.",
+      "coas": [
+        {
+          "id": "surveil",
+          "label": "Surveil",
+          "risk": 0.1,
+          "handler_assign": "Eyes on the compound. Monitoring."
+        },
+        {
+          "id": "hack",
+          "label": "Hack",
+          "risk": 0.4,
+          "handler_assign": "Cyber team accessing their network."
+        },
+        {
+          "id": "capture",
+          "label": "Capture",
+          "risk": 0.7,
+          "handler_assign": "Bravo team moving in for capture."
+        }
+      ]
+    },
+    {
+      "id": "tgt-signal",
+      "x": 350,
+      "y": 120,
+      "type": "hostile",
+      "label": "SIGINT HIT",
+      "handler_detect": "Signal intercept, unknown origin.",
+      "handler_classify": "Encrypted comms. Someone's coordinating.",
+      "handler_coa": "We need to trace this signal.",
+      "handler_resolve": "Signal traced. Source identified.",
+      "coas": [
+        {
+          "id": "surveil",
+          "label": "Monitor",
+          "risk": 0.15,
+          "handler_assign": "Monitoring the frequency."
+        },
+        {
+          "id": "jam",
+          "label": "Jam",
+          "risk": 0.5,
+          "handler_assign": "Jamming their comms. They'll know we're here."
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset-drone",
+      "label": "REAPER",
+      "type": "drone",
+      "speed": 0.5,
+      "stealth": 0.8,
+      "firepower": 0.3
+    },
+    {
+      "id": "asset-alpha",
+      "label": "ALPHA",
+      "type": "ground",
+      "speed": 0.3,
+      "stealth": 0.5,
+      "firepower": 0.7
+    }
+  ]
+}

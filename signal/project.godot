@@ -11,18 +11,16 @@ config_version=5
 [application]
 
 config/name="SIGNAL"
-config/description="Intelligence analyst roguelike. Zero Dark Thirty meets Hacknet."
-config/tags=PackedStringArray("intelligence", "roguelike", "hacking")
-run/main_scene="res://scenes/main/main.tscn"
+config/description="Tactical war room. Click targets. Handler speaks. Zero reading."
+run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameState="*res://scripts/autoloads/game_state.gd"
 EventBus="*res://scripts/autoloads/event_bus.gd"
-OpState="*res://scripts/autoloads/op_state.gd"
-HintSystem="*res://scripts/systems/hint_system.gd"
+VoiceHandler="*res://scripts/autoloads/voice_handler.gd"
+Juice="*res://scripts/ui/juice.gd"
 
 [display]
 
@@ -34,10 +32,10 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://assets/themes/dashboard_dark.tres"
+theme/custom="res://assets/themes/war_room.tres"
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-environment/defaults/default_clear_color=Color(0.05, 0.06, 0.08, 1)
+environment/defaults/default_clear_color=Color(0.03, 0.035, 0.05, 1)

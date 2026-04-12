@@ -154,6 +154,12 @@ class EvidenceItem(BaseModel):
         default_factory=list,
         description="IDs of evidence/targets this clue points to (hidden from player)",
     )
+    # Visual tags — the key facts displayed prominently on the card
+    tags: list[str] = Field(
+        default_factory=list,
+        description="Key terms shown as visual pins: names, amounts, locations, dates. These are the puzzle pieces.",
+    )
+    tag_color: str = ""  # Optional override color for tags
     # Player state
     discovered: bool = False
     pinned: bool = False

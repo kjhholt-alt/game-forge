@@ -1,0 +1,157 @@
+[gd_scene format=3 uid="uid://warroom001"]
+
+[ext_resource type="Script" path="res://scripts/main/main_controller.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/map/tactical_map.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/coa_cards.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/crt_overlay.gd" id="5"]
+
+[sub_resource type="StyleBoxFlat" id="hud_bar_bg"]
+bg_color = Color(0.04, 0.045, 0.06, 0.9)
+border_color = Color(0.1, 0.13, 0.18, 1)
+border_width_bottom = 1
+content_margin_left = 16.0
+content_margin_top = 6.0
+content_margin_right = 16.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="subtitle_bg"]
+bg_color = Color(0.04, 0.045, 0.06, 0.8)
+border_color = Color(0.1, 0.15, 0.2, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="det_bar_bg"]
+bg_color = Color(0.06, 0.07, 0.1, 1)
+border_color = Color(0.12, 0.15, 0.2, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="TacticalMap" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2")
+
+[node name="HUD" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3")
+
+[node name="TopBar" type="PanelContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 38.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("hud_bar_bg")
+
+[node name="HBox" type="HBoxContainer" parent="HUD/TopBar"]
+layout_mode = 2
+
+[node name="Codename" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+offset_left = 16.0
+offset_top = 8.0
+theme_override_colors/font_color = Color(0.75, 0.8, 0.85, 1)
+theme_override_font_sizes/font_size = 15
+text = "---"
+
+[node name="Spacer1" type="Control" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.45, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+text = "DETECTION"
+
+[node name="DetectionBar" type="ProgressBar" parent="HUD/TopBar"]
+layout_mode = 2
+custom_minimum_size = Vector2(160, 14)
+theme_override_styles/background = SubResource("det_bar_bg")
+max_value = 1.0
+show_percentage = false
+
+[node name="Spacer2" type="Control" parent="HUD/TopBar"]
+layout_mode = 2
+custom_minimum_size = Vector2(24, 0)
+
+[node name="BudgetLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "$50K"
+
+[node name="SubtitleBar" type="PanelContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -280.0
+offset_top = -60.0
+offset_right = 280.0
+offset_bottom = -16.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("subtitle_bg")
+mouse_filter = 2
+
+[node name="SubtitleText" type="Label" parent="HUD/SubtitleBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="COACards" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4")
+
+[node name="CRTOverlay" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5")

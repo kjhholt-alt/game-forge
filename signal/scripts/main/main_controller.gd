@@ -1,164 +1,177 @@
-## Main controller — bootstraps the game and manages top-level flow.
+## Main controller — loads mission, drops player on the tactical map instantly.
 ##
-## Loads the test campaign, presents the briefing, then hands off
-## to the dashboard for SIGNAL -> BLACKSITE -> Debrief.
+## No boot. No briefing wall. Map appears. Blips pulse. Handler speaks.
+## Player clicks. That's the game.
 extends Control
 
 
-@onready var briefing_panel: Control = $BriefingPanel
-@onready var briefing_codename: Label = $BriefingPanel/VBox/Codename
-@onready var briefing_summary: RichTextLabel = $BriefingPanel/VBox/Summary
-@onready var briefing_objectives: RichTextLabel = $BriefingPanel/VBox/Objectives
-@onready var briefing_warnings: RichTextLabel = $BriefingPanel/VBox/Warnings
-@onready var briefing_handler: RichTextLabel = $BriefingPanel/VBox/HandlerNotes
-@onready var start_button: Button = $BriefingPanel/VBox/StartButton
+@onready var tactical_map: Control = $TacticalMap
+@onready var hud: Control = $HUD
+@onready var coa_cards: Control = $COACards
 
-@onready var dashboard: Control = $Dashboard
-@onready var debrief: Control = $Debrief
+var _mission_data: Dictionary = {}
+var _assets: Dictionary = {}  # id -> asset data
 
-# Screen flash overlay for detection events
-var _flash_rect: ColorRect = null
-
-const TEST_CAMPAIGN_PATH := "res://data/test_campaign.json"
+const TEST_MISSION_PATH := "res://data/test_mission.json"
 
 
 func _ready() -> void:
-	start_button.pressed.connect(_on_start_pressed)
-	EventBus.debrief_complete.connect(_on_debrief_complete)
-	EventBus.phase_changed.connect(_on_phase_changed)
-	EventBus.detection_changed.connect(_on_detection_flash)
-	EventBus.analyst_burned.connect(_on_burn_flash)
+	EventBus.blip_clicked.connect(_on_blip_clicked)
+	EventBus.coa_requested.connect(_on_coa_requested)
+	EventBus.coa_selected.connect(_on_coa_selected)
+	EventBus.asset_arrived.connect(_on_asset_arrived)
 
-	# Create screen flash overlay (always on top)
-	_flash_rect = ColorRect.new()
-	_flash_rect.anchors_preset = Control.PRESET_FULL_RECT
-	_flash_rect.color = Color(0, 0, 0, 0)
-	_flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_flash_rect)
-	move_child(_flash_rect, get_child_count() - 1)
+	_load_mission()
 
-	# Hide everything until boot completes
-	briefing_panel.visible = false
-	dashboard.visible = false
 
-	var boot := get_node_or_null("BootSequence")
-	if boot:
-		boot.boot_complete.connect(func():
-			_load_campaign()
+func _load_mission() -> void:
+	var file := FileAccess.open(TEST_MISSION_PATH, FileAccess.READ)
+	if not file:
+		push_error("Failed to load mission: %s" % TEST_MISSION_PATH)
+		return
+
+	var json := JSON.new()
+	var err := json.parse(file.get_as_text())
+	file.close()
+	if err != OK:
+		push_error("JSON parse error: %s" % json.get_error_message())
+		return
+
+	_mission_data = json.data
+
+	# Set HUD
+	hud.set_codename(_mission_data.get("codename", "UNKNOWN"))
+	EventBus.budget_changed.emit(_mission_data.get("budget", 50000))
+
+	# Spawn target blips
+	for target in _mission_data.get("targets", []):
+		var pos := Vector2(target.get("x", 0), target.get("y", 0))
+		tactical_map.add_blip(
+			target.get("id", ""),
+			pos,
+			"unknown",
+			"?",
+			target.get("handler_detect", "Contact detected."),
 		)
-	else:
-		_load_campaign()
+
+	# Spawn asset blips at base
+	var base_pos := Vector2(
+		_mission_data.get("base_x", 100),
+		_mission_data.get("base_y", 400),
+	)
+	for asset in _mission_data.get("assets", []):
+		var asset_id: String = asset.get("id", "")
+		tactical_map.add_blip(asset_id, base_pos, "asset", asset.get("label", "UNIT"))
+		_assets[asset_id] = asset
+		base_pos.x += 40  # Stagger asset positions
+
+	# Handler opens the mission
+	await get_tree().create_timer(0.5).timeout
+	VoiceHandler.speak(_mission_data.get("handler_open", "New operation. Targets on screen."))
 
 
-func _input(event: InputEvent) -> void:
-	# Escape key — close SE chat if open, or disconnect terminal
-	if event.is_action_pressed("ui_cancel"):
-		if GameState.current_phase == "blacksite":
-			if $SEChat.visible:
-				$SEChat.visible = false
-			elif OpState.connected_host_id != "":
-				OpState.connected_host_id = ""
-
-	# Enter key on briefing screen
-	if event.is_action_pressed("ui_accept") and briefing_panel.visible:
-		_on_start_pressed()
-
-
-func _load_campaign() -> void:
-	var success := GameState.load_campaign(TEST_CAMPAIGN_PATH)
-	if not success:
-		push_error("Failed to load test campaign!")
+func _on_blip_clicked(blip_id: String) -> void:
+	var blip = tactical_map.get_blip(blip_id)
+	if not blip:
 		return
 
-	var op: Dictionary = GameState.get_current_operation()
-	if op.is_empty():
-		push_error("No operations in campaign!")
+	# If it's an unclassified target, classify it on click
+	if blip.blip_type == "unknown":
+		var target_data := _find_target(blip_id)
+		if target_data.is_empty():
+			return
+
+		# Classify the blip
+		tactical_map.classify_blip(
+			blip_id,
+			target_data.get("type", "hostile"),
+			target_data.get("label", "TARGET"),
+		)
+
+		# Handler speaks the classification
+		var line: String = target_data.get("handler_classify", "Target classified.")
+		VoiceHandler.speak(line)
+
+		# Juice
+		Juice.float_text(tactical_map, target_data.get("label", ""), tactical_map._world_to_screen(blip.pos) + Vector2(0, -30), Color(0.9, 0.6, 0.1))
+
+
+func _on_coa_requested(blip_id: String) -> void:
+	var target_data := _find_target(blip_id)
+	if target_data.is_empty():
 		return
 
-	_show_briefing(op)
-
-
-func _show_briefing(op: Dictionary) -> void:
-	briefing_panel.visible = true
-	dashboard.visible = false
-	debrief.visible = false
-
-	var briefing: Dictionary = op.get("briefing", {})
-
-	briefing_codename.text = "OPERATION: %s" % briefing.get("codename", "UNKNOWN")
-
-	briefing_summary.text = briefing.get("summary", "No summary available.")
-
-	var obj_text := "[b][color=#6699cc]OBJECTIVES:[/color][/b]\n"
-	for obj in briefing.get("objectives", []):
-		obj_text += "  [color=#aabbcc]>[/color] %s\n" % obj
-	briefing_objectives.text = obj_text
-
-	var warn_text := ""
-	var warnings: Array = briefing.get("warnings", [])
-	if not warnings.is_empty():
-		warn_text = "[b][color=#cc8844]WARNINGS:[/color][/b]\n"
-		for w in warnings:
-			warn_text += "  [color=#cc8844]![/color] %s\n" % w
-	briefing_warnings.text = warn_text
-
-	var handler_notes: String = briefing.get("handler_notes", "")
-	if handler_notes:
-		briefing_handler.text = "[color=#667788][i]HANDLER: %s[/i][/color]" % handler_notes
-	else:
-		briefing_handler.text = ""
-
-	GameState.set_phase("briefing")
-
-
-func _on_start_pressed() -> void:
-	briefing_panel.visible = false
-	dashboard.visible = true
-
-	var op: Dictionary = GameState.get_current_operation()
-	dashboard.load_operation(op)
-
-
-func _on_phase_changed(new_phase: String) -> void:
-	match new_phase:
-		"debrief":
-			pass
-
-
-func _on_debrief_complete(_result: Dictionary) -> void:
-	briefing_panel.visible = true
-	dashboard.visible = false
-	debrief.visible = false
-
-	briefing_codename.text = "OPERATION COMPLETE"
-	briefing_summary.text = "[color=#88cc88]The intelligence has been secured.[/color]\n\nStand by for next assignment."
-	briefing_objectives.text = ""
-	briefing_warnings.text = ""
-	briefing_handler.text = "[color=#667788][i]Good work, analyst. We'll be in touch.[/i][/color]"
-	start_button.text = "REPLAY"
-
-
-# ---------------------------------------------------------------------------
-# Visual feedback
-# ---------------------------------------------------------------------------
-
-func _on_detection_flash(level: String, _value: float) -> void:
-	match level:
-		"yellow":
-			_screen_flash(Color(0.9, 0.7, 0.1, 0.08), 0.4)
-		"red":
-			_screen_flash(Color(0.9, 0.2, 0.1, 0.12), 0.6)
-		"black":
-			_screen_flash(Color(0.9, 0.05, 0.05, 0.2), 1.0)
-
-
-func _on_burn_flash() -> void:
-	_screen_flash(Color(0.9, 0.0, 0.0, 0.3), 1.5)
-
-
-func _screen_flash(color: Color, duration: float) -> void:
-	if not _flash_rect:
+	# Get COA options for this target
+	var coas: Array = target_data.get("coas", [])
+	if coas.is_empty():
+		VoiceHandler.speak("No options available for this target.")
 		return
-	_flash_rect.color = color
-	var tween := create_tween()
-	tween.tween_property(_flash_rect, "color:a", 0.0, duration).set_ease(Tween.EASE_OUT)
+
+	# Handler speaks the options summary
+	var coa_line: String = target_data.get("handler_coa", "Options available.")
+	VoiceHandler.speak(coa_line)
+
+	# Show COA cards
+	coa_cards.show_options(blip_id, coas)
+
+
+func _on_coa_selected(blip_id: String, coa_id: String) -> void:
+	var target_data := _find_target(blip_id)
+	var coa_data := {}
+	for coa in target_data.get("coas", []):
+		if coa.get("id", "") == coa_id:
+			coa_data = coa
+			break
+
+	if coa_data.is_empty():
+		return
+
+	# Find which asset to assign (for now, first available)
+	var assigned_asset := ""
+	for asset_id in _assets:
+		assigned_asset = asset_id
+		break
+
+	if assigned_asset.is_empty():
+		VoiceHandler.speak("No assets available.")
+		return
+
+	# Handler confirms
+	var asset_label: String = _assets[assigned_asset].get("label", "Unit")
+	VoiceHandler.speak(coa_data.get("handler_assign", "%s assigned." % asset_label))
+
+	# Move asset toward target
+	var speed: float = _assets[assigned_asset].get("speed", 0.4)
+	tactical_map.move_asset(assigned_asset, blip_id, speed)
+	EventBus.mission_started.emit(blip_id, coa_id, assigned_asset)
+
+
+func _on_asset_arrived(asset_id: String, target_id: String) -> void:
+	var target_data := _find_target(target_id)
+	if target_data.is_empty():
+		return
+
+	# Resolve — for now, simple success
+	VoiceHandler.speak(target_data.get("handler_resolve", "Mission complete."))
+
+	# Mark target as neutralized
+	tactical_map.classify_blip(target_id, "neutralized", "DONE")
+
+	var blip = tactical_map.get_blip(target_id)
+	if blip:
+		Juice.float_text(
+			tactical_map,
+			"COMPLETE",
+			tactical_map._world_to_screen(blip.pos) + Vector2(0, -30),
+			Color(0.2, 0.9, 0.4),
+		)
+
+	# Return asset to base
+	# (for now just leave it there — Phase 1 adds proper asset return)
+
+
+func _find_target(blip_id: String) -> Dictionary:
+	for target in _mission_data.get("targets", []):
+		if target.get("id", "") == blip_id:
+			return target
+	return {}
