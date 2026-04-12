@@ -13,9 +13,9 @@ from pathlib import Path
 
 from rich.console import Console
 
-from orchestrator.config import GameConfig, GameGenre
+from orchestrator.config import GameConfig
 from orchestrator.director import GameDirector
-from schemas.game import GameProject
+from schemas import GameGenre, GameProject
 
 logger = logging.getLogger(__name__)
 console = Console()

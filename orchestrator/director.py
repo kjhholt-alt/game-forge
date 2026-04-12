@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import uuid
 from typing import Any
 
 import anthropic
@@ -89,7 +90,8 @@ class GameDirector:
             # 2 -- World
             progress.update(tid, description="Building world...")
             world = await self._build_world(concept)
-            region_names = ", ".join(r.name for r in world.regions) if world.regions else "none"
+            regions = world.overworld.regions if world.overworld else []
+            region_names = ", ".join(r.name for r in regions) if regions else "none"
             console.print(f"  [dim]Regions:[/dim] {region_names}")
 
             # 3 -- Mechanics (items)
@@ -102,19 +104,20 @@ class GameDirector:
             quests, npcs = await self._write_narrative(concept, world, items)
             console.print(f"  [dim]Quests:[/dim] {len(quests)}  |  [dim]NPCs:[/dim] {len(npcs)}")
 
-            # 5 -- Art asset specs
+            # 5 -- Art style guide
             progress.update(tid, description="Art directing...")
-            art_specs = await self._direct_art(concept, world, npcs)
-            console.print(f"  [dim]Art specs:[/dim] {len(art_specs)}")
+            style_guide = await self._direct_art(concept, world, npcs)
+            console.print(f"  [dim]Style:[/dim] {style_guide.art_style}")
 
             # 6 -- Assemble project
             project = GameProject(
+                id=str(uuid.uuid4()),
                 concept=concept,
                 world=world,
                 quests=quests,
                 npcs=npcs,
                 items=items,
-                art_specs=art_specs,
+                style_guide=style_guide,
             )
 
             # 7 -- QA
@@ -122,18 +125,18 @@ class GameDirector:
             qa_report = await self._run_qa(project)
             project.qa_report = qa_report
 
-            score_colour = "green" if qa_report.passed else "red"
+            score_colour = "green" if qa_report.playable else "red"
             console.print(Panel(
                 f"Score: [{score_colour}]{qa_report.overall_score}/10[/{score_colour}]\n"
                 f"{qa_report.summary}\n"
                 f"Issues: {len(qa_report.issues)}  |  "
-                f"Passed: {'Yes' if qa_report.passed else 'No'}",
+                f"Playable: {'Yes' if qa_report.playable else 'No'}",
                 title="QA Report",
                 border_style="yellow",
             ))
 
             # 8 -- Iterate on critical issues (up to max_retries)
-            if not qa_report.passed:
+            if not qa_report.playable:
                 progress.update(tid, description="Iterating on QA feedback...")
                 project = await self._iterate_on_qa(project, qa_report)
 
@@ -221,7 +224,7 @@ class GameDirector:
         self,
         concept: GameConcept,
         world: WorldDefinition,
-    ) -> list[Item]:
+    ) -> list[ItemDefinition]:
         """Dispatch MechanicsEngine to define items and balance."""
         user_message = (
             f"Design the item system for this game:\n\n"
@@ -229,7 +232,7 @@ class GameDirector:
             f"World: {world.model_dump_json(indent=2)}\n\n"
             f"Respond with a JSON object: {{\"items\": [...]}} where each item "
             f"matches this schema:\n"
-            f"{json.dumps(Item.model_json_schema(), indent=2)}"
+            f"{json.dumps(ItemDefinition.model_json_schema(), indent=2)}"
         )
 
         result = await self._dispatch_worker(
@@ -244,15 +247,15 @@ class GameDirector:
 
         raw_items = result.get("items", result) if isinstance(result, dict) else result
         if isinstance(raw_items, list):
-            return [Item.model_validate(i) for i in raw_items]
+            return [ItemDefinition.model_validate(i) for i in raw_items]
         return []
 
     async def _write_narrative(
         self,
         concept: GameConcept,
         world: WorldDefinition,
-        items: list[Item],
-    ) -> tuple[list[Quest], list[NPC]]:
+        items: list[ItemDefinition],
+    ) -> tuple[list[Quest], list[NPCDefinition]]:
         """Dispatch NarrativeEngine to create quests, NPCs, and dialogue."""
         user_message = (
             f"Write the narrative content for this game:\n\n"
@@ -261,7 +264,7 @@ class GameDirector:
             f"Available items: {json.dumps([i.model_dump(mode='json') for i in items])}\n\n"
             f"Respond with a JSON object: {{\"quests\": [...], \"npcs\": [...]}}.\n"
             f"Quest schema:\n{json.dumps(Quest.model_json_schema(), indent=2)}\n"
-            f"NPC schema:\n{json.dumps(NPC.model_json_schema(), indent=2)}"
+            f"NPC schema:\n{json.dumps(NPCDefinition.model_json_schema(), indent=2)}"
         )
 
         result = await self._dispatch_worker(
@@ -276,24 +279,23 @@ class GameDirector:
         )
 
         quests = [Quest.model_validate(q) for q in result.get("quests", [])]
-        npcs = [NPC.model_validate(n) for n in result.get("npcs", [])]
+        npcs = [NPCDefinition.model_validate(n) for n in result.get("npcs", [])]
         return quests, npcs
 
     async def _direct_art(
         self,
         concept: GameConcept,
         world: WorldDefinition,
-        npcs: list[NPC],
-    ) -> list[ArtAssetSpec]:
-        """Dispatch ArtDirector to describe needed visual assets."""
+        npcs: list[NPCDefinition],
+    ) -> StyleGuide:
+        """Dispatch ArtDirector to produce a style guide for the game."""
         user_message = (
-            f"Create art asset specifications for this game:\n\n"
+            f"Create an art style guide for this game:\n\n"
             f"Concept: {concept.model_dump_json(indent=2)}\n\n"
             f"World: {world.model_dump_json(indent=2)}\n\n"
             f"NPCs: {json.dumps([n.model_dump(mode='json') for n in npcs])}\n\n"
-            f"Respond with a JSON object: {{\"assets\": [...]}} where each asset "
-            f"matches this schema:\n"
-            f"{json.dumps(ArtAssetSpec.model_json_schema(), indent=2)}"
+            f"Respond with a JSON object matching this schema:\n"
+            f"{json.dumps(StyleGuide.model_json_schema(), indent=2)}"
         )
 
         result = await self._dispatch_worker(
@@ -303,14 +305,11 @@ class GameDirector:
                 "world": world.model_dump(mode="json"),
                 "npcs": [n.model_dump(mode="json") for n in npcs],
             },
-            response_schema="assets_list",
+            response_schema="StyleGuide",
             override_message=user_message,
         )
 
-        raw = result.get("assets", result) if isinstance(result, dict) else result
-        if isinstance(raw, list):
-            return [ArtAssetSpec.model_validate(a) for a in raw]
-        return []
+        return StyleGuide.model_validate(result)
 
     async def _run_qa(self, project: GameProject) -> QAReport:
         """Dispatch QATester to playtest and report issues."""
@@ -337,7 +336,7 @@ class GameDirector:
         """Attempt to fix critical QA issues up to max_retries times."""
         for attempt in range(1, self.config.max_retries + 1):
             critical_issues = [
-                i for i in qa_report.issues if i.severity.value == "critical"
+                i for i in qa_report.issues if i.severity == "critical"
             ]
             if not critical_issues:
                 break
@@ -359,7 +358,7 @@ class GameDirector:
             qa_report = await self._run_qa(project)
             project.qa_report = qa_report
 
-            if qa_report.passed:
+            if qa_report.playable:
                 console.print("  [green]QA passed after iteration!")
                 break
 
