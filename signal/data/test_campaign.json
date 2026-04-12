@@ -1,0 +1,610 @@
+{
+  "id": "campaign-meridian-test",
+  "name": "Operation Meridian",
+  "conspiracy": {
+    "theme": "arms_trafficking",
+    "title": "The Meridian Group",
+    "synopsis": "A mid-size defense contractor is using its legitimate shipping contracts to funnel military-grade electronics to sanctioned nations. The operation is run through a shell company in Cyprus, with funds laundered through a Dubai-based trading firm.",
+    "nodes": [
+      {
+        "id": "cn-meridian",
+        "label": "Meridian Group",
+        "node_type": "organization",
+        "description": "Defense contractor, HQ in Arlington VA. $200M annual revenue. Government contracts for comms equipment.",
+        "discovered": false,
+        "connected_op_ids": ["op-001"]
+      },
+      {
+        "id": "cn-petrov",
+        "label": "Viktor Petrov",
+        "node_type": "person",
+        "description": "Arms broker operating out of Limassol, Cyprus. Former GRU, now freelance.",
+        "discovered": false,
+        "connected_op_ids": ["op-001"]
+      },
+      {
+        "id": "cn-shell",
+        "label": "Helios Maritime Ltd",
+        "node_type": "organization",
+        "description": "Shell company registered in Cyprus. Used to reroute Meridian shipments.",
+        "discovered": false,
+        "connected_op_ids": ["op-001"]
+      },
+      {
+        "id": "cn-shipment",
+        "label": "Container MSKU-7734291",
+        "node_type": "asset",
+        "description": "Shipping container currently in transit from Norfolk to Rotterdam, containing 'communications equipment'.",
+        "discovered": false,
+        "connected_op_ids": ["op-001"]
+      }
+    ],
+    "edges": [
+      {"from_id": "cn-petrov", "to_id": "cn-shell", "relationship": "controls", "discovered": false},
+      {"from_id": "cn-shell", "to_id": "cn-meridian", "relationship": "subcontracts from", "discovered": false},
+      {"from_id": "cn-meridian", "to_id": "cn-shipment", "relationship": "ships via", "discovered": false},
+      {"from_id": "cn-petrov", "to_id": "cn-shipment", "relationship": "diverts to sanctioned buyer", "discovered": false}
+    ]
+  },
+  "operations": [
+    {
+      "id": "op-001",
+      "op_index": 0,
+      "briefing": {
+        "codename": "MERIDIAN SHADOW",
+        "summary": "We've intercepted communications suggesting Meridian Group is diverting military electronics through a Cyprus shell company. Infiltrate their network, identify the internal contact facilitating the shipments, and exfiltrate the shipping manifest for Container MSKU-7734291.",
+        "objectives": [
+          "Identify the Meridian employee coordinating with Helios Maritime",
+          "Exfiltrate the shipping manifest for MSKU-7734291",
+          "Determine the final destination of the diverted cargo"
+        ],
+        "warnings": [
+          "Meridian has a competent IT security team — their IDS flags aggressive scans",
+          "The internal contact may be in a senior position — approach carefully"
+        ],
+        "handler_notes": "This is your first op on this campaign. Take your time in SIGNAL phase — good prep makes BLACKSITE survivable."
+      },
+      "signal_data": {
+        "op_id": "op-001",
+        "items": [
+          {
+            "id": "ev-001",
+            "evidence_type": "phone_transcript",
+            "title": "Intercepted call: Mitchell to unknown",
+            "content": "MITCHELL: ...yeah the container is on schedule. Norfolk departure was Tuesday.\nUNKNOWN: And the paperwork?\nMITCHELL: Clean. Listed as comms equipment for the NATO exercise.\nUNKNOWN: Good. Make sure the Rotterdam transfer goes through Helios.\nMITCHELL: Already arranged. Rachel set up the logistics entry in the system.\nUNKNOWN: [static] ...payment will clear through the usual channel.\nMITCHELL: Understood. Same account as last time?\nUNKNOWN: Da. [call ends]",
+            "source": "NSA SIGINT - Satellite intercept",
+            "classification": "secret",
+            "timestamp": "2026-03-10T14:32:00Z",
+            "is_clue": true,
+            "clue_target_ids": ["ev-003", "ev-005", "cn-shell", "cn-shipment"],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-002",
+            "evidence_type": "financial_record",
+            "title": "Wire transfer: Helios Maritime → Meridian Group",
+            "content": "FINCEN REPORT #2026-CF-44812\n\nOriginating Account: Helios Maritime Ltd\nBank: Bank of Cyprus, Limassol\nAccount: CY17 0020 0128 0000 0012 0054 7891\n\nReceiving Account: Meridian Group LLC\nBank: Wells Fargo, Arlington VA\nAccount: ****4478\n\nAmount: $847,000.00 USD\nDate: 2026-02-28\nReference: INV-2026-0331 / NATO Subcontract\n\nNote: Third transfer in 6 months from this originator. Prior amounts: $612K (Oct), $923K (Dec). Pattern flagged by automated screening.",
+            "source": "FINCEN automated alert",
+            "classification": "confidential",
+            "timestamp": "2026-03-01T09:15:00Z",
+            "is_clue": true,
+            "clue_target_ids": ["ev-001", "cn-shell", "cn-meridian"],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-003",
+            "evidence_type": "email",
+            "title": "Internal email: R. Chen → J. Mitchell",
+            "content": "From: r.chen@meridiangroup.com\nTo: j.mitchell@meridiangroup.com\nDate: 2026-03-08 16:45\nSubject: RE: Server Migration Schedule\n\nJack,\n\nThe staging server migration is done. New creds below — please don't share these over Slack again, IT security flagged it last time.\n\nHost: staging-fs01 (10.0.2.20)\nUser: jmitchell\nPass: M3ridian!2026\n\nThe logistics database has been moved to the new file server. All the Q1 shipping manifests are in /data/logistics/manifests/.\n\nAlso — I saw the Helios Maritime entries you added last week. Those aren't in the standard vendor template. Want me to clean up the formatting, or are they intentional?\n\n- Rachel\n\n---\nRachel Chen | Systems Administrator\nMeridian Group LLC | IT Infrastructure\next. 4112",
+            "source": "NSA PRISM - Email intercept",
+            "classification": "secret",
+            "timestamp": "2026-03-08T16:45:00Z",
+            "is_clue": true,
+            "clue_target_ids": ["host-fileserv", "cred-mitchell", "ev-001"],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-004",
+            "evidence_type": "surveillance_log",
+            "title": "Physical surveillance: Meridian HQ parking lot",
+            "content": "SURVEILLANCE LOG - Unit 7 (Mobile)\nDate: 2026-03-09\nLocation: Meridian Group HQ, 1200 Wilson Blvd, Arlington VA\n\n08:12 - Subject MITCHELL (white male, 40s, brown hair, navy suit) arrives in silver BMW 5-series, VA plate KJH-4421. Enters building via main entrance.\n09:30 - No activity.\n10:15 - Subject CHEN (Asian female, 30s, glasses, casual dress) arrives on foot from metro. Enters via side entrance with keycard.\n11:45 - Subject MITCHELL exits building, makes phone call in parking lot (3 minutes). Returns inside.\n12:30 - Lunch hour. Multiple employees exit. Nothing notable.\n14:00 - Black SUV (diplomatic plates, DPL-0892) arrives. Male passenger (50s, grey hair, overcoat) enters building. Exits 14:47.\n15:30 - Subject MITCHELL and unknown male from SUV seen in 3rd floor window, conference room.\n17:15 - Subject CHEN exits building. Walks to metro.\n17:45 - Subject MITCHELL exits. Drives away.\n19:00 - Building dark. End surveillance.",
+            "source": "FBI Counter-Intelligence, Mobile Unit 7",
+            "classification": "secret",
+            "timestamp": "2026-03-09T19:00:00Z",
+            "is_clue": true,
+            "clue_target_ids": ["cn-petrov", "ev-001"],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-005",
+            "evidence_type": "document",
+            "title": "Shipping manifest excerpt: MSKU-7734291",
+            "content": "BILL OF LADING (partial)\n\nContainer: MSKU-7734291\nShipper: Meridian Group LLC, Arlington VA\nConsignee: NATO SHAPE, Mons, Belgium\nForwarding Agent: Helios Maritime Ltd, Limassol\n\nContents: Military communications equipment\n  - 24x AN/PRC-163 Manpack Radios\n  - 12x AN/TRC-275 Satellite Terminals\n  - 48x Crypto Module Type-3 (CLASSIFIED)\n\nPort of Loading: Norfolk International Terminal\nPort of Discharge: Rotterdam Europoort\nVessel: MV Nordic Spirit\nETD: 2026-03-05\nETA Rotterdam: 2026-03-18\n\nSpecial Instructions: HOLD AT ROTTERDAM FOR FORWARDING AGENT PICKUP.\nDO NOT DELIVER TO FINAL CONSIGNEE.",
+            "source": "Customs & Border Protection intercept",
+            "classification": "top_secret",
+            "timestamp": "2026-03-05T08:00:00Z",
+            "is_clue": true,
+            "clue_target_ids": ["cn-shipment", "cn-shell"],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-006",
+            "evidence_type": "email",
+            "title": "Internal email: HR reminder",
+            "content": "From: hr@meridiangroup.com\nTo: all-staff@meridiangroup.com\nDate: 2026-03-07 09:00\nSubject: Reminder: Q1 Benefits Enrollment\n\nTeam,\n\nFriendly reminder that Q1 benefits enrollment closes this Friday, March 10th. Please log into the HR portal to review and confirm your selections.\n\nIf you have questions about the new dental plan options, contact Sarah in HR (ext. 4200).\n\nThanks,\nHuman Resources",
+            "source": "NSA PRISM - Email intercept",
+            "classification": "unclassified",
+            "timestamp": "2026-03-07T09:00:00Z",
+            "is_clue": false,
+            "clue_target_ids": [],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-007",
+            "evidence_type": "phone_transcript",
+            "title": "Intercepted call: Chen to IT vendor",
+            "content": "CHEN: Hi, this is Rachel Chen from Meridian Group. I'm calling about the server rack we ordered.\nVENDOR: Sure, let me pull that up. Order number?\nCHEN: MG-2026-0289.\nVENDOR: Got it. Looks like it shipped yesterday. Should arrive Thursday.\nCHEN: Great. Can you confirm delivery to 1200 Wilson Blvd, loading dock B?\nVENDOR: That's correct. Anything else?\nCHEN: No, that's it. Thanks.\n[call ends]",
+            "source": "NSA SIGINT - Phone intercept",
+            "classification": "confidential",
+            "timestamp": "2026-03-11T10:22:00Z",
+            "is_clue": false,
+            "clue_target_ids": [],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          },
+          {
+            "id": "ev-008",
+            "evidence_type": "financial_record",
+            "title": "Meridian Group Q1 expense report",
+            "content": "MERIDIAN GROUP LLC - Q1 2026 EXPENSE SUMMARY\n\nTravel & Entertainment: $124,500\n  - J. Mitchell: $47,200 (includes 3 international trips: London, Dubai, Limassol)\n  - D. Park: $18,900\n  - A. Volkov: $31,400\n  - Other: $27,000\n\nIT Infrastructure: $312,000\nFacilities: $89,000\nSubcontractor Payments: $2,847,000\n  - Helios Maritime Ltd: $847,000\n  - Northwind Consulting: $1,200,000\n  - Pacific Defense Systems: $800,000\n\nTotal Q1 Expenses: $3,372,500",
+            "source": "SEC filing analysis",
+            "classification": "confidential",
+            "timestamp": "2026-03-12T00:00:00Z",
+            "is_clue": true,
+            "clue_target_ids": ["cn-shell", "ev-002"],
+            "discovered": true,
+            "pinned": false,
+            "redacted_level": 0
+          }
+        ],
+        "total_clues": 6,
+        "total_noise": 2
+      },
+      "blacksite_target": {
+        "id": "target-meridian",
+        "org_name": "Meridian Group",
+        "sector": "defense contractor",
+        "description": "Mid-size defense contractor specializing in military communications equipment. HQ in Arlington, VA with 200 employees. Government contracts with NATO and DoD.",
+        "employees": [
+          {
+            "id": "emp-chen",
+            "name": "Rachel Chen",
+            "role": "Systems Administrator",
+            "department": "IT Infrastructure",
+            "personality_traits": ["meticulous", "overworked", "helpful", "rule-follower"],
+            "speech_pattern": "casual but professional, uses tech jargon",
+            "knowledge_set": [
+              "The staging file server IP is 10.0.2.20",
+              "Jack Mitchell's account password is M3ridian!2026",
+              "The logistics database is in /data/logistics/ on the file server",
+              "The IT security team runs scans every night at 2am",
+              "There's a new backup server at 10.0.2.30 that hasn't been fully secured yet"
+            ],
+            "vulnerabilities": [
+              {
+                "trait": "overworked",
+                "exploit_vector": "sympathize with workload, offer to help with a task",
+                "difficulty": 3
+              },
+              {
+                "trait": "rule-follower frustrated by Mitchell's sloppiness",
+                "exploit_vector": "express concern about Mitchell's security practices, get her to share what she's seen",
+                "difficulty": 4
+              }
+            ],
+            "trust_threshold": 3,
+            "secrets": [
+              "Mitchell asked her to create a hidden directory /data/.logistics_archive/ with restricted access",
+              "She noticed Mitchell has been logging in at odd hours from an external VPN",
+              "The backup server at 10.0.2.30 still has default SSH credentials: admin/backup2026"
+            ],
+            "schedule": "Arrives 8:30am via metro, lunch at noon in break room, leaves 5:15pm",
+            "photo_description": "Asian woman, early 30s, glasses, casual business dress",
+            "trust": 0,
+            "suspicion": 0,
+            "secrets_revealed": []
+          },
+          {
+            "id": "emp-park",
+            "name": "David Park",
+            "role": "Security Guard (Front Desk)",
+            "department": "Facilities",
+            "personality_traits": ["friendly", "bored", "talkative", "not very tech-savvy"],
+            "speech_pattern": "casual, uses filler words, tells stories",
+            "knowledge_set": [
+              "The building has keycard access on all exterior doors",
+              "Mr. Mitchell is VP of Operations, 3rd floor corner office",
+              "A guy with diplomatic plates visits Mitchell sometimes, always in the afternoon",
+              "The server room is in the basement, B1, you need a special keycard",
+              "Rachel in IT is always staying late fixing something"
+            ],
+            "vulnerabilities": [
+              {
+                "trait": "bored and talkative",
+                "exploit_vector": "just be friendly and ask questions, he'll volunteer information",
+                "difficulty": 2
+              }
+            ],
+            "trust_threshold": 2,
+            "secrets": [
+              "He's seen Mitchell bring a personal USB drive to work multiple times",
+              "Last month, Mitchell asked him to let in a visitor without logging the visit"
+            ],
+            "schedule": "Day shift 7am-3pm, always at front desk",
+            "photo_description": "Korean-American man, mid-40s, security uniform, friendly demeanor",
+            "trust": 0,
+            "suspicion": 0,
+            "secrets_revealed": []
+          }
+        ],
+        "network": {
+          "subnets": [
+            {
+              "id": "subnet-dmz",
+              "cidr": "10.0.1.0/24",
+              "name": "DMZ",
+              "hosts": ["host-web", "host-mail"],
+              "gateway_host_id": "host-web",
+              "accessible_from": []
+            },
+            {
+              "id": "subnet-corp",
+              "cidr": "10.0.2.0/24",
+              "name": "Corporate LAN",
+              "hosts": ["host-fileserv", "host-backup", "host-workstation"],
+              "gateway_host_id": "",
+              "accessible_from": ["subnet-dmz"]
+            }
+          ],
+          "hosts": [
+            {
+              "id": "host-web",
+              "hostname": "webportal",
+              "os": "linux",
+              "ip": "10.0.1.10",
+              "subnet": "10.0.1.0/24",
+              "services": [
+                {
+                  "service_type": "https",
+                  "port": 443,
+                  "version": "Apache 2.4.49",
+                  "vulnerable": true,
+                  "cve_id": "CVE-2021-41773",
+                  "banner": "Apache/2.4.49 (Ubuntu) OpenSSL/1.1.1"
+                },
+                {
+                  "service_type": "ssh",
+                  "port": 22,
+                  "version": "OpenSSH 8.9",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": "SSH-2.0-OpenSSH_8.9"
+                }
+              ],
+              "files": [
+                {
+                  "path": "/var/www/html/index.html",
+                  "content": "<html><title>Meridian Group - Employee Portal</title></html>",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": false,
+                  "size_kb": 12
+                },
+                {
+                  "path": "/etc/hosts",
+                  "content": "127.0.0.1 localhost\n10.0.1.10 webportal\n10.0.1.15 mailsrv\n10.0.2.20 staging-fs01\n10.0.2.30 backup-fs01",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": false,
+                  "size_kb": 1
+                }
+              ],
+              "credentials": [],
+              "requires_credentials": false,
+              "description": "Public-facing employee web portal"
+            },
+            {
+              "id": "host-mail",
+              "hostname": "mailsrv",
+              "os": "linux",
+              "ip": "10.0.1.15",
+              "subnet": "10.0.1.0/24",
+              "services": [
+                {
+                  "service_type": "smtp",
+                  "port": 25,
+                  "version": "Postfix 3.5.6",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": "220 mailsrv.meridiangroup.com ESMTP Postfix"
+                },
+                {
+                  "service_type": "ssh",
+                  "port": 22,
+                  "version": "OpenSSH 8.9",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": "SSH-2.0-OpenSSH_8.9"
+                }
+              ],
+              "files": [
+                {
+                  "path": "/var/mail/jmitchell",
+                  "content": "From: v.petrov@heliosmaritime.cy\nTo: j.mitchell@meridiangroup.com\nSubject: Rotterdam confirmation\n\nJack - container MSKU-7734291 will be held at Europoort terminal 4. Our team will handle the re-routing from there. Confirm receipt.\n\n- V",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": false,
+                  "size_kb": 2
+                }
+              ],
+              "credentials": [],
+              "requires_credentials": true,
+              "description": "Internal mail server"
+            },
+            {
+              "id": "host-fileserv",
+              "hostname": "staging-fs01",
+              "os": "linux",
+              "ip": "10.0.2.20",
+              "subnet": "10.0.2.0/24",
+              "services": [
+                {
+                  "service_type": "ssh",
+                  "port": 22,
+                  "version": "OpenSSH 8.9",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": "SSH-2.0-OpenSSH_8.9"
+                },
+                {
+                  "service_type": "smb",
+                  "port": 445,
+                  "version": "Samba 4.15",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": ""
+                }
+              ],
+              "files": [
+                {
+                  "path": "/data/logistics/manifests/MSKU-7734291.pdf",
+                  "content": "FULL SHIPPING MANIFEST - CLASSIFIED\n\nContainer: MSKU-7734291\nTrue Consignee: [NOT NATO SHAPE]\nFinal Destination: Damascus, Syria (via Latakia port)\nEnd User Certificate: FORGED\n\nContents:\n- 24x AN/PRC-163 Manpack Radios (military encryption capable)\n- 12x AN/TRC-275 Satellite Terminals\n- 48x Crypto Module Type-3 (NSA controlled)\n\nBroker: Viktor Petrov (Helios Maritime Ltd)\nMeridian Contact: Jack Mitchell, VP Operations\nPayment: $2.4M via Bank of Cyprus → Wells Fargo\n\nNote: This is the 4th shipment in the PETROV channel.\nPrevious: MSKU-6612840 (Oct), MSKU-7123091 (Dec), MSKU-7501882 (Jan).",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": true,
+                  "size_kb": 45
+                },
+                {
+                  "path": "/data/logistics/manifests/readme.txt",
+                  "content": "Q1 2026 Shipping Manifests\nLast updated: 2026-03-08\nContact: J. Mitchell (ext 4300)",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": false,
+                  "size_kb": 1
+                },
+                {
+                  "path": "/data/.logistics_archive/petrov_payments.xlsx.enc",
+                  "content": "[ENCRYPTED FILE - AES-256]\nDecrypted content: Full payment ledger showing 4 transfers totaling $4.9M from Helios Maritime to Meridian Group, with corresponding dates matching each container shipment.",
+                  "encrypted": true,
+                  "cipher": "aes-256",
+                  "is_target": false,
+                  "size_kb": 128
+                }
+              ],
+              "credentials": [
+                {
+                  "username": "jmitchell",
+                  "password": "M3ridian!2026",
+                  "host_id": "host-fileserv",
+                  "source": "ev-003"
+                }
+              ],
+              "requires_credentials": true,
+              "description": "Staging file server — logistics database"
+            },
+            {
+              "id": "host-backup",
+              "hostname": "backup-fs01",
+              "os": "linux",
+              "ip": "10.0.2.30",
+              "subnet": "10.0.2.0/24",
+              "services": [
+                {
+                  "service_type": "ssh",
+                  "port": 22,
+                  "version": "OpenSSH 8.9",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": "SSH-2.0-OpenSSH_8.9"
+                }
+              ],
+              "files": [
+                {
+                  "path": "/backups/logistics_db_20260308.tar.gz",
+                  "content": "[Compressed backup of logistics database — contains copies of all manifests including MSKU-7734291]",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": true,
+                  "size_kb": 2048
+                }
+              ],
+              "credentials": [
+                {
+                  "username": "admin",
+                  "password": "backup2026",
+                  "host_id": "host-backup",
+                  "source": "emp-chen"
+                }
+              ],
+              "requires_credentials": true,
+              "description": "Backup file server (recently deployed, not fully hardened)"
+            },
+            {
+              "id": "host-workstation",
+              "hostname": "ws-mitchell",
+              "os": "windows",
+              "ip": "10.0.2.50",
+              "subnet": "10.0.2.0/24",
+              "services": [
+                {
+                  "service_type": "rdp",
+                  "port": 3389,
+                  "version": "Windows 11 RDP",
+                  "vulnerable": false,
+                  "cve_id": "",
+                  "banner": ""
+                }
+              ],
+              "files": [
+                {
+                  "path": "C:/Users/jmitchell/Desktop/helios_contact.txt",
+                  "content": "Viktor Petrov\nPhone: +357-25-XXX-XXX\nEmail: v.petrov@heliosmaritime.cy\nBank: Bank of Cyprus\nAccount: CY17 0020 0128 0000 0012 0054 7891\n\nNEXT SHIPMENT: April container, pending manifest creation.",
+                  "encrypted": false,
+                  "cipher": "",
+                  "is_target": false,
+                  "size_kb": 1
+                }
+              ],
+              "credentials": [
+                {
+                  "username": "jmitchell",
+                  "password": "M3ridian!2026",
+                  "host_id": "host-workstation",
+                  "source": "ev-003"
+                }
+              ],
+              "requires_credentials": true,
+              "description": "Mitchell's workstation"
+            }
+          ],
+          "entry_points": ["host-web"],
+          "exfil_target_ids": ["/data/logistics/manifests/MSKU-7734291.pdf"]
+        },
+        "vulnerability_chains": [
+          {
+            "id": "chain-primary",
+            "name": "Web exploit → pivot → file server login",
+            "steps": [
+              {
+                "step_number": 1,
+                "action": "Exploit CVE-2021-41773 on webportal (10.0.1.10:443)",
+                "requires": [],
+                "reveals": ["host-web access", "/etc/hosts (reveals internal IPs)"]
+              },
+              {
+                "step_number": 2,
+                "action": "Read /etc/hosts to discover internal hosts on 10.0.2.x",
+                "requires": ["host-web access"],
+                "reveals": ["host-fileserv IP", "host-backup IP"]
+              },
+              {
+                "step_number": 3,
+                "action": "Login to staging-fs01 with Mitchell's creds from evidence (ev-003)",
+                "requires": ["cred-mitchell from SIGNAL phase"],
+                "reveals": ["file server access"]
+              },
+              {
+                "step_number": 4,
+                "action": "Navigate to /data/logistics/manifests/ and download MSKU-7734291.pdf",
+                "requires": ["file server access"],
+                "reveals": ["TARGET FILE - shipping manifest"]
+              }
+            ],
+            "alternative_paths": 1
+          },
+          {
+            "id": "chain-alternate",
+            "name": "Social engineering → backup server",
+            "steps": [
+              {
+                "step_number": 1,
+                "action": "Social engineer Rachel Chen to reveal backup server default creds",
+                "requires": ["trust >= 3 with emp-chen"],
+                "reveals": ["backup-fs01 credentials: admin/backup2026"]
+              },
+              {
+                "step_number": 2,
+                "action": "Login to backup-fs01 with default credentials",
+                "requires": ["backup-fs01 credentials"],
+                "reveals": ["backup server access"]
+              },
+              {
+                "step_number": 3,
+                "action": "Download logistics_db backup containing the manifest",
+                "requires": ["backup server access"],
+                "reveals": ["TARGET FILE - logistics database backup"]
+              }
+            ],
+            "alternative_paths": 0
+          }
+        ],
+        "facility": {
+          "name": "Meridian Group HQ",
+          "location": "1200 Wilson Blvd, Arlington, VA",
+          "description": "Modern 5-story office building in Arlington. Meridian occupies floors 2-4. Shared lobby with other tenants.",
+          "floors": 5,
+          "security_features": ["Keycard access on all doors", "CCTV in lobbies and parking", "Security guard at front desk", "Visitor logging system"],
+          "notable_areas": [
+            {"name": "Server Room", "floor": "B1", "access": "Special keycard (IT staff only)"},
+            {"name": "VP Operations Office", "floor": "3", "access": "Standard keycard"},
+            {"name": "IT Department", "floor": "2", "access": "Standard keycard"},
+            {"name": "Conference Room 3A", "floor": "3", "access": "Standard keycard"}
+          ]
+        },
+        "secrets": [
+          "Meridian has been diverting military electronics to sanctioned nations for 18 months",
+          "VP Operations Jack Mitchell is the primary internal facilitator",
+          "Viktor Petrov (former GRU) brokers the deals through Helios Maritime in Cyprus",
+          "Container MSKU-7734291 is bound for Damascus, Syria — not NATO as listed"
+        ]
+      },
+      "difficulty": 3,
+      "required_exfil": ["/data/logistics/manifests/MSKU-7734291.pdf"],
+      "max_detection_threshold": 1.0,
+      "time_limit_minutes": 0,
+      "unlocks_ops": []
+    }
+  ],
+  "analyst": {
+    "id": "analyst-001",
+    "codename": "WRAITH",
+    "name": "",
+    "skills": [
+      {"skill_type": "sigint", "level": 1, "xp": 0, "xp_to_next": 100},
+      {"skill_type": "humint", "level": 1, "xp": 0, "xp_to_next": 100},
+      {"skill_type": "cryptography", "level": 1, "xp": 0, "xp_to_next": 100},
+      {"skill_type": "social_engineering", "level": 1, "xp": 0, "xp_to_next": 100},
+      {"skill_type": "network_exploitation", "level": 1, "xp": 0, "xp_to_next": 100}
+    ],
+    "toolkit": [],
+    "alive": true,
+    "ops_completed": 0,
+    "predecessor_codenames": []
+  },
+  "current_op_index": 0,
+  "created_at": "2026-04-12T00:00:00Z",
+  "updated_at": "2026-04-12T00:00:00Z"
+}

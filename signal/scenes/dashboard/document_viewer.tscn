@@ -1,0 +1,67 @@
+[gd_scene load_steps=2 format=3 uid="uid://docviewer001"]
+
+[ext_resource type="Script" path="res://scripts/dashboard/document_viewer.gd" id="1"]
+
+[node name="DocumentViewer" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="VBox/TitleBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "No Document Selected"
+
+[node name="Classification" type="Label" parent="VBox/TitleBar"]
+layout_mode = 2
+text = ""
+
+[node name="Type" type="Label" parent="VBox/TitleBar"]
+layout_mode = 2
+text = ""
+
+[node name="Separator" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="Content" type="RichTextLabel" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+selection_enabled = true
+scroll_following = false
+
+[node name="Footer" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Timestamp" type="Label" parent="VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = ""
+
+[node name="Source" type="Label" parent="VBox/Footer"]
+layout_mode = 2
+text = ""
