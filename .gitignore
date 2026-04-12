@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Godot
+.godot/
+*.import
+export_presets.cfg
+
+# State
+*.db
+*.db-journal
+*.sqlite3
+
+# Generated assets
+godot_template/assets/sprites/generated/
+godot_template/assets/tilesets/generated/
+godot_template/assets/audio/generated/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
+.env.local
+
+# Tests
+.pytest_cache/
+htmlcov/
+.coverage
