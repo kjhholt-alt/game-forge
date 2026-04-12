@@ -1,599 +1,401 @@
-## Social Engineering UI — employee chat modal with trust/suspicion mechanics.
+## Social engineering chat — modal conversation UI for extracting secrets.
 ##
-## Keyword-based dialogue system. Build trust → reveal secrets.
-## Opened via terminal "talk" command or button.
+## Keyword-based dialogue. Build trust via small talk, extract secrets when
+## trust >= threshold. Too much probing raises suspicion (5 = blown).
+## Opened via open_chat(employee_id) from the terminal "talk" command.
 extends Control
 
-
-const C_MODAL_BG := Color(0.035, 0.04, 0.055, 0.98)
+const C_BG := Color(0.035, 0.04, 0.055, 0.98)
 const C_BORDER := Color(0.15, 0.2, 0.3)
-const C_PLAYER_BG := Color(0.08, 0.12, 0.18)
-const C_NPC_BG := Color(0.06, 0.07, 0.1)
 const C_TRUST := Color(0.2, 0.8, 0.4)
-const C_SUSPICION := Color(0.9, 0.3, 0.2)
+const C_SUSP := Color(0.9, 0.3, 0.2)
 const C_SECRET := Color(0.95, 0.8, 0.2)
-const C_HEADER := Color(0.04, 0.05, 0.07)
+const C_HDR := Color(0.04, 0.05, 0.07)
 const C_TEXT := Color(0.75, 0.8, 0.85)
 const C_DIM := Color(0.45, 0.5, 0.58)
+const C_PLR := Color(0.4, 0.75, 0.95)
+const MW := 700; const MH := 500; const MAX_S := 5
 
-# Keyword categories
-const KW_SMALLTALK := ["how are you", "busy", "long day", "weather", "weekend", "thanks", "appreciate", "hello", "hey", "hi", "good morning"]
-const KW_WORK := ["server", "network", "system", "computer", "security", "IT", "database", "backup", "firewall", "migration"]
-const KW_PROBE := ["password", "credentials", "login", "access", "confidential", "secret", "mitchell", "helios", "shipping", "container", "petrov"]
-const KW_AGGRESSIVE := ["tell me", "you must", "i need you to", "now", "immediately", "or else", "demand", "answer me"]
-const KW_VULNERABILITY := ["help", "workload", "overtime", "stressed", "too much", "overworked", "burned out", "appreciate", "tough job"]
+const KW_SM := ["how are you","busy","long day","weather","weekend","thanks",
+	"appreciate","good morning","what's up","hey","nice","great","cool","rough day"]
+const KW_WK := ["server","network","system","computer","security","database",
+	"backup","infrastructure","firewall","software","hardware","deploy","migrate"]
+const KW_PR := ["password","credentials","login","access","confidential",
+	"secret","mitchell","helios","classified","private","hidden","admin"]
+const KW_AG := ["tell me","you must","i need you to","now","immediately",
+	"or else","listen","do it","right now","hurry"]
 
-# Response templates by personality style
-const RESPONSES := {
-	"tech_professional": {
-		"smalltalk": [
-			"Yeah, it's been crazy. Three tickets already this morning.",
-			"Not bad, just another day in IT, you know?",
-			"Ha, don't get me started. The exchange server went down at 2am.",
-			"Could be worse. At least the coffee machine works today.",
-		],
-		"work": [
-			"Oh sure, I can tell you about that. What specifically?",
-			"Yeah, I manage most of that infrastructure. It's a lot.",
-			"We just did a big migration last week actually.",
-			"The security team runs nightly scans at 2am. Keep that in mind.",
-		],
-		"probe_low": [
-			"Um, I can't really share that kind of info...",
-			"That's... not something I should be discussing.",
-			"Look, I'd like to help, but that's above my pay grade.",
+const T := {
+	"ct": { # casual tech
+		"sm": ["Yeah, it's been crazy. Three tickets already this morning.",
+			"Not bad. Just keeping the lights blinking green, y'know?",
+			"Weekend? I was patching servers at 2 AM Saturday.",
+			"Could be worse. At least the coffee machine works today."],
+		"wk": ["Oh that? Yeah, %s. Just migrated it last week.",
+			"Sure -- %s. Pretty standard config.",
+			"Mm-hm, %s. Been meaning to document that better.",
+			"Yeah I set that up. %s. Should be stable now."],
+		"pl": ["Um, I can't really share that kind of info...",
+			"That's... above my pay grade. Maybe ask management?",
 			"I don't think I'm supposed to talk about that.",
-		],
-		"aggressive": [
-			"Whoa, okay. Calm down. I don't respond well to pressure.",
-			"I think we're done here. I don't appreciate the tone.",
-			"That's not how you get information from me.",
-		],
-		"vulnerability": [
-			"God, tell me about it. I've been pulling doubles all month.",
-			"You actually get it? Nobody around here understands the workload.",
-			"Honestly? Thanks for saying that. It means something.",
-		],
-		"fallback": [
-			"Hmm, I'm not sure what you mean.",
-			"Can you be more specific?",
-			"I don't know about that, sorry.",
-		],
+			"Whoa, that's sensitive. Let me focus on my tickets."],
+		"ph": ["Okay look, between us? %s",
+			"Since you've been cool about it... %s",
+			"Don't tell anyone I told you this, but %s"],
+		"ag": ["Hey, take it easy. I'm just doing my job.",
+			"That's not how we talk to each other around here.",
+			"I don't respond to pressure. Try asking nicely.",
+			"Dude, chill. Not gonna work on me."],
+		"vn": ["Honestly? That means a lot. Nobody notices how slammed we are.",
+			"You get it. I've been pulling doubles all month.",
+			"Yeah, it's been brutal. Thanks for actually asking.",
+			"I appreciate that. Most people just dump more tickets on me."],
+		"fb": ["Hm, not sure what you mean. Anything else?",
+			"So was there something IT-related you needed?",
+			"Right. My queue isn't getting any shorter.",
+			"I'm not following. What do you need exactly?"],
 	},
-	"friendly_guard": {
-		"smalltalk": [
-			"Hey! Yeah man, another day right? Haha.",
-			"Doing good, doing good. Quiet morning so far.",
-			"Can't complain! Well, I could, but who'd listen? Heh.",
-			"Oh you know, same old. I'm just here watching the door.",
-		],
-		"work": [
-			"Oh yeah, the server room? That's down in B1. Need a special keycard though.",
-			"Mr. Mitchell? VP of Operations, corner office on 3. Nice guy, busy though.",
-			"Rachel in IT? She's always here late. Poor thing works too hard.",
-			"The building has keycard access on all the exterior doors.",
-		],
-		"probe_low": [
-			"Uhh I dunno about that stuff, I just work the desk y'know?",
-			"Hmm, that's not really my area. I'm just security.",
-			"I probably shouldn't say anything about that...",
-		],
-		"aggressive": [
-			"Hey man, easy. I'm trying to be helpful here.",
-			"Whoa, that's not cool. I don't have to tell you anything.",
-			"Alright buddy, I think this conversation is over.",
-		],
-		"vulnerability": [
-			"Yeah it gets boring here sometimes, not gonna lie.",
-			"Thanks man, most people just walk past without saying hi.",
-			"You're alright, you know that? Most folks don't even notice me.",
-		],
-		"fallback": [
-			"Hmm, beats me!",
-			"I'm not sure about that one, sorry.",
-			"Not really my department, ha.",
-		],
+	"ft": { # friendly talkative
+		"sm": ["Hey! Yeah man, another day right? Haha.",
+			"Oh dude, my weekend was great! Went fishing.",
+			"Honestly just vibing. This job's pretty chill.",
+			"No worries! I love meeting new people around the office."],
+		"wk": ["Oh yeah! So %s. Pretty cool right?",
+			"Man, %s. I remember when they set that up, total chaos.",
+			"Sure thing! %s. Happy to help!",
+			"Oh for sure, %s. Lemme know if you need anything else!"],
+		"pl": ["Uhh I dunno about that, I just work the desk y'know?",
+			"That's above my clearance level if you know what I mean.",
+			"I probably shouldn't go there. Don't wanna get in trouble!",
+			"That's kinda hush-hush, right? Maybe ask somebody higher up?"],
+		"ph": ["Okay so don't tell anyone but... %s",
+			"Alright since you asked nicely -- %s",
+			"Dude okay, between us though... %s"],
+		"ag": ["Whoa, easy! No need to get intense about it.",
+			"Hey man, I'm just the front desk guy, please don't...",
+			"That's a little aggressive, don't you think?",
+			"I'm gonna need you to tone it down a notch."],
+		"vn": ["Aw, you're too nice! It can be lonely here sometimes.",
+			"Finally someone who appreciates the little guys!",
+			"That's so cool of you to say! Most people walk right past.",
+			"You know what, yeah! I know more than people give me credit for."],
+		"fb": ["Haha, sure! So uh... anything else going on?",
+			"Gotcha gotcha. Well I'm here if you need anything!",
+			"Ha, right. So what brings you by today?",
+			"Oh okay! Anyway, how about that weather right?"],
+	},
+	"rp": { # reserved professional
+		"sm": ["Fine, thank you. How can I help you?",
+			"Busy as always. Is there something you need?",
+			"We're in the middle of Q2 close. Time is short.",
+			"Good, thanks. I have a meeting in fifteen, let's be quick."],
+		"wk": ["Yes, %s. That's in the internal wiki.",
+			"Correct. %s. Was there a specific request?",
+			"Indeed -- %s. Submit a formal request if you need access.",
+			"That's accurate. %s. Standard procedure."],
+		"pl": ["I'm not at liberty to discuss that.",
+			"That's need-to-know. Do you have authorization?",
+			"I'd need a written request from your supervisor.",
+			"That falls outside what I can share casually."],
+		"ph": ["Given our rapport... %s", "Off the record: %s",
+			"I trust your discretion. %s"],
+		"ag": ["I don't appreciate being spoken to that way.",
+			"That tone is inappropriate. This ends if it continues.",
+			"I will not be pressured. Compose yourself.",
+			"I'm going to pretend you didn't just say that."],
+		"vn": ["...you noticed? The workload has been considerable. Thank you.",
+			"I appreciate the courtesy. Challenging quarter.",
+			"That's perceptive. Not many see past the calm exterior.",
+			"The restructuring has put pressure on everyone."],
+		"fb": ["Is there something specific I can help with?",
+			"If there's nothing else, I should get back to work.",
+			"Was there a particular matter you wanted to discuss?",
+			"Let me know if you need something concrete."],
 	},
 }
 
-var _employee_data: Dictionary = {}
-var _employee_id: String = ""
-var _trust: int = 0
-var _suspicion: int = 0
-var _secrets_revealed: Array = []
-var _knowledge_index: int = 0
-var _chat_log: RichTextLabel
-var _input: LineEdit
-var _trust_bar: ProgressBar
-var _suspicion_bar: ProgressBar
-var _secrets_list: VBoxContainer
-var _name_label: Label
-var _role_label: Label
-var _traits_label: Label
-var _backdrop: ColorRect
-var _modal: PanelContainer
-
+var _emp: Dictionary; var _eid: String; var _trust: int; var _susp: int
+var _rev: Array; var _ki: int; var _sty: String; var _on := false
+var _log: RichTextLabel; var _inp: LineEdit
+var _tb: ProgressBar; var _sb: ProgressBar
+var _sl: VBoxContainer; var _modal: PanelContainer
 
 func _ready() -> void:
-	visible = false
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	visible = false; mouse_filter = Control.MOUSE_FILTER_IGNORE
+	anchors_preset = Control.PRESET_FULL_RECT
 
+func _unhandled_input(ev: InputEvent) -> void:
+	if _on and ev is InputEventKey and ev.pressed and ev.keycode == KEY_ESCAPE:
+		_close(); get_viewport().set_input_as_handled()
+
+# --- Public API ---
 
 func open_chat(employee_id: String) -> void:
-	_employee_id = employee_id
-	_employee_data = OpState.get_employee(employee_id)
-	if _employee_data.is_empty():
-		push_error("Employee not found: %s" % employee_id)
-		return
+	var op: Dictionary = GameState.get_current_operation()
+	var emps: Array = op.get("blacksite_target", {}).get("employees", [])
+	_emp = {}
+	for e in emps:
+		if e.get("id", "") == employee_id: _emp = e; break
+	if _emp.is_empty():
+		push_warning("SocialEngUI: employee '%s' not found" % employee_id); return
+	_eid = employee_id
+	var st: Dictionary = OpState.employee_states.get(_eid, {})
+	_trust = st.get("trust", 0); _susp = st.get("suspicion", 0)
+	_rev = st.get("secrets_revealed", []).duplicate(); _ki = 0
+	_sty = _style()
+	if _susp >= MAX_S:
+		EventBus.handler_speak.emit("That contact is burned. Don't go back.", "normal"); return
+	_on = true; mouse_filter = Control.MOUSE_FILTER_STOP; visible = true
+	_build()
+	_sys("Connected to %s (%s)" % [_emp.get("name", "?"), _emp.get("department", "")])
+	_npc(["Hi there, can I help you?", "Hey. What can I do for you?",
+		"Yes? How can I help?"][randi() % 3])
+	VoiceHandler.speak("You're talking to %s. Tread carefully." % _emp.get("name", "someone"))
+	await get_tree().process_frame
+	if is_instance_valid(_inp): _inp.grab_focus()
 
-	# Restore state from OpState
-	var state: Dictionary = OpState.employee_states.get(employee_id, {})
-	_trust = state.get("trust", 0)
-	_suspicion = state.get("suspicion", 0)
-	_secrets_revealed = state.get("secrets_revealed", []).duplicate()
-	_knowledge_index = 0
+# --- UI ---
 
-	_build_ui()
-	visible = true
-	mouse_filter = Control.MOUSE_FILTER_STOP
+func _sb_flat(bg: Color, border := Color.TRANSPARENT, bw := 0, cr := 0,
+		ml := 0, mr := 0, mt := 0, mb := 0) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = bg; s.border_color = border; s.set_border_width_all(bw)
+	s.set_corner_radius_all(cr)
+	s.content_margin_left = ml; s.content_margin_right = mr
+	s.content_margin_top = mt; s.content_margin_bottom = mb
+	return s
 
-	# Opening message
-	var name_str: String = _employee_data.get("name", "Unknown")
-	_add_system_msg("Connected to %s — %s" % [name_str, _employee_data.get("role", "")])
-	_add_npc_msg(_get_greeting())
-	VoiceHandler.speak("You're talking to %s. Tread carefully." % name_str)
+func _mk_lbl(txt: String, sz: int, col: Color) -> Label:
+	var l := Label.new(); l.text = txt
+	l.add_theme_font_size_override("font_size", sz)
+	l.add_theme_color_override("font_color", col); return l
 
-	_input.grab_focus()
+func _mk_bar(mx: int, col: Color) -> ProgressBar:
+	var b := ProgressBar.new(); b.min_value = 0; b.max_value = mx
+	b.show_percentage = false; b.custom_minimum_size = Vector2(0, 8)
+	var f := StyleBoxFlat.new(); f.bg_color = col; f.set_corner_radius_all(2)
+	b.add_theme_stylebox_override("fill", f)
+	var g := StyleBoxFlat.new(); g.bg_color = Color(0.08, 0.09, 0.12); g.set_corner_radius_all(2)
+	b.add_theme_stylebox_override("background", g); return b
 
-
-func close_chat() -> void:
-	# Save state back
-	OpState.employee_states[_employee_id] = {
-		"trust": _trust,
-		"suspicion": _suspicion,
-		"secrets_revealed": _secrets_revealed,
-	}
-	visible = false
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	# Clean up UI
-	for child in get_children():
-		child.queue_free()
-
-
-func _build_ui() -> void:
-	# Clear previous UI
-	for child in get_children():
-		child.queue_free()
-
+func _build() -> void:
+	for c in get_children(): c.queue_free()
 	# Backdrop
-	_backdrop = ColorRect.new()
-	_backdrop.anchors_preset = Control.PRESET_FULL_RECT
-	_backdrop.color = Color(0.0, 0.0, 0.0, 0.6)
-	_backdrop.gui_input.connect(func(event: InputEvent):
-		if event is InputEventMouseButton and event.pressed:
-			close_chat()
-	)
-	add_child(_backdrop)
-
-	# Modal panel
-	_modal = PanelContainer.new()
-	_modal.anchors_preset = Control.PRESET_CENTER
-	_modal.offset_left = -380
-	_modal.offset_top = -270
-	_modal.offset_right = 380
-	_modal.offset_bottom = 270
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = C_MODAL_BG
-	sb.border_color = C_BORDER
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 0
-	sb.content_margin_right = 0
-	sb.content_margin_top = 0
-	sb.content_margin_bottom = 0
-	_modal.add_theme_stylebox_override("panel", sb)
-	add_child(_modal)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 0)
-
+	var bg := ColorRect.new(); bg.anchors_preset = Control.PRESET_FULL_RECT
+	bg.color = Color(0, 0, 0, 0.65); bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(bg)
+	# Modal
+	_modal = PanelContainer.new(); _modal.anchors_preset = Control.PRESET_CENTER
+	_modal.anchor_left = 0.5; _modal.anchor_top = 0.5
+	_modal.anchor_right = 0.5; _modal.anchor_bottom = 0.5
+	_modal.offset_left = -MW / 2; _modal.offset_top = -MH / 2
+	_modal.offset_right = MW / 2; _modal.offset_bottom = MH / 2
+	_modal.add_theme_stylebox_override("panel", _sb_flat(C_BG, C_BORDER, 1, 6))
+	var root := VBoxContainer.new(); root.add_theme_constant_override("separation", 0)
 	# Header
-	var header := _build_header()
-	vbox.add_child(header)
+	var hdr := PanelContainer.new(); hdr.custom_minimum_size = Vector2(0, 44)
+	var hs := _sb_flat(C_HDR, C_BORDER, 0, 0, 12, 12, 6, 6)
+	hs.border_width_bottom = 1; hs.corner_radius_top_left = 6; hs.corner_radius_top_right = 6
+	hdr.add_theme_stylebox_override("panel", hs)
+	var hr := HBoxContainer.new()
+	var inf := VBoxContainer.new(); inf.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inf.add_theme_constant_override("separation", 0)
+	inf.add_child(_mk_lbl(_emp.get("name", "UNKNOWN"), 15, C_TEXT))
+	inf.add_child(_mk_lbl("%s | %s" % [_emp.get("role", ""), _emp.get("department", "")], 10, C_DIM))
+	hr.add_child(inf)
+	var xb := Button.new(); xb.text = "X"; xb.custom_minimum_size = Vector2(32, 32)
+	xb.pressed.connect(_close); hr.add_child(xb)
+	hdr.add_child(hr); root.add_child(hdr)
+	# Body
+	var body := HBoxContainer.new(); body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 0)
+	# Chat (65%)
+	var cw := PanelContainer.new(); cw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cw.size_flags_stretch_ratio = 0.65
+	cw.add_theme_stylebox_override("panel", _sb_flat(Color(0.025, 0.03, 0.04, 0.5), Color.TRANSPARENT, 0, 0, 8, 8, 8, 8))
+	var sc := ScrollContainer.new(); sc.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_log = RichTextLabel.new(); _log.bbcode_enabled = true; _log.fit_content = true
+	_log.size_flags_horizontal = Control.SIZE_EXPAND_FILL; _log.scroll_following = true
+	_log.add_theme_color_override("default_color", C_TEXT)
+	_log.add_theme_font_size_override("normal_font_size", 12)
+	sc.add_child(_log); cw.add_child(sc); body.add_child(cw)
+	# Profile (35%)
+	var pf := PanelContainer.new(); pf.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pf.size_flags_stretch_ratio = 0.35; pf.custom_minimum_size = Vector2(220, 0)
+	var ps := _sb_flat(Color(0.03, 0.035, 0.05, 0.7), C_BORDER, 0, 0, 10, 10, 10, 10)
+	ps.border_width_left = 1; pf.add_theme_stylebox_override("panel", ps)
+	var pv := VBoxContainer.new(); pv.add_theme_constant_override("separation", 6)
+	var ph := _mk_lbl(_emp.get("photo_description", "No photo available"), 10, C_DIM)
+	ph.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; pv.add_child(ph)
+	pv.add_child(_mk_lbl("TRUST", 9, C_DIM))
+	_tb = _mk_bar(_emp.get("trust_threshold", 3), C_TRUST); _tb.value = _trust; pv.add_child(_tb)
+	pv.add_child(_mk_lbl("SUSPICION", 9, C_DIM))
+	_sb = _mk_bar(MAX_S, C_SUSP); _sb.value = _susp; pv.add_child(_sb)
+	pv.add_child(_mk_lbl("TRAITS", 9, C_DIM))
+	var fl := HFlowContainer.new()
+	for t in _emp.get("personality_traits", []):
+		var bd := PanelContainer.new()
+		bd.add_theme_stylebox_override("panel", _sb_flat(Color(0.08, 0.1, 0.15, 0.8), C_BORDER, 1, 3, 6, 6, 2, 2))
+		bd.add_child(_mk_lbl(t, 9, C_DIM)); fl.add_child(bd)
+	pv.add_child(fl)
+	pv.add_child(_mk_lbl("SECRETS", 9, C_DIM))
+	_sl = VBoxContainer.new(); _sl.add_theme_constant_override("separation", 2)
+	_ref_sec(); pv.add_child(_sl)
+	pf.add_child(pv); body.add_child(pf); root.add_child(body)
+	# Input
+	var mg := MarginContainer.new()
+	mg.add_theme_constant_override("margin_left", 8); mg.add_theme_constant_override("margin_right", 8)
+	mg.add_theme_constant_override("margin_bottom", 8); mg.add_theme_constant_override("margin_top", 4)
+	var ir := HBoxContainer.new(); ir.add_theme_constant_override("separation", 6)
+	_inp = LineEdit.new(); _inp.placeholder_text = "Type a message..."
+	_inp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inp.custom_minimum_size = Vector2(0, 32)
+	_inp.add_theme_font_size_override("font_size", 12); _inp.text_submitted.connect(_send)
+	ir.add_child(_inp)
+	var sn := Button.new(); sn.text = "SEND"; sn.custom_minimum_size = Vector2(60, 32)
+	sn.pressed.connect(func(): _send(_inp.text)); ir.add_child(sn)
+	mg.add_child(ir); root.add_child(mg)
+	_modal.add_child(root); add_child(_modal)
+	_modal.modulate.a = 0.0
+	create_tween().tween_property(_modal, "modulate:a", 1.0, 0.15)
 
-	# Content area: chat + profile
-	var hbox := HBoxContainer.new()
-	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hbox.add_theme_constant_override("separation", 0)
-
-	# Chat panel (left 65%)
-	var chat_panel := _build_chat_panel()
-	chat_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chat_panel.size_flags_stretch_ratio = 0.65
-	hbox.add_child(chat_panel)
-
-	# Profile panel (right 35%)
-	var profile_panel := _build_profile_panel()
-	profile_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	profile_panel.size_flags_stretch_ratio = 0.35
-	hbox.add_child(profile_panel)
-
-	vbox.add_child(hbox)
-
-	# Input bar
-	var input_bar := _build_input_bar()
-	vbox.add_child(input_bar)
-
-	_modal.add_child(vbox)
-
-
-func _build_header() -> PanelContainer:
-	var panel := PanelContainer.new()
-	var hsb := StyleBoxFlat.new()
-	hsb.bg_color = C_HEADER
-	hsb.border_color = C_BORDER
-	hsb.border_width_bottom = 1
-	hsb.content_margin_left = 16
-	hsb.content_margin_right = 16
-	hsb.content_margin_top = 10
-	hsb.content_margin_bottom = 10
-	panel.add_theme_stylebox_override("panel", hsb)
-
-	var hbox := HBoxContainer.new()
-
-	_name_label = Label.new()
-	_name_label.text = _employee_data.get("name", "Unknown")
-	_name_label.add_theme_font_size_override("font_size", 16)
-	_name_label.add_theme_color_override("font_color", C_TEXT)
-	hbox.add_child(_name_label)
-
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(spacer)
-
-	_role_label = Label.new()
-	_role_label.text = "%s — %s" % [_employee_data.get("role", ""), _employee_data.get("department", "")]
-	_role_label.add_theme_font_size_override("font_size", 11)
-	_role_label.add_theme_color_override("font_color", C_DIM)
-	hbox.add_child(_role_label)
-
-	var spacer2 := Control.new()
-	spacer2.custom_minimum_size = Vector2(16, 0)
-	hbox.add_child(spacer2)
-
-	# Close button
-	var close_btn := Button.new()
-	close_btn.text = "X"
-	close_btn.add_theme_font_size_override("font_size", 12)
-	close_btn.pressed.connect(close_chat)
-	hbox.add_child(close_btn)
-
-	panel.add_child(hbox)
-	return panel
-
-
-func _build_chat_panel() -> VBoxContainer:
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 0)
-
-	_chat_log = RichTextLabel.new()
-	_chat_log.bbcode_enabled = true
-	_chat_log.scroll_following = true
-	_chat_log.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_chat_log.add_theme_color_override("default_color", C_TEXT)
-	_chat_log.add_theme_font_size_override("normal_font_size", 12)
-	vbox.add_child(_chat_log)
-
-	return vbox
-
-
-func _build_profile_panel() -> PanelContainer:
-	var panel := PanelContainer.new()
-	var psb := StyleBoxFlat.new()
-	psb.bg_color = Color(0.03, 0.035, 0.05, 0.95)
-	psb.border_color = C_BORDER
-	psb.border_width_left = 1
-	psb.content_margin_left = 12
-	psb.content_margin_right = 12
-	psb.content_margin_top = 12
-	psb.content_margin_bottom = 12
-	panel.add_theme_stylebox_override("panel", psb)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-
-	# Photo description
-	var photo := Label.new()
-	photo.text = _employee_data.get("photo_description", "No photo available.")
-	photo.add_theme_font_size_override("font_size", 10)
-	photo.add_theme_color_override("font_color", C_DIM)
-	photo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(photo)
-
-	# Trust bar
-	var trust_header := Label.new()
-	trust_header.text = "TRUST"
-	trust_header.add_theme_font_size_override("font_size", 10)
-	trust_header.add_theme_color_override("font_color", C_DIM)
-	vbox.add_child(trust_header)
-
-	_trust_bar = ProgressBar.new()
-	_trust_bar.min_value = 0
-	_trust_bar.max_value = _employee_data.get("trust_threshold", 3)
-	_trust_bar.value = _trust
-	_trust_bar.show_percentage = false
-	_trust_bar.custom_minimum_size = Vector2(0, 10)
-	var tf := StyleBoxFlat.new()
-	tf.bg_color = C_TRUST
-	tf.set_corner_radius_all(2)
-	_trust_bar.add_theme_stylebox_override("fill", tf)
-	vbox.add_child(_trust_bar)
-
-	# Suspicion bar
-	var susp_header := Label.new()
-	susp_header.text = "SUSPICION"
-	susp_header.add_theme_font_size_override("font_size", 10)
-	susp_header.add_theme_color_override("font_color", C_DIM)
-	vbox.add_child(susp_header)
-
-	_suspicion_bar = ProgressBar.new()
-	_suspicion_bar.min_value = 0
-	_suspicion_bar.max_value = 5
-	_suspicion_bar.value = _suspicion
-	_suspicion_bar.show_percentage = false
-	_suspicion_bar.custom_minimum_size = Vector2(0, 10)
-	var sf := StyleBoxFlat.new()
-	sf.bg_color = C_SUSPICION
-	sf.set_corner_radius_all(2)
-	_suspicion_bar.add_theme_stylebox_override("fill", sf)
-	vbox.add_child(_suspicion_bar)
-
-	# Traits
-	_traits_label = Label.new()
-	var traits: Array = _employee_data.get("personality_traits", [])
-	_traits_label.text = "Traits: %s" % ", ".join(traits)
-	_traits_label.add_theme_font_size_override("font_size", 10)
-	_traits_label.add_theme_color_override("font_color", C_DIM)
-	_traits_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(_traits_label)
-
-	# Secrets revealed
-	var sec_header := Label.new()
-	sec_header.text = "SECRETS REVEALED"
-	sec_header.add_theme_font_size_override("font_size", 10)
-	sec_header.add_theme_color_override("font_color", C_SECRET)
-	vbox.add_child(sec_header)
-
-	_secrets_list = VBoxContainer.new()
-	_secrets_list.add_theme_constant_override("separation", 4)
-	for s in _secrets_revealed:
-		_add_secret_to_list(s)
-	vbox.add_child(_secrets_list)
-
-	panel.add_child(vbox)
-	return panel
-
-
-func _build_input_bar() -> HBoxContainer:
-	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 0)
-
-	var bar_bg := PanelContainer.new()
-	var isb := StyleBoxFlat.new()
-	isb.bg_color = Color(0.03, 0.035, 0.05)
-	isb.border_color = C_BORDER
-	isb.border_width_top = 1
-	isb.content_margin_left = 12
-	isb.content_margin_right = 8
-	isb.content_margin_top = 8
-	isb.content_margin_bottom = 8
-	bar_bg.add_theme_stylebox_override("panel", isb)
-	bar_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var inner_hbox := HBoxContainer.new()
-
-	_input = LineEdit.new()
-	_input.placeholder_text = "Type a message..."
-	_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_input.add_theme_color_override("font_color", C_TEXT)
-	_input.add_theme_font_size_override("font_size", 13)
-	_input.text_submitted.connect(_on_input_submitted)
-	inner_hbox.add_child(_input)
-
-	var send_btn := Button.new()
-	send_btn.text = "SEND"
-	send_btn.pressed.connect(func(): _on_input_submitted(_input.text))
-	inner_hbox.add_child(send_btn)
-
-	bar_bg.add_child(inner_hbox)
-	hbox.add_child(bar_bg)
-	return hbox
-
-
-# ===========================================================================
-# Message handling
-# ===========================================================================
-
-func _on_input_submitted(text: String) -> void:
-	text = text.strip_edges()
-	if text.is_empty():
-		return
-	_input.text = ""
-
-	_add_player_msg(text)
-	_process_input(text)
-	_input.grab_focus()
-
-
-func _process_input(text: String) -> void:
-	var lower := text.to_lower()
-	var style := _get_response_style()
-
-	# Check categories in priority order
-	if _matches_any(lower, KW_AGGRESSIVE):
-		_handle_aggressive(style)
-	elif _matches_any(lower, KW_PROBE):
-		_handle_probe(style)
-	elif _matches_any(lower, KW_VULNERABILITY):
-		_handle_vulnerability(style)
-	elif _matches_any(lower, KW_WORK):
-		_handle_work(style)
-	elif _matches_any(lower, KW_SMALLTALK):
-		_handle_smalltalk(style)
+func _ref_sec() -> void:
+	if not is_instance_valid(_sl): return
+	for c in _sl.get_children(): c.queue_free()
+	if _rev.is_empty():
+		_sl.add_child(_mk_lbl("None yet", 9, C_DIM))
 	else:
-		_handle_fallback(style)
+		for s in _rev:
+			var l := _mk_lbl("* %s" % s.left(48), 9, C_SECRET)
+			l.autowrap_mode = TextServer.AUTOWRAP_WORD; _sl.add_child(l)
 
-	_update_bars()
-	_check_suspicion()
+# --- Chat ---
 
+func _plr(t: String) -> void:
+	_log.append_text("\n[right][color=#%s]> %s[/color][/right]" % [C_PLR.to_html(false), t])
+func _npc(t: String) -> void:
+	var f: String = _emp.get("name", "???").split(" ")[0]
+	_log.append_text("\n[color=#%s]%s:[/color] [color=#%s]%s[/color]" % [
+		C_TRUST.to_html(false), f, C_TEXT.to_html(false), t])
+func _sys(t: String) -> void:
+	_log.append_text("\n[center][color=#%s]--- %s ---[/color][/center]" % [C_DIM.to_html(false), t])
+func _sec_msg(t: String) -> void:
+	_log.append_text("\n[color=#%s][b]%s[/b][/color]" % [C_SECRET.to_html(false), t])
+	_log.append_text("\n[center][color=#%s][SECRET REVEALED][/color][/center]" % [C_SECRET.to_html(false)])
 
-func _handle_smalltalk(style: String) -> void:
-	_trust = min(_trust + 1, 10)
-	_add_npc_msg(_pick_response(style, "smalltalk"))
-	EventBus.se_trust_changed.emit(_employee_id, _trust)
+# --- Engine ---
 
+func _send(text: String) -> void:
+	var t := text.strip_edges()
+	if t.is_empty(): return
+	_inp.text = ""; _plr(t)
+	var lo := t.to_lower(); var thr: int = _emp.get("trust_threshold", 3)
+	if _kw(lo, KW_AG): _do_ag()
+	elif _vm(lo): _do_vn()
+	elif _kw(lo, KW_PR): _do_pr(thr)
+	elif _kw(lo, KW_WK): _do_wk()
+	elif _kw(lo, KW_SM): _do_sm()
+	else: _do_fb()
+	await _chk(); _sync(); _ub()
+	if _on and is_instance_valid(_inp):
+		await get_tree().process_frame; _inp.grab_focus()
 
-func _handle_work(style: String) -> void:
-	_trust = min(_trust + 1, 10)
-	var knowledge: Array = _employee_data.get("knowledge_set", [])
-	if not knowledge.is_empty() and _knowledge_index < knowledge.size():
-		var info: String = knowledge[_knowledge_index]
-		_knowledge_index = (_knowledge_index + 1) % knowledge.size()
-		_add_npc_msg(_pick_response(style, "work"))
-		_add_system_msg("[color=#6688aa]Intel: %s[/color]" % info)
+func _do_sm() -> void:
+	_trust = mini(_trust + 1, 10); _npc(_tp("sm"))
+	EventBus.se_trust_changed.emit(_eid, _trust)
+
+func _do_wk() -> void:
+	_trust = mini(_trust + 1, 10)
+	var kn: Array = _emp.get("knowledge_set", [])
+	if kn.is_empty(): _npc(_tp("fb")); return
+	var info: String = kn[_ki % kn.size()]; _ki += 1
+	_npc(_tp("wk") % info); EventBus.se_trust_changed.emit(_eid, _trust)
+
+func _do_pr(thr: int) -> void:
+	if _trust >= thr:
+		var secs: Array = _emp.get("secrets", [])
+		var pool: Array = []
+		for s in secs:
+			if s not in _rev: pool.append(s)
+		if pool.is_empty():
+			_npc("I've told you everything I know about that."); return
+		var sec: String = pool[0]; _rev.append(sec)
+		_npc(_tp("ph") % sec); _sec_msg(sec)
+		EventBus.se_secret_revealed.emit(_eid, sec)
+		EventBus.handler_speak.emit("Good work. That could be useful.", "normal")
+		if is_instance_valid(_modal):
+			Juice.float_text(_modal, "+SECRET", Vector2(MW / 2 - 40, MH / 2 - 20), C_SECRET)
+		_ref_sec()
 	else:
-		_add_npc_msg(_pick_response(style, "work"))
-	EventBus.se_trust_changed.emit(_employee_id, _trust)
+		_susp = mini(_susp + 1, MAX_S); _npc(_tp("pl"))
 
+func _do_ag() -> void:
+	_susp = mini(_susp + 2, MAX_S); _trust = maxi(_trust - 1, 0)
+	_npc(_tp("ag")); EventBus.se_trust_changed.emit(_eid, _trust)
 
-func _handle_probe(style: String) -> void:
-	var threshold: int = _employee_data.get("trust_threshold", 3)
-	if _trust >= threshold:
-		# Reveal a secret!
-		var secrets: Array = _employee_data.get("secrets", [])
-		var unrevealed := []
-		for s in secrets:
-			if s not in _secrets_revealed:
-				unrevealed.append(s)
+func _do_vn() -> void:
+	_trust = mini(_trust + 2, 10); _npc(_tp("vn"))
+	EventBus.se_trust_changed.emit(_eid, _trust)
+	EventBus.handler_speak.emit("You found a pressure point. Keep going.", "normal")
 
-		if not unrevealed.is_empty():
-			var secret: String = unrevealed[0]
-			_secrets_revealed.append(secret)
-			_add_npc_msg("Look... I probably shouldn't tell you this, but...")
-			_add_secret_msg(secret)
-			_add_secret_to_list(secret)
-			EventBus.se_secret_revealed.emit(_employee_id, secret)
-			VoiceHandler.speak("Good work. That could be useful.")
-			Juice.float_text(self, "+SECRET", Vector2(size.x / 2, size.y / 2 - 50), C_SECRET)
-		else:
-			_add_npc_msg("I've told you everything I know about that.")
-	else:
-		_suspicion += 1
-		_add_npc_msg(_pick_response(style, "probe_low"))
-		if _suspicion == 3:
-			_add_system_msg("[color=#cc8833]They seem uncomfortable with your questions.[/color]")
+func _do_fb() -> void: _npc(_tp("fb"))
 
+# --- Suspicion ---
 
-func _handle_aggressive(style: String) -> void:
-	_suspicion += 2
-	_trust = max(0, _trust - 1)
-	_add_npc_msg(_pick_response(style, "aggressive"))
-	EventBus.se_trust_changed.emit(_employee_id, _trust)
-
-
-func _handle_vulnerability(style: String) -> void:
-	_trust = min(_trust + 2, 10)
-	_add_npc_msg(_pick_response(style, "vulnerability"))
-	EventBus.se_trust_changed.emit(_employee_id, _trust)
-	_add_system_msg("[color=#44aa66]They're opening up to you.[/color]")
-
-
-func _handle_fallback(style: String) -> void:
-	_add_npc_msg(_pick_response(style, "fallback"))
-
-
-func _check_suspicion() -> void:
-	if _suspicion >= 5:
-		_add_npc_msg("I'm going to report this conversation. We're done.")
-		_add_system_msg("[color=#cc3333]SUSPICION MAXED — Conversation terminated. Detection increased.[/color]")
+func _chk() -> void:
+	if _susp == 3:
+		_sys("They seem uncomfortable"); _npc("You're asking a lot of questions...")
+	elif _susp == 4:
+		_sys("Suspicion is critical"); _npc("I don't think I should be telling you this.")
+	elif _susp >= MAX_S:
+		_sys("BLOWN -- employee will report this conversation")
+		_npc("I'm going to report this conversation.")
 		OpState.add_detection("se_failed")
+		EventBus.handler_speak.emit("Cover's blown. We lost that contact.", "critical")
+		_sync()
 		await get_tree().create_timer(1.5).timeout
-		close_chat()
-	elif _suspicion >= 4:
-		_add_system_msg("[color=#cc6633]\"I don't think I should be telling you this.\"[/color]")
-	elif _suspicion >= 3:
-		_add_system_msg("[color=#cc8833]\"You're asking a lot of questions...\"[/color]")
+		_close()
 
+# --- Helpers ---
 
-# ===========================================================================
-# Chat display helpers
-# ===========================================================================
-
-func _add_player_msg(text: String) -> void:
-	_chat_log.append_text("[right][color=#6699cc]You: %s[/color][/right]\n" % text)
-
-
-func _add_npc_msg(text: String) -> void:
-	var name_str: String = _employee_data.get("name", "???").split(" ")[0]
-	_chat_log.append_text("[color=#bbbbcc]%s: %s[/color]\n" % [name_str, text])
-
-
-func _add_system_msg(text: String) -> void:
-	_chat_log.append_text("[center]%s[/center]\n" % text)
-
-
-func _add_secret_msg(secret: String) -> void:
-	_chat_log.append_text("[center][color=#f2cc33][SECRET REVEALED] %s[/color][/center]\n" % secret)
-
-
-func _add_secret_to_list(secret: String) -> void:
-	var lbl := Label.new()
-	lbl.text = "• %s" % secret
-	lbl.add_theme_font_size_override("font_size", 9)
-	lbl.add_theme_color_override("font_color", C_SECRET)
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_secrets_list.add_child(lbl)
-
-
-func _update_bars() -> void:
-	if _trust_bar:
-		_trust_bar.value = _trust
-	if _suspicion_bar:
-		_suspicion_bar.value = _suspicion
-
-
-# ===========================================================================
-# Response helpers
-# ===========================================================================
-
-func _get_response_style() -> String:
-	var traits: Array = _employee_data.get("personality_traits", [])
-	if "talkative" in traits or "friendly" in traits:
-		return "friendly_guard"
-	return "tech_professional"
-
-
-func _get_greeting() -> String:
-	var style := _get_response_style()
-	if style == "friendly_guard":
-		return "Hey there! What can I do for you?"
-	return "Hi. Can I help you with something?"
-
-
-func _pick_response(style: String, category: String) -> String:
-	var pool: Array = RESPONSES.get(style, RESPONSES["tech_professional"]).get(category, ["..."])
-	return pool[randi() % pool.size()]
-
-
-func _matches_any(text: String, keywords: Array) -> bool:
-	for kw in keywords:
-		if kw in text:
-			return true
+func _kw(i: String, w: Array) -> bool:
+	for k in w:
+		if k in i: return true
 	return false
 
+func _vm(i: String) -> bool:
+	for v in _emp.get("vulnerabilities", []):
+		for w in v.get("exploit_vector", "").to_lower().split(" "):
+			if w.length() >= 4 and w in i: return true
+	return false
 
-func _unhandled_input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		close_chat()
-		get_viewport().set_input_as_handled()
+func _tp(cat: String) -> String:
+	var p: Dictionary = T.get(_sty, T["ct"])
+	var a: Array = p.get(cat, ["..."]); return a[randi() % a.size()]
+
+func _style() -> String:
+	var traits_str: String = " ".join(PackedStringArray(_emp.get("personality_traits", [])))
+	var c: String = (traits_str + " " + _emp.get("speech_pattern", "")).to_lower()
+	if "talkative" in c or "friendly" in c or "chatty" in c: return "ft"
+	if "reserved" in c or "formal" in c or "precise" in c: return "rp"
+	return "ct"
+
+func _sync() -> void:
+	OpState.employee_states[_eid] = {"trust": _trust, "suspicion": _susp,
+		"secrets_revealed": _rev.duplicate()}
+
+func _ub() -> void:
+	if is_instance_valid(_tb): _tb.value = _trust
+	if is_instance_valid(_sb): _sb.value = _susp
+
+func _close() -> void:
+	if not _on: return
+	_on = false; _sync()
+	if is_instance_valid(_modal):
+		var tw := create_tween()
+		tw.tween_property(_modal, "modulate:a", 0.0, 0.12)
+		tw.tween_callback(func():
+			visible = false; mouse_filter = Control.MOUSE_FILTER_IGNORE
+			for ch in get_children(): ch.queue_free())
+	else: visible = false; mouse_filter = Control.MOUSE_FILTER_IGNORE
