@@ -144,16 +144,30 @@ game-forge/
     forge.py             # GameForge -- high-level facade
     cli.py               # Click CLI (the `forge` command)
     prompts.py           # System prompts for each agent role
-  schemas/               # Pydantic data models
-    __init__.py          # Re-exports all models
-    game.py              # GameConcept, WorldDefinition, Quest, NPC, Item, etc.
-  tools/                 # MCP bridge and utility tools (planned)
-  state/                 # State persistence layer (planned)
-  assets/                # Shared asset resources
-  godot_template/        # Godot 4 project template
-    assets/              # Art assets directory
-    scenes/              # .tscn scene files
-    scripts/             # GDScript files
+  schemas/               # Pydantic data models (51 types)
+    world.py             # Biome, Room, Region, DungeonLayout, WorldDefinition
+    quest.py             # Quest, QuestChain, DialogueTree, LoreEntry
+    npc.py               # NPCDefinition, Personality, Relationship, Schedule
+    item.py              # ItemDefinition, LootTable, StatModifier
+    combat.py            # CombatSystem, StatSystem, Encounter, Ability, QAReport
+    project.py           # GameConcept, GameProject, GameGenre
+  tools/                 # MCP bridge and Godot integration
+    godot_bridge.py      # WebSocket MCP client (JSON-RPC 2.0)
+    scene_tools.py       # Create/modify Godot scenes via MCP
+    script_tools.py      # Generate and validate GDScript
+    state_tools.py       # SQLite game state persistence (aiosqlite)
+    asset_tools.py       # AI image generation + Pillow placeholders
+  godot_template/        # Godot 4.6 game template (11 GDScript files)
+    scripts/
+      game_state.gd      # Central state autoload (inventory, quests, stats)
+      event_bus.gd       # Global signal bus (15 signals)
+      dialogue_system.gd # Branching dialogue with typewriter effect
+      combat_system.gd   # Turn-based combat engine
+      inventory.gd       # Inventory UI with rarity colors
+      quest_tracker.gd   # Quest journal with objectives
+      npc_controller.gd  # NPC behavior (wander, talk, follow)
+      mcp_client.gd      # WebSocket bridge to Python orchestrator
+      procedural/        # Tilemap, dungeon, and encounter generation
   tests/                 # Pytest test suite
   examples/              # Example prompts and outputs
   pyproject.toml         # Python project configuration
@@ -170,7 +184,10 @@ game-forge/
 - **Click** -- CLI framework
 - **Rich** -- terminal UI (progress spinners, tables, panels)
 - **Godot 4.6+** -- target game engine
-- **Godot MCP Server** -- WebSocket bridge for scene/script generation (planned)
+- **Godot MCP Server** -- WebSocket bridge for scene/script generation
+- **aiosqlite** -- async SQLite for game state persistence
+- **Pillow** -- placeholder asset generation
+- **websockets** -- MCP bridge transport
 
 ---
 
@@ -181,7 +198,7 @@ game-forge/
 | Python | >= 3.11 | async/await, `StrEnum`, type hints |
 | Anthropic API key | -- | Set as `ANTHROPIC_API_KEY` |
 | Godot Engine | >= 4.6 | For opening exported projects |
-| Godot MCP Server | -- | Optional, for live scene generation |
+| Godot MCP Server | -- | Optional; enables live scene generation via WebSocket |
 
 ---
 

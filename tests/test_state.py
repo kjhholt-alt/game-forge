@@ -7,12 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from schemas.game import (
-    GameConcept,
-    GameProject,
-    Item,
-    ItemType,
-)
+from schemas import GameConcept, GameProject
 from schemas.world import WorldDefinition
 from tools.state_tools import StateTools
 
@@ -35,6 +30,7 @@ async def state() -> StateTools:
 def minimal_project() -> GameProject:
     """Minimal GameProject for persistence testing."""
     return GameProject(
+        id="proj_test_001",
         concept=GameConcept(
             title="Test Game",
             genre="rpg",
