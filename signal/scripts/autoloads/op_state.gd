@@ -81,7 +81,6 @@ var employee_states: Dictionary = {}
 # ---------------------------------------------------------------------------
 
 func reset() -> void:
-	"""Reset all state for a new operation."""
 	evidence_items.clear()
 	connections.clear()
 	pinned_ids.clear()
@@ -98,7 +97,6 @@ func reset() -> void:
 
 
 func load_operation(op_data: Dictionary) -> void:
-	"""Load operation data and populate evidence items."""
 	reset()
 
 	burn_threshold = op_data.get("max_detection_threshold", 1.0)
@@ -120,7 +118,6 @@ func load_operation(op_data: Dictionary) -> void:
 
 
 func add_detection(action_type: String) -> void:
-	"""Increase detection based on action type. May trigger burn."""
 	var cost: float = DETECTION_COSTS.get(action_type, 0.05)
 
 	# Network Exploitation skill reduces detection
@@ -132,7 +129,6 @@ func add_detection(action_type: String) -> void:
 
 
 func _update_detection_level() -> void:
-	"""Update detection level string based on current value."""
 	var old_level := detection_level
 
 	if detection_value < 0.25:
@@ -152,10 +148,6 @@ func _update_detection_level() -> void:
 
 
 func compute_prep_score() -> float:
-	"""Score the evidence board based on correct connections.
-
-	Returns a value between 0.0 and 1.0 representing board quality.
-	"""
 	if connections.is_empty():
 		prep_score = 0.0
 		return prep_score
@@ -184,7 +176,6 @@ func compute_prep_score() -> float:
 
 
 func add_credential(username: String, password: String, host_id: String) -> void:
-	"""Add a discovered credential."""
 	found_credentials.append({
 		"username": username,
 		"password": password,
@@ -193,7 +184,6 @@ func add_credential(username: String, password: String, host_id: String) -> void
 
 
 func exfiltrate_file(file_id: String) -> void:
-	"""Mark a file as exfiltrated."""
 	if file_id not in exfiltrated_files:
 		exfiltrated_files.append(file_id)
 		EventBus.file_exfiltrated.emit(file_id)

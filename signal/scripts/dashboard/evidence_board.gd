@@ -11,42 +11,39 @@ extends GraphEdit
 # ---------------------------------------------------------------------------
 
 const EVIDENCE_COLORS := {
-	"phone_transcript": Color(0.2, 0.8, 0.3, 1.0),    # Green
-	"email": Color(0.3, 0.5, 0.9, 1.0),                # Blue
-	"financial_record": Color(0.9, 0.8, 0.2, 1.0),     # Yellow
-	"surveillance_log": Color(0.9, 0.3, 0.3, 1.0),     # Red
-	"credential": Color(0.8, 0.4, 0.9, 1.0),           # Purple
-	"document": Color(0.6, 0.6, 0.6, 1.0),             # Gray
+	"phone_transcript": Color(0.2, 0.8, 0.3),
+	"email": Color(0.3, 0.5, 0.9),
+	"financial_record": Color(0.9, 0.8, 0.2),
+	"surveillance_log": Color(0.9, 0.3, 0.3),
+	"credential": Color(0.8, 0.4, 0.9),
+	"document": Color(0.6, 0.6, 0.6),
 }
 
 const EVIDENCE_ICONS := {
 	"phone_transcript": "PHONE",
 	"email": "EMAIL",
-	"financial_record": "$$",
-	"surveillance_log": "EYE",
+	"financial_record": "FINANCE",
+	"surveillance_log": "SURVEIL",
 	"credential": "KEY",
 	"document": "DOC",
 }
 
-const CONNECTION_TYPE_OPTIONS := [
-	"mentions",
-	"finances",
-	"contacts",
-	"location",
-	"timeline",
-	"identity",
-]
+const NODE_WIDTH := 300
+const NODE_MIN_HEIGHT := 120
+const GRID_COLS := 3
+const GRID_SPACING_X := 360
+const GRID_SPACING_Y := 200
+const GRID_OFFSET := Vector2(40, 40)
 
 
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
 
-## Map of evidence_id -> GraphNode instance
 var _nodes: Dictionary = {}
-
-## Connection counter for unique IDs
 var _conn_counter: int = 0
+var _pending_connection: Dictionary = {}  # Stores pending connection while popup is open
+var _connection_popup: PopupPanel = null
 
 
 # ---------------------------------------------------------------------------
@@ -54,18 +51,23 @@ var _conn_counter: int = 0
 # ---------------------------------------------------------------------------
 
 func _ready() -> void:
-	# GraphEdit settings
 	right_disconnects = true
 	snapping_enabled = true
 	snapping_distance = 20
 	minimap_enabled = true
 	minimap_size = Vector2(200, 150)
+	show_grid = true
 
-	# Connect signals
 	connection_request.connect(_on_connection_request)
 	disconnection_request.connect(_on_disconnection_request)
 	EventBus.intercepts_received.connect(_on_intercepts_received)
 	EventBus.phase_changed.connect(_on_phase_changed)
+
+	# Create connection type popup
+	_connection_popup = preload("res://scripts/dashboard/connection_popup.gd").new()
+	add_child(_connection_popup)
+	_connection_popup.connection_confirmed.connect(_on_connection_type_selected)
+	_connection_popup.connection_cancelled.connect(_on_connection_cancelled)
 
 
 # ---------------------------------------------------------------------------
@@ -73,28 +75,29 @@ func _ready() -> void:
 # ---------------------------------------------------------------------------
 
 func load_evidence(items: Array) -> void:
-	"""Load evidence items onto the board as GraphNodes."""
 	clear_board()
 
 	var col := 0
 	var row := 0
-	var spacing := Vector2(280, 180)
 
 	for item in items:
 		var node := _create_evidence_node(item)
 		add_child(node)
-		node.position_offset = Vector2(col * spacing.x + 50, row * spacing.y + 50)
+		node.position_offset = GRID_OFFSET + Vector2(col * GRID_SPACING_X, row * GRID_SPACING_Y)
 
 		_nodes[item.get("id", "")] = node
 
 		col += 1
-		if col >= 4:
+		if col >= GRID_COLS:
 			col = 0
 			row += 1
 
+	# Zoom to fit content
+	zoom = 0.85
+	scroll_offset = Vector2(-20, -20)
+
 
 func clear_board() -> void:
-	"""Remove all evidence nodes and connections."""
 	clear_connections()
 	for node in _nodes.values():
 		if is_instance_valid(node):
@@ -104,7 +107,6 @@ func clear_board() -> void:
 
 
 func get_prep_score() -> float:
-	"""Compute and return the current prep score."""
 	return OpState.compute_prep_score()
 
 
@@ -113,60 +115,110 @@ func get_prep_score() -> float:
 # ---------------------------------------------------------------------------
 
 func _create_evidence_node(item: Dictionary) -> GraphNode:
-	"""Create a GraphNode for an evidence item."""
 	var node := GraphNode.new()
 	var ev_id: String = item.get("id", "unknown")
 	var ev_type: String = item.get("evidence_type", "document")
+	var color: Color = EVIDENCE_COLORS.get(ev_type, Color.GRAY)
+	var icon_tag: String = EVIDENCE_ICONS.get(ev_type, "?")
 
 	node.name = "Evidence_%s" % ev_id
-	node.title = "%s  %s" % [EVIDENCE_ICONS.get(ev_type, "?"), item.get("title", "Unknown")]
-	node.size = Vector2(240, 100)
-	node.resizable = true
+	node.title = "[%s]  %s" % [icon_tag, item.get("title", "Unknown")]
+	node.custom_minimum_size = Vector2(NODE_WIDTH, NODE_MIN_HEIGHT)
+	node.resizable = false
 	node.draggable = true
 
-	# Color the title bar
-	var color: Color = EVIDENCE_COLORS.get(ev_type, Color.GRAY)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(color.r, color.g, color.b, 0.3)
-	sb.border_color = color
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(4)
-	node.add_theme_stylebox_override("titlebar", sb)
+	# --- Title bar styling ---
+	var sb_title := StyleBoxFlat.new()
+	sb_title.bg_color = Color(color.r * 0.3, color.g * 0.3, color.b * 0.3, 0.9)
+	sb_title.border_color = color
+	sb_title.border_width_top = 2
+	sb_title.border_width_left = 1
+	sb_title.border_width_right = 1
+	sb_title.border_width_bottom = 0
+	sb_title.corner_radius_top_left = 4
+	sb_title.corner_radius_top_right = 4
+	sb_title.content_margin_left = 8
+	sb_title.content_margin_right = 8
+	sb_title.content_margin_top = 6
+	sb_title.content_margin_bottom = 6
+	node.add_theme_stylebox_override("titlebar", sb_title)
 
-	var sb_selected := sb.duplicate()
-	sb_selected.border_color = Color.WHITE
-	sb_selected.set_border_width_all(2)
-	node.add_theme_stylebox_override("titlebar_selected", sb_selected)
+	var sb_sel := sb_title.duplicate()
+	sb_sel.border_color = Color.WHITE
+	sb_sel.border_width_top = 2
+	sb_sel.border_width_left = 2
+	sb_sel.border_width_right = 2
+	node.add_theme_stylebox_override("titlebar_selected", sb_sel)
 
-	# Content preview (first 80 chars)
+	# --- Panel body styling ---
+	var sb_panel := StyleBoxFlat.new()
+	sb_panel.bg_color = Color(0.08, 0.09, 0.12, 0.95)
+	sb_panel.border_color = Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 0.6)
+	sb_panel.set_border_width_all(1)
+	sb_panel.border_width_top = 0
+	sb_panel.corner_radius_bottom_left = 4
+	sb_panel.corner_radius_bottom_right = 4
+	sb_panel.content_margin_left = 10
+	sb_panel.content_margin_right = 10
+	sb_panel.content_margin_top = 8
+	sb_panel.content_margin_bottom = 8
+	node.add_theme_stylebox_override("panel", sb_panel)
+	node.add_theme_stylebox_override("panel_selected", sb_panel)
+
+	# --- Title font color ---
+	node.add_theme_color_override("title_color", color)
+
+	# --- Content label ---
 	var content: String = item.get("content", "")
-	var preview: String = content.substr(0, 80)
-	if content.length() > 80:
+	var preview: String = content.substr(0, 120).replace("\n", " ")
+	if content.length() > 120:
 		preview += "..."
 
-	var label := RichTextLabel.new()
+	var label := Label.new()
 	label.text = preview
-	label.fit_content = true
-	label.custom_minimum_size = Vector2(220, 40)
-	label.add_theme_font_size_override("normal_font_size", 11)
-	label.add_theme_color_override("default_color", Color(0.7, 0.7, 0.7))
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(NODE_WIDTH - 30, 50)
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color(0.65, 0.68, 0.72))
 	node.add_child(label)
 
-	# Classification badge
-	var classification: String = item.get("classification", "confidential")
-	var badge := Label.new()
-	badge.text = classification.to_upper()
-	badge.add_theme_font_size_override("font_size", 9)
-	badge.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-	node.add_child(badge)
+	# --- Classification + type badges ---
+	var badge_row := HBoxContainer.new()
+	badge_row.custom_minimum_size = Vector2(NODE_WIDTH - 30, 20)
 
-	# Set up connection slots (1 input on left, 1 output on right)
+	var classification: String = item.get("classification", "confidential")
+	var cls_label := Label.new()
+	cls_label.text = classification.to_upper()
+	cls_label.add_theme_font_size_override("font_size", 10)
+	match classification:
+		"top_secret": cls_label.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
+		"secret": cls_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.2))
+		"confidential": cls_label.add_theme_color_override("font_color", Color(0.3, 0.5, 0.9))
+		_: cls_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	badge_row.add_child(cls_label)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	badge_row.add_child(spacer)
+
+	var ts: String = item.get("timestamp", "")
+	if ts.length() > 10:
+		ts = ts.substr(0, 10)
+	var ts_label := Label.new()
+	ts_label.text = ts
+	ts_label.add_theme_font_size_override("font_size", 10)
+	ts_label.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
+	badge_row.add_child(ts_label)
+
+	node.add_child(badge_row)
+
+	# --- Connection slots ---
 	node.set_slot(0, true, 0, color, true, 0, color)
 
-	# Store evidence ID as metadata
+	# --- Metadata ---
 	node.set_meta("evidence_id", ev_id)
 
-	# Click to open in document viewer
+	# --- Selection ---
 	node.node_selected.connect(func(): _on_evidence_selected(ev_id))
 
 	return node
@@ -177,14 +229,11 @@ func _create_evidence_node(item: Dictionary) -> GraphNode:
 # ---------------------------------------------------------------------------
 
 func _on_evidence_selected(evidence_id: String) -> void:
-	"""Handle evidence node selection — open in document viewer."""
 	EventBus.evidence_selected.emit(evidence_id)
 	EventBus.document_opened.emit(evidence_id)
 
 
 func _on_connection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
-	"""Handle player drawing a connection between evidence items."""
-	# Get evidence IDs from node metadata
 	var from_gn: GraphNode = get_node(NodePath(from_node))
 	var to_gn: GraphNode = get_node(NodePath(to_node))
 
@@ -197,30 +246,59 @@ func _on_connection_request(from_node: StringName, from_port: int, to_node: Stri
 	if from_id.is_empty() or to_id.is_empty() or from_id == to_id:
 		return
 
-	# Create the visual connection
+	# Draw the visual connection immediately
 	connect_node(from_node, from_port, to_node, to_port)
 
-	# Default connection type — player can change via context menu later
+	# Store pending connection and show type selector
+	_pending_connection = {
+		"from_node": from_node,
+		"from_port": from_port,
+		"to_node": to_node,
+		"to_port": to_port,
+		"from_id": from_id,
+		"to_id": to_id,
+	}
+	_connection_popup.show_at(get_viewport().get_mouse_position())
+
+
+func _on_connection_type_selected(conn_type: String, note: String) -> void:
+	if _pending_connection.is_empty():
+		return
+
 	_conn_counter += 1
 	var conn_id := "conn-%03d" % _conn_counter
 
-	# Store in OpState
 	OpState.connections.append({
 		"id": conn_id,
-		"from_id": from_id,
-		"to_id": to_id,
-		"type": "mentions",  # Default — TODO: popup selector
-		"note": "",
+		"from_id": _pending_connection.get("from_id", ""),
+		"to_id": _pending_connection.get("to_id", ""),
+		"type": conn_type,
+		"note": note,
 	})
 
-	EventBus.evidence_connected.emit(from_id, to_id, "mentions")
+	EventBus.evidence_connected.emit(
+		_pending_connection.get("from_id", ""),
+		_pending_connection.get("to_id", ""),
+		conn_type,
+	)
+	_pending_connection = {}
+
+
+func _on_connection_cancelled() -> void:
+	# Remove the visual connection that was already drawn
+	if not _pending_connection.is_empty():
+		disconnect_node(
+			_pending_connection.get("from_node", ""),
+			_pending_connection.get("from_port", 0),
+			_pending_connection.get("to_node", ""),
+			_pending_connection.get("to_port", 0),
+		)
+		_pending_connection = {}
 
 
 func _on_disconnection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
-	"""Handle player removing a connection."""
 	disconnect_node(from_node, from_port, to_node, to_port)
 
-	# Find and remove from OpState
 	var from_gn: GraphNode = get_node(NodePath(from_node))
 	var to_gn: GraphNode = get_node(NodePath(to_node))
 	if not from_gn or not to_gn:
@@ -239,28 +317,23 @@ func _on_disconnection_request(from_node: StringName, from_port: int, to_node: S
 
 
 func _on_intercepts_received(evidence_ids: Array) -> void:
-	"""Handle new intercepts arriving during the op."""
 	for ev_id in evidence_ids:
 		if ev_id in OpState.evidence_items and ev_id not in _nodes:
 			var item: Dictionary = OpState.evidence_items[ev_id]
 			var node := _create_evidence_node(item)
 			add_child(node)
-			# Place new items at a random position near the center
 			node.position_offset = Vector2(
-				randf_range(200, 600),
-				randf_range(100, 400),
+				randf_range(100, 800),
+				randf_range(80, 500),
 			)
 			_nodes[ev_id] = node
 
 
 func _on_phase_changed(new_phase: String) -> void:
-	"""Adjust board behavior based on current phase."""
 	match new_phase:
 		"signal":
-			# Full interaction mode
 			visible = true
 		"blacksite":
-			# Read-only reference mode — shrink but keep visible
 			visible = true
 		"debrief", "briefing":
 			visible = false

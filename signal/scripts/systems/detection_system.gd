@@ -19,7 +19,6 @@ func _ready() -> void:
 
 
 func _on_terminal_command(command: String, _args: Array) -> void:
-	"""Some commands passively affect detection even if they succeed."""
 	# XP gains for terminal usage
 	match command:
 		"scan", "probe", "connect", "exploit", "login":
@@ -29,7 +28,6 @@ func _on_terminal_command(command: String, _args: Array) -> void:
 
 
 func get_level_description(level: String) -> String:
-	"""Get a human-readable description of the detection level."""
 	match level:
 		"green": return "UNDETECTED — No anomalies flagged."
 		"yellow": return "ANOMALY — Automated systems have flagged unusual activity."

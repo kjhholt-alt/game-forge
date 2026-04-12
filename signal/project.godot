@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 GameState="*res://scripts/autoloads/game_state.gd"
 EventBus="*res://scripts/autoloads/event_bus.gd"
 OpState="*res://scripts/autoloads/op_state.gd"
+HintSystem="*res://scripts/systems/hint_system.gd"
 
 [display]
 
@@ -34,7 +35,6 @@ window/stretch/aspect="expand"
 [gui]
 
 theme/custom="res://assets/themes/dashboard_dark.tres"
-theme/custom_font="res://assets/fonts/mono_terminal.ttf"
 
 [rendering]
 

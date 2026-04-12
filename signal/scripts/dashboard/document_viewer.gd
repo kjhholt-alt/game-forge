@@ -5,12 +5,12 @@
 extends Control
 
 
-@onready var title_label: Label = $TitleBar/Title
-@onready var classification_label: Label = $TitleBar/Classification
-@onready var type_label: Label = $TitleBar/Type
-@onready var content_text: RichTextLabel = $Content
-@onready var timestamp_label: Label = $Footer/Timestamp
-@onready var source_label: Label = $Footer/Source
+@onready var title_label: Label = $VBox/TitleBar/Title
+@onready var classification_label: Label = $VBox/TitleBar/Classification
+@onready var type_label: Label = $VBox/TitleBar/Type
+@onready var content_text: RichTextLabel = $VBox/Content
+@onready var timestamp_label: Label = $VBox/Footer/Timestamp
+@onready var source_label: Label = $VBox/Footer/Source
 
 
 const CLASSIFICATION_COLORS := {
@@ -28,7 +28,6 @@ func _ready() -> void:
 
 
 func _on_document_opened(evidence_id: String) -> void:
-	"""Display the full evidence document."""
 	var item: Dictionary = OpState.evidence_items.get(evidence_id, {})
 	if item.is_empty():
 		return
@@ -71,7 +70,6 @@ func _show_empty_state() -> void:
 
 
 func _format_content(content: String, ev_type: String) -> String:
-	"""Format content with BBCode based on evidence type."""
 	match ev_type:
 		"email":
 			# Highlight email headers
@@ -109,7 +107,6 @@ func _format_content(content: String, ev_type: String) -> String:
 
 
 func _apply_redaction(content: String, level: int) -> String:
-	"""Apply redaction based on level (1=light, 3=heavy)."""
 	var words := content.split(" ")
 	var redacted_words: Array[String] = []
 

@@ -1,0 +1,182 @@
+[gd_scene load_steps=3 format=3 uid="uid://sechat001"]
+
+[ext_resource type="Script" path="res://scripts/social_engineering/se_chat.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="chat_bg"]
+bg_color = Color(0.05, 0.055, 0.08, 0.98)
+border_color = Color(0.18, 0.22, 0.3, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="SEChat" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+script = ExtResource("1")
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -300.0
+offset_right = 450.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("chat_bg")
+
+[node name="Header" type="HBoxContainer" parent="Panel"]
+layout_mode = 2
+offset_left = 16.0
+offset_top = 8.0
+offset_right = -16.0
+offset_bottom = 36.0
+
+[node name="HeaderLabel" type="Label" parent="Panel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.5, 0.55, 1)
+theme_override_font_sizes/font_size = 11
+text = "SOCIAL ENGINEERING — ACTIVE CONVERSATION"
+
+[node name="CloseButton" type="Button" parent="Panel/Header"]
+layout_mode = 2
+custom_minimum_size = Vector2(32, 28)
+text = "X"
+
+[node name="HSplit" type="HSplitContainer" parent="Panel"]
+layout_mode = 2
+offset_left = 8.0
+offset_top = 40.0
+offset_right = -8.0
+offset_bottom = -8.0
+split_offset = 240
+
+[node name="ProfilePanel" type="Control" parent="Panel/HSplit"]
+layout_mode = 2
+custom_minimum_size = Vector2(240, 0)
+
+[node name="VBox" type="VBoxContainer" parent="Panel/HSplit/ProfilePanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ProfileHeader" type="Label" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.5, 0.55, 1)
+theme_override_font_sizes/font_size = 10
+text = "TARGET PROFILE"
+
+[node name="NameLabel" type="Label" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.95, 1)
+theme_override_font_sizes/font_size = 16
+text = "Rachel Chen"
+
+[node name="RoleLabel" type="Label" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.6, 0.65, 1)
+theme_override_font_sizes/font_size = 12
+text = "Systems Administrator"
+
+[node name="Sep1" type="HSeparator" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+
+[node name="TraitsText" type="RichTextLabel" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+bbcode_enabled = true
+fit_content = true
+
+[node name="Sep2" type="HSeparator" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+
+[node name="TrustLabel" type="Label" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "TRUST: 0 / 10"
+
+[node name="TrustBar" type="ProgressBar" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 10)
+max_value = 10.0
+show_percentage = false
+
+[node name="SuspicionLabel" type="Label" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "SUSPICION: 0 / 10"
+
+[node name="SuspicionBar" type="ProgressBar" parent="Panel/HSplit/ProfilePanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 10)
+max_value = 10.0
+show_percentage = false
+
+[node name="ChatPanel" type="Control" parent="Panel/HSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBox" type="VBoxContainer" parent="Panel/HSplit/ChatPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ChatScroll" type="ScrollContainer" parent="Panel/HSplit/ChatPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ChatContainer" type="VBoxContainer" parent="Panel/HSplit/ChatPanel/VBox/ChatScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="InputRow" type="HBoxContainer" parent="Panel/HSplit/ChatPanel/VBox"]
+layout_mode = 2
+
+[node name="ChatInput" type="LineEdit" parent="Panel/HSplit/ChatPanel/VBox/InputRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Type your message..."
+caret_blink = true
+
+[node name="SendButton" type="Button" parent="Panel/HSplit/ChatPanel/VBox/InputRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 0)
+text = "SEND"

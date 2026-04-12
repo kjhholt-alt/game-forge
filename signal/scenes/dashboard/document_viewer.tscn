@@ -1,6 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://docviewer001"]
+[gd_scene load_steps=3 format=3 uid="uid://docviewer001"]
 
 [ext_resource type="Script" path="res://scripts/dashboard/document_viewer.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="viewer_bg"]
+bg_color = Color(0.05, 0.055, 0.075, 1)
+border_color = Color(0.12, 0.14, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [node name="DocumentViewer" type="Control"]
 anchors_preset = 15
@@ -16,17 +28,24 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("viewer_bg")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
+offset_left = 10.0
 offset_top = 8.0
-offset_right = -8.0
+offset_right = -10.0
 offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Header" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.45, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = "DOCUMENT VIEWER"
 
 [node name="TitleBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -34,14 +53,18 @@ layout_mode = 2
 [node name="Title" type="Label" parent="VBox/TitleBar"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
 text = "No Document Selected"
 
 [node name="Classification" type="Label" parent="VBox/TitleBar"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 11
 text = ""
 
 [node name="Type" type="Label" parent="VBox/TitleBar"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.45, 0.5, 1)
+theme_override_font_sizes/font_size = 11
 text = ""
 
 [node name="Separator" type="HSeparator" parent="VBox"]
@@ -50,9 +73,13 @@ layout_mode = 2
 [node name="Content" type="RichTextLabel" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 13
 bbcode_enabled = true
 selection_enabled = true
 scroll_following = false
+
+[node name="FooterSep" type="HSeparator" parent="VBox"]
+layout_mode = 2
 
 [node name="Footer" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -60,8 +87,12 @@ layout_mode = 2
 [node name="Timestamp" type="Label" parent="VBox/Footer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.35, 0.38, 0.42, 1)
+theme_override_font_sizes/font_size = 11
 text = ""
 
 [node name="Source" type="Label" parent="VBox/Footer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.38, 0.42, 1)
+theme_override_font_sizes/font_size = 11
 text = ""

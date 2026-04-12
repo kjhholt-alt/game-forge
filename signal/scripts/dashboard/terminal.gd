@@ -25,8 +25,8 @@ const PROMPT_PREFIX := "signal@proxy:~$ "
 # Node references
 # ---------------------------------------------------------------------------
 
-@onready var output: RichTextLabel = $Output
-@onready var input_line: LineEdit = $InputLine
+@onready var output: RichTextLabel = $VBox/Output
+@onready var input_line: LineEdit = $VBox/InputLine
 
 
 # ---------------------------------------------------------------------------
@@ -59,6 +59,13 @@ func _ready() -> void:
 	_set_enabled(false)
 
 
+const ALL_COMMANDS := [
+	"scan", "probe", "connect", "login", "exploit",
+	"ls", "cat", "cd", "download", "decrypt",
+	"disconnect", "talk", "contacts", "netmap",
+	"status", "clear", "help",
+]
+
 func _input(event: InputEvent) -> void:
 	if not _enabled:
 		return
@@ -70,6 +77,9 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_DOWN:
 			_navigate_history(1)
 			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_TAB:
+			_autocomplete()
+			get_viewport().set_input_as_handled()
 
 
 # ---------------------------------------------------------------------------
@@ -77,7 +87,6 @@ func _input(event: InputEvent) -> void:
 # ---------------------------------------------------------------------------
 
 func load_network(network: Dictionary) -> void:
-	"""Load network topology data for command resolution."""
 	_network_data = network
 	_hosts.clear()
 
@@ -91,7 +100,6 @@ func load_network(network: Dictionary) -> void:
 
 
 func activate() -> void:
-	"""Enable the terminal for BLACKSITE phase."""
 	_set_enabled(true)
 	output.clear()
 	_print_system("BLACKSITE PHASE — TERMINAL ACTIVE")
@@ -101,7 +109,6 @@ func activate() -> void:
 
 
 func deactivate() -> void:
-	"""Disable the terminal."""
 	_set_enabled(false)
 
 
@@ -110,7 +117,6 @@ func deactivate() -> void:
 # ---------------------------------------------------------------------------
 
 func _on_command_submitted(text: String) -> void:
-	"""Parse and execute a terminal command."""
 	var cmd := text.strip_edges()
 	input_line.clear()
 
@@ -154,11 +160,17 @@ func _on_command_submitted(text: String) -> void:
 		"cd":
 			_cmd_cd(args)
 		"download":
-			_cmd_download(args)
+			await _cmd_download(args)
 		"decrypt":
 			_cmd_decrypt(args)
 		"disconnect":
 			_cmd_disconnect()
+		"talk":
+			_cmd_talk(args)
+		"contacts":
+			_cmd_contacts()
+		"netmap":
+			_cmd_netmap()
 		"clear":
 			output.clear()
 		"status":
@@ -175,21 +187,36 @@ func _on_command_submitted(text: String) -> void:
 # ---------------------------------------------------------------------------
 
 func _cmd_help() -> void:
-	_print_info("=== SIGNAL Terminal Commands ===")
-	_print_color("  scan <subnet>           Scan subnet for hosts", COLOR_DEFAULT)
-	_print_color("  probe <host>            Show services on a host", COLOR_DEFAULT)
-	_print_color("  connect <host> <port>   Connect to host service", COLOR_DEFAULT)
-	_print_color("  login <host> <user> <pass>  Login with credentials", COLOR_DEFAULT)
-	_print_color("  exploit <host> <cve>    Use exploit on vulnerable service", COLOR_DEFAULT)
-	_print_color("  ls                      List files on connected host", COLOR_DEFAULT)
-	_print_color("  cat <file>              Read file contents", COLOR_DEFAULT)
-	_print_color("  cd <dir>                Change directory", COLOR_DEFAULT)
-	_print_color("  download <file>         Exfiltrate file (takes time)", COLOR_DEFAULT)
-	_print_color("  decrypt <file>          Decrypt encrypted file", COLOR_DEFAULT)
-	_print_color("  disconnect              Disconnect from current host", COLOR_DEFAULT)
-	_print_color("  status                  Show connection and detection status", COLOR_DEFAULT)
-	_print_color("  clear                   Clear terminal", COLOR_DEFAULT)
-	_print_color("  help                    Show this help", COLOR_DEFAULT)
+	_print_info("=== SIGNAL Terminal v1.0 ===")
+	_print_color("", COLOR_DEFAULT)
+	_print_color("  [color=#4488cc]RECON[/color]", COLOR_DEFAULT)
+	output.push_color(COLOR_DEFAULT)
+	output.append_text("  scan <subnet>             Scan subnet for hosts\n")
+	output.append_text("  probe <host>              Show services on a host\n")
+	output.append_text("  netmap                    Show discovered network map\n")
+	output.append_text("\n")
+	output.append_text("  [color=#4488cc]ACCESS[/color]\n")
+	output.append_text("  connect <host> <port>     Connect to host service\n")
+	output.append_text("  login <host> <user> <pw>  Login with credentials\n")
+	output.append_text("  exploit <host> <cve>      Use exploit on vuln service\n")
+	output.append_text("  disconnect                Disconnect from host\n")
+	output.append_text("\n")
+	output.append_text("  [color=#4488cc]FILES[/color]\n")
+	output.append_text("  ls                        List files on host\n")
+	output.append_text("  cat <file>                Read file contents\n")
+	output.append_text("  cd <dir>                  Change directory\n")
+	output.append_text("  download <file>           Exfiltrate file\n")
+	output.append_text("  decrypt <file>            Decrypt encrypted file\n")
+	output.append_text("\n")
+	output.append_text("  [color=#4488cc]HUMINT[/color]\n")
+	output.append_text("  contacts                  List known employees\n")
+	output.append_text("  talk <name>               Social engineer an employee\n")
+	output.append_text("\n")
+	output.append_text("  [color=#4488cc]SYSTEM[/color]\n")
+	output.append_text("  status                    Show connection & detection\n")
+	output.append_text("  clear                     Clear terminal\n")
+	output.append_text("  help                      Show this help\n")
+	output.pop()
 
 
 func _cmd_scan(args: Array) -> void:
@@ -430,13 +457,34 @@ func _cmd_download(args: Array) -> void:
 
 			OpState.add_detection("download")
 			var file_id: String = f.get("path", target_path)
-			_print_info("Downloading %s..." % target_path)
-			_print_color("[████████████████████] 100%%", COLOR_SUCCESS)
+			var size_kb: int = f.get("size_kb", 1)
+			_print_info("Downloading %s (%dKB)..." % [target_path, size_kb])
+
+			# Animated progress bar
+			var steps := 20
+			var delay := max(0.05, min(0.15, size_kb / 1000.0))
+			for i in range(steps + 1):
+				var filled := "█".repeat(i)
+				var empty := "░".repeat(steps - i)
+				var pct := int(float(i) / steps * 100)
+				output.push_color(COLOR_SUCCESS)
+				# Use set_line to update in place if possible, otherwise just append
+				if i < steps:
+					output.append_text("\r  [%s%s] %d%%" % [filled, empty, pct])
+				else:
+					output.append_text("\n  [%s] 100%%\n" % filled)
+				output.pop()
+				await get_tree().create_timer(delay).timeout
+
 			_print_success("File exfiltrated: %s" % target_path)
 			OpState.exfiltrate_file(file_id)
 
 			if f.get("is_target", false):
-				_print_color("[!] TARGET FILE ACQUIRED", COLOR_WARNING)
+				_print_color("", COLOR_WARNING)
+				_print_color("  ╔═══════════════════════════════╗", COLOR_WARNING)
+				_print_color("  ║    TARGET FILE ACQUIRED       ║", COLOR_WARNING)
+				_print_color("  ╚═══════════════════════════════╝", COLOR_WARNING)
+				EventBus.handler_message.emit("Target file acquired. Consider exfiltrating now.", "warning")
 
 			return
 
@@ -476,6 +524,129 @@ func _cmd_decrypt(args: Array) -> void:
 	_print_error("File not found: %s" % target_path)
 
 
+func _cmd_talk(args: Array) -> void:
+	if args.is_empty():
+		_print_error("Usage: talk <employee name>")
+		_print_system("Use 'contacts' to see available employees.")
+		return
+
+	var query: String = " ".join(args).to_lower()
+	var op: Dictionary = GameState.get_current_operation()
+	var target: Dictionary = op.get("blacksite_target", {})
+
+	for emp in target.get("employees", []):
+		var name: String = emp.get("name", "").to_lower()
+		if query in name or name.begins_with(query):
+			_print_info("Initiating contact with %s..." % emp.get("name"))
+			_print_system("Opening secure channel...")
+			EventBus.se_conversation_started.emit(emp.get("id", ""))
+			GameState.add_xp("humint", 5)
+			return
+
+	_print_error("Employee not found: %s" % " ".join(args))
+	_print_system("Use 'contacts' to see available employees.")
+
+
+func _cmd_contacts() -> void:
+	var op: Dictionary = GameState.get_current_operation()
+	var target: Dictionary = op.get("blacksite_target", {})
+	var employees: Array = target.get("employees", [])
+
+	if employees.is_empty():
+		_print_system("No employee profiles available.")
+		return
+
+	_print_info("=== Known Employees (%s) ===" % target.get("org_name", "Target"))
+
+	for emp in employees:
+		var name: String = emp.get("name", "Unknown")
+		var role: String = emp.get("role", "Unknown")
+		var state: Dictionary = OpState.employee_states.get(emp.get("id", ""), {})
+		var trust: int = state.get("trust", 0)
+		var suspicion: int = state.get("suspicion", 0)
+
+		var trust_str := ""
+		if trust > 0:
+			trust_str = " [T:%d]" % trust
+
+		var susp_color := COLOR_DEFAULT
+		var susp_str := ""
+		if suspicion >= 7:
+			susp_str = " [SUSPICIOUS]"
+			susp_color = COLOR_WARNING
+
+		output.push_color(COLOR_INFO)
+		output.append_text("  %s" % name)
+		output.pop()
+		output.push_color(COLOR_SYSTEM)
+		output.append_text(" — %s" % role)
+		output.pop()
+		if trust_str:
+			output.push_color(COLOR_SUCCESS)
+			output.append_text(trust_str)
+			output.pop()
+		if susp_str:
+			output.push_color(susp_color)
+			output.append_text(susp_str)
+			output.pop()
+		output.append_text("\n")
+
+
+func _cmd_netmap() -> void:
+	_print_info("=== Network Topology ===")
+	_print_color("", COLOR_DEFAULT)
+
+	var subnets: Array = _network_data.get("subnets", [])
+	if subnets.is_empty():
+		_print_system("No network data available. Run 'scan' first.")
+		return
+
+	for subnet in subnets:
+		var cidr: String = subnet.get("cidr", "???")
+		var name: String = subnet.get("name", "")
+		var discovered_in_subnet := 0
+		var total_in_subnet: int = subnet.get("hosts", []).size()
+
+		for host_id in subnet.get("hosts", []):
+			if host_id in OpState.discovered_hosts:
+				discovered_in_subnet += 1
+
+		if discovered_in_subnet == 0:
+			_print_color("  ┌─ %s (%s) [UNDISCOVERED]" % [cidr, name], COLOR_SYSTEM)
+			continue
+
+		_print_color("  ┌─ %s (%s) [%d/%d hosts]" % [cidr, name, discovered_in_subnet, total_in_subnet], COLOR_INFO)
+
+		var host_ids: Array = subnet.get("hosts", [])
+		for i in range(host_ids.size()):
+			var host_id: String = host_ids[i]
+			var is_last: bool = (i == host_ids.size() - 1)
+			var prefix := "  └── " if is_last else "  ├── "
+
+			if host_id in OpState.discovered_hosts:
+				var host: Dictionary = OpState.discovered_hosts[host_id]
+				var hostname: String = host.get("hostname", "???")
+				var ip: String = host.get("ip", "?.?.?.?")
+				var connected_marker := " ◄── CONNECTED" if host.get("id") == OpState.connected_host_id else ""
+
+				var host_color := COLOR_SUCCESS if connected_marker else COLOR_DEFAULT
+				_print_color("%s%s (%s)%s" % [prefix, hostname, ip, connected_marker], host_color)
+
+				# Show services if probed
+				var services: Array = host.get("services", [])
+				for svc in services:
+					var svc_prefix := "  │   " if not is_last else "      "
+					var port: int = svc.get("port", 0)
+					var svc_type: String = svc.get("service_type", "?")
+					var vuln := " [VULN]" if svc.get("vulnerable", false) else ""
+					var svc_color := COLOR_WARNING if vuln else COLOR_SYSTEM
+					_print_color("%s  :%d/%s%s" % [svc_prefix, port, svc_type, vuln], svc_color)
+			else:
+				_print_color("%s[undiscovered host]" % prefix, COLOR_SYSTEM)
+
+		_print_color("", COLOR_DEFAULT)
+
+
 func _cmd_disconnect() -> void:
 	if _connected_host.is_empty():
 		_print_system("Not connected to any host.")
@@ -507,7 +678,6 @@ func _cmd_status() -> void:
 # ---------------------------------------------------------------------------
 
 func _find_host(query: String) -> Dictionary:
-	"""Find a host by hostname, IP, or ID in discovered hosts."""
 	for host in OpState.discovered_hosts.values():
 		if host.get("hostname", "") == query or host.get("ip", "") == query or host.get("id", "") == query:
 			return host
@@ -515,7 +685,6 @@ func _find_host(query: String) -> Dictionary:
 
 
 func _connect_to_host(host: Dictionary) -> void:
-	"""Establish connection to a host."""
 	_connected_host = host
 	_current_path = "/"
 	OpState.connected_host_id = host.get("id", "")
@@ -542,8 +711,85 @@ func _show_prompt() -> void:
 		]
 
 
+func _autocomplete() -> void:
+	var text: String = input_line.text.strip_edges()
+	if text.is_empty():
+		return
+
+	var parts := text.split(" ", false)
+	if parts.size() == 1:
+		# Autocomplete command name
+		var partial: String = parts[0].to_lower()
+		var matches: Array[String] = []
+		for cmd in ALL_COMMANDS:
+			if cmd.begins_with(partial):
+				matches.append(cmd)
+
+		if matches.size() == 1:
+			input_line.text = matches[0] + " "
+			input_line.caret_column = input_line.text.length()
+		elif matches.size() > 1:
+			_print_system("  ".join(matches))
+
+	elif parts.size() >= 2:
+		# Autocomplete arguments (hostnames, file paths, employee names)
+		var cmd: String = parts[0].to_lower()
+		var partial: String = parts[-1].to_lower()
+
+		match cmd:
+			"scan":
+				# Autocomplete subnet CIDRs
+				var subnets: Array[String] = []
+				for subnet in _network_data.get("subnets", []):
+					var cidr: String = subnet.get("cidr", "")
+					if cidr.to_lower().begins_with(partial) or subnet.get("name", "").to_lower().begins_with(partial):
+						subnets.append(cidr)
+				_apply_autocomplete(parts, subnets)
+
+			"probe", "connect", "login", "exploit":
+				# Autocomplete hostnames/IPs
+				var hosts: Array[String] = []
+				for host in OpState.discovered_hosts.values():
+					var hostname: String = host.get("hostname", "")
+					var ip: String = host.get("ip", "")
+					if hostname.to_lower().begins_with(partial):
+						hosts.append(hostname)
+					elif ip.begins_with(partial):
+						hosts.append(ip)
+				_apply_autocomplete(parts, hosts)
+
+			"cat", "download", "decrypt":
+				# Autocomplete file paths
+				if not _connected_host.is_empty():
+					var paths: Array[String] = []
+					for f in _connected_host.get("files", []):
+						var path: String = f.get("path", "")
+						if path.to_lower().find(partial) >= 0:
+							paths.append(path)
+					_apply_autocomplete(parts, paths)
+
+			"talk":
+				# Autocomplete employee names
+				var names: Array[String] = []
+				var op: Dictionary = GameState.get_current_operation()
+				var target: Dictionary = op.get("blacksite_target", {})
+				for emp in target.get("employees", []):
+					var name: String = emp.get("name", "")
+					if name.to_lower().begins_with(partial) or name.split(" ")[0].to_lower().begins_with(partial):
+						names.append(name.split(" ")[0])
+				_apply_autocomplete(parts, names)
+
+
+func _apply_autocomplete(parts: Array, matches: Array[String]) -> void:
+	if matches.size() == 1:
+		parts[-1] = matches[0]
+		input_line.text = " ".join(parts) + " "
+		input_line.caret_column = input_line.text.length()
+	elif matches.size() > 1:
+		_print_system("  ".join(matches))
+
+
 func _navigate_history(direction: int) -> void:
-	"""Navigate command history with up/down arrows."""
 	if _command_history.is_empty():
 		return
 

@@ -41,10 +41,6 @@ const SKILL_INFO := {
 
 
 func get_redaction_reduction(sigint_level: int) -> int:
-	"""How much redaction is removed based on SIGINT skill.
-
-	Returns the number of redaction levels to remove (0-2).
-	"""
 	if sigint_level >= 4:
 		return 2
 	elif sigint_level >= 2:
@@ -53,16 +49,8 @@ func get_redaction_reduction(sigint_level: int) -> int:
 
 
 func get_trust_threshold_modifier(se_level: int) -> int:
-	"""How much easier social engineering is based on SE skill.
-
-	Returns a negative modifier to NPC trust thresholds.
-	"""
 	return -(se_level - 1)  # Level 1=0, Level 2=-1, Level 5=-4
 
 
 func get_detection_modifier(net_level: int) -> float:
-	"""Detection cost multiplier based on Network Exploitation.
-
-	Returns a multiplier (lower = less detection per action).
-	"""
 	return 1.0 - (net_level - 1) * 0.08  # 8% reduction per level above 1

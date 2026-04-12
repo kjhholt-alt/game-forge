@@ -39,7 +39,6 @@ var current_phase: String = "briefing"  # briefing, signal, blacksite, debrief
 # ---------------------------------------------------------------------------
 
 func load_campaign(path: String) -> bool:
-	"""Load a campaign JSON file produced by GameForge."""
 	var file := FileAccess.open(path, FileAccess.READ)
 	if not file:
 		push_error("Failed to load campaign: %s" % path)
@@ -84,7 +83,6 @@ func load_campaign(path: String) -> bool:
 
 
 func get_current_operation() -> Dictionary:
-	"""Get the current operation data."""
 	var ops: Array = campaign_data.get("operations", [])
 	if current_op_index < ops.size():
 		return ops[current_op_index]
@@ -92,7 +90,6 @@ func get_current_operation() -> Dictionary:
 
 
 func get_operation(index: int) -> Dictionary:
-	"""Get a specific operation by index."""
 	var ops: Array = campaign_data.get("operations", [])
 	if index >= 0 and index < ops.size():
 		return ops[index]
@@ -100,14 +97,12 @@ func get_operation(index: int) -> Dictionary:
 
 
 func get_skill_level(skill_type: String) -> int:
-	"""Get the current level of a skill."""
 	if analyst.skills.has(skill_type):
 		return analyst.skills[skill_type].get("level", 1)
 	return 1
 
 
 func add_xp(skill_type: String, amount: int) -> void:
-	"""Add XP to a skill, potentially leveling up."""
 	if not analyst.skills.has(skill_type):
 		analyst.skills[skill_type] = {"level": 1, "xp": 0, "xp_to_next": 100}
 
@@ -124,6 +119,5 @@ func add_xp(skill_type: String, amount: int) -> void:
 
 
 func set_phase(new_phase: String) -> void:
-	"""Transition to a new operation phase."""
 	current_phase = new_phase
 	EventBus.phase_changed.emit(new_phase)

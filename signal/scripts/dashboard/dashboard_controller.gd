@@ -36,6 +36,7 @@ extends Control
 
 var _current_phase: String = "briefing"
 var _op_data: Dictionary = {}
+var _go_dark_dialog: PopupPanel = null
 
 
 # ---------------------------------------------------------------------------
@@ -53,6 +54,11 @@ func _ready() -> void:
 	detection_bar.max_value = 1.0
 	detection_bar.value = 0.0
 
+	# Create Go Dark confirmation dialog
+	_go_dark_dialog = preload("res://scripts/dashboard/go_dark_dialog.gd").new()
+	add_child(_go_dark_dialog)
+	_go_dark_dialog.confirmed.connect(_on_go_dark_confirmed)
+
 	_apply_phase_layout("briefing")
 
 
@@ -66,7 +72,6 @@ func _process(_delta: float) -> void:
 # ---------------------------------------------------------------------------
 
 func load_operation(op_data: Dictionary) -> void:
-	"""Load an operation and set up all panels."""
 	_op_data = op_data
 
 	# Update top bar
@@ -99,7 +104,6 @@ func _on_phase_changed(new_phase: String) -> void:
 
 
 func _apply_phase_layout(phase: String) -> void:
-	"""Adjust panel visibility and sizing for the current phase."""
 	match phase:
 		"briefing":
 			phase_label.text = "[BRIEFING]"
@@ -143,7 +147,6 @@ func _apply_phase_layout(phase: String) -> void:
 
 
 func _on_detection_changed(level: String, value: float) -> void:
-	"""Update the detection bar."""
 	detection_bar.value = value
 
 	var bar_style := StyleBoxFlat.new()
@@ -161,13 +164,11 @@ func _on_detection_changed(level: String, value: float) -> void:
 
 
 func _on_go_dark_pressed() -> void:
-	"""Handle Go Dark / Exfil button."""
 	match _current_phase:
 		"signal":
-			# Compute prep score and transition to BLACKSITE
+			# Show confirmation dialog with prep score
 			var score := OpState.compute_prep_score()
-			EventBus.go_dark_requested.emit(score)
-			GameState.set_phase("blacksite")
+			_go_dark_dialog.show_confirmation(score)
 
 		"blacksite":
 			# End BLACKSITE — check if required exfil targets are collected
@@ -183,7 +184,32 @@ func _on_go_dark_pressed() -> void:
 			GameState.set_phase("debrief")
 
 
+func _on_go_dark_confirmed() -> void:
+	var score := OpState.compute_prep_score()
+	EventBus.go_dark_requested.emit(score)
+	GameState.set_phase("blacksite")
+
+	# Send initial BLACKSITE hints
+	await get_tree().create_timer(1.0).timeout
+	var target: Dictionary = _op_data.get("blacksite_target", {})
+	var network: Dictionary = target.get("network", {})
+	var entry_hosts: Array = network.get("entry_points", [])
+	var first_subnet := ""
+	for subnet in network.get("subnets", []):
+		for host_id in subnet.get("hosts", []):
+			if host_id in entry_hosts:
+				first_subnet = subnet.get("cidr", "")
+				break
+		if first_subnet:
+			break
+
+	if first_subnet:
+		EventBus.handler_message.emit(
+			"Start with: [color=#66ccff]scan %s[/color]" % first_subnet,
+			"normal",
+		)
+
+
 func _on_analyst_burned() -> void:
-	"""Handle analyst burn — disable interaction, show burn screen."""
 	go_dark_button.text = "BURNED"
 	go_dark_button.disabled = true
