@@ -1,0 +1,140 @@
+{
+  "codename": "ARCTIC LENS",
+  "budget": 0,
+  "base_x": 120,
+  "base_y": 500,
+  "handler_open": "New theater. Northern sector. Higher threat level. Your previous intel helped locate these targets.",
+  "targets": [
+    {
+      "id": "tgt-sub",
+      "x": 600,
+      "y": 150,
+      "type": "hostile",
+      "label": "SUBMARINE",
+      "threat_radius": 120,
+      "handler_detect": "Sonar contact, deep water.",
+      "handler_classify": "Submarine. Probable weapons delivery vessel.",
+      "handler_coa": "Submarine contact. Limited options underwater.",
+      "handler_resolve": "Sub forced to surface. Crew detained.",
+      "coas": [
+        {
+          "id": "surveil",
+          "label": "Track",
+          "risk": 0.15,
+          "handler_assign": "Passive sonar tracking engaged."
+        },
+        {
+          "id": "intercept",
+          "label": "Intercept",
+          "risk": 0.55,
+          "handler_assign": "Naval assets moving to intercept.",
+          "complication": {
+            "delay": 3.5,
+            "handler_text": "Sub is diving deeper. We're losing contact.",
+            "detection_cost": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "tgt-airfield",
+      "x": 400,
+      "y": 300,
+      "type": "hostile",
+      "label": "AIRFIELD",
+      "threat_radius": 100,
+      "handler_detect": "Aerial activity detected.",
+      "handler_classify": "Small airfield. Cargo planes loading at night.",
+      "handler_coa": "Airfield is active. We can shut it down or watch.",
+      "handler_resolve": "Airfield operations disrupted. Cargo impounded.",
+      "coas": [
+        {
+          "id": "surveil",
+          "label": "Watch",
+          "risk": 0.1,
+          "handler_assign": "Satellite retasked for continuous coverage."
+        },
+        {
+          "id": "strike",
+          "label": "Strike",
+          "risk": 0.6,
+          "handler_assign": "Strike package inbound. Runway denial.",
+          "complication": {
+            "delay": 2.0,
+            "handler_text": "Anti-air defenses active. Taking fire.",
+            "detection_cost": 0.15
+          }
+        },
+        {
+          "id": "hack",
+          "label": "Hack",
+          "risk": 0.35,
+          "handler_assign": "Targeting their air traffic control system."
+        }
+      ]
+    },
+    {
+      "id": "tgt-safehouse",
+      "x": 250,
+      "y": 180,
+      "type": "hostile",
+      "label": "SAFEHOUSE",
+      "threat_radius": 50,
+      "handler_detect": "HUMINT reports activity at this location.",
+      "handler_classify": "Urban safehouse. High-value individual inside.",
+      "handler_coa": "HVT confirmed inside. Capture would be ideal.",
+      "handler_resolve": "Safehouse breached. HVT in custody.",
+      "coas": [
+        {
+          "id": "surveil",
+          "label": "Observe",
+          "risk": 0.1,
+          "handler_assign": "Eyes on the building. Logging all visitors."
+        },
+        {
+          "id": "capture",
+          "label": "Capture",
+          "risk": 0.5,
+          "handler_assign": "Strike team moving in. Breach in 60 seconds.",
+          "complication": {
+            "delay": 2.5,
+            "handler_text": "HVT is on the phone. If we wait, we trace the call. If we breach, we lose the intel.",
+            "detection_cost": 0.08
+          }
+        }
+      ]
+    },
+    {
+      "id": "tgt-cyber",
+      "x": 700,
+      "y": 400,
+      "type": "hostile",
+      "label": "C2 NODE",
+      "threat_radius": 70,
+      "handler_detect": "Network anomaly detected.",
+      "handler_classify": "Command and control node. They're coordinating everything from here.",
+      "handler_coa": "This is their nerve center. Take it out and they go blind.",
+      "handler_resolve": "C2 node neutralized. Their network is dark.",
+      "coas": [
+        {
+          "id": "hack",
+          "label": "Hack",
+          "risk": 0.4,
+          "handler_assign": "Injecting payload into their network."
+        },
+        {
+          "id": "jam",
+          "label": "Jam",
+          "risk": 0.55,
+          "handler_assign": "Broadband jamming initiated. Everything goes dark.",
+          "complication": {
+            "delay": 1.5,
+            "handler_text": "Jamming is affecting our own comms. Partial blackout.",
+            "detection_cost": 0.12
+          }
+        }
+      ]
+    }
+  ],
+  "assets": []
+}

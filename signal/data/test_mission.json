@@ -1,104 +1,161 @@
 {
   "codename": "MERIDIAN SHADOW",
   "budget": 50000,
-  "base_x": 100,
-  "base_y": 400,
-  "handler_open": "New operation. We've got three contacts on the board. Click them to classify.",
+  "base_x": 80,
+  "base_y": 450,
+  "handler_open": "New operation. We've got three contacts on the board. Click to classify, right-click for options, or drag an asset directly to a target.",
   "targets": [
     {
       "id": "tgt-convoy",
-      "x": 500,
-      "y": 200,
+      "x": 480,
+      "y": 180,
       "type": "hostile",
       "label": "CONVOY",
+      "threat_radius": 60,
       "handler_detect": "Movement detected, sector 7.",
-      "handler_classify": "Three vehicles heading east. Appears to be an arms shipment.",
+      "handler_classify": "Three vehicles heading east. Possible arms shipment.",
       "handler_coa": "Three options for the convoy.",
-      "handler_resolve": "Convoy intercepted. Good work.",
+      "handler_resolve": "Convoy intercepted. Cargo seized.",
       "coas": [
         {
           "id": "surveil",
           "label": "Surveil",
-          "risk": 0.2,
-          "handler_assign": "Drone deployed for surveillance."
+          "risk": 0.15,
+          "handler_assign": "Drone deployed. Eyes on the convoy."
         },
         {
           "id": "intercept",
           "label": "Intercept",
-          "risk": 0.5,
-          "handler_assign": "Alpha team moving to intercept."
+          "risk": 0.45,
+          "handler_assign": "Alpha team moving to intercept. Hold tight.",
+          "complication": {
+            "delay": 3.0,
+            "handler_text": "Convoy has armed escort. Reinforcements spotted.",
+            "detection_cost": 0.08
+          }
         },
         {
           "id": "strike",
           "label": "Strike",
-          "risk": 0.8,
-          "handler_assign": "Air strike authorized. Weapons hot."
+          "risk": 0.7,
+          "handler_assign": "Air strike authorized. Weapons hot.",
+          "complication": {
+            "delay": 1.5,
+            "handler_text": "Civilian vehicles near the convoy. Abort or proceed?",
+            "detection_cost": 0.12
+          }
         }
       ]
     },
     {
       "id": "tgt-compound",
-      "x": 700,
-      "y": 350,
+      "x": 680,
+      "y": 320,
       "type": "hostile",
       "label": "COMPOUND",
+      "threat_radius": 90,
       "handler_detect": "Thermal signature, south sector.",
       "handler_classify": "Fortified compound. Possible command post.",
-      "handler_coa": "High value target. Choose carefully.",
+      "handler_coa": "High-value target. Choose carefully.",
       "handler_resolve": "Compound secured. Intel recovered.",
       "coas": [
         {
           "id": "surveil",
           "label": "Surveil",
           "risk": 0.1,
-          "handler_assign": "Eyes on the compound. Monitoring."
+          "handler_assign": "Eyes on the compound. Monitoring activity."
         },
         {
           "id": "hack",
           "label": "Hack",
-          "risk": 0.4,
-          "handler_assign": "Cyber team accessing their network."
+          "risk": 0.35,
+          "handler_assign": "Cyber team accessing their network remotely."
         },
         {
           "id": "capture",
           "label": "Capture",
-          "risk": 0.7,
-          "handler_assign": "Bravo team moving in for capture."
+          "risk": 0.65,
+          "handler_assign": "Bravo team moving in for capture. This is high risk.",
+          "complication": {
+            "delay": 4.0,
+            "handler_text": "They're destroying documents. Clock is ticking.",
+            "detection_cost": 0.06
+          }
         }
       ]
     },
     {
       "id": "tgt-signal",
-      "x": 350,
-      "y": 120,
+      "x": 320,
+      "y": 100,
       "type": "hostile",
-      "label": "SIGINT HIT",
-      "handler_detect": "Signal intercept, unknown origin.",
-      "handler_classify": "Encrypted comms. Someone's coordinating.",
+      "label": "SIGINT",
+      "threat_radius": 40,
+      "handler_detect": "Signal intercept. Unknown origin.",
+      "handler_classify": "Encrypted comms. Someone is coordinating operations.",
       "handler_coa": "We need to trace this signal.",
-      "handler_resolve": "Signal traced. Source identified.",
+      "handler_resolve": "Signal traced. Source identified and logged.",
       "coas": [
         {
-          "id": "surveil",
+          "id": "monitor",
           "label": "Monitor",
-          "risk": 0.15,
-          "handler_assign": "Monitoring the frequency."
+          "risk": 0.1,
+          "handler_assign": "Passive monitoring. We'll learn their patterns."
         },
         {
           "id": "jam",
           "label": "Jam",
           "risk": 0.5,
-          "handler_assign": "Jamming their comms. They'll know we're here."
+          "handler_assign": "Jamming their comms. They will know we are here.",
+          "complication": {
+            "delay": 2.0,
+            "handler_text": "They've switched frequencies. Adaptive encryption detected.",
+            "detection_cost": 0.1,
+            "spawn_blip": {
+              "id": "tgt-relay",
+              "x": 250,
+              "y": 60
+            }
+          }
         }
       ]
     }
   ],
+  "delayed_targets": [
+    {
+      "id": "tgt-vehicle",
+      "x": 550,
+      "y": 420,
+      "type": "hostile",
+      "label": "VEHICLE",
+      "threat_radius": 30,
+      "handler_detect": "New contact. Fast-moving vehicle heading south. Could be a runner.",
+      "handler_classify": "Single vehicle. High speed. Possibly fleeing the compound area.",
+      "handler_coa": "Runner spotted. Act fast or lose them.",
+      "handler_resolve": "Vehicle stopped. Occupant detained.",
+      "coas": [
+        {
+          "id": "intercept",
+          "label": "Intercept",
+          "risk": 0.4,
+          "handler_assign": "Moving to intercept the vehicle."
+        },
+        {
+          "id": "surveil",
+          "label": "Track",
+          "risk": 0.15,
+          "handler_assign": "Tracking the vehicle. Let's see where it goes."
+        }
+      ]
+    }
+  ],
+  "delay_seconds": 25.0,
   "assets": [
     {
-      "id": "asset-drone",
+      "id": "asset-reaper",
       "label": "REAPER",
       "type": "drone",
-      "speed": 0.5,
+      "speed": 0.6,
       "stealth": 0.8,
       "firepower": 0.3
     },
@@ -109,6 +166,14 @@
       "speed": 0.3,
       "stealth": 0.5,
       "firepower": 0.7
+    },
+    {
+      "id": "asset-bravo",
+      "label": "BRAVO",
+      "type": "ground",
+      "speed": 0.35,
+      "stealth": 0.6,
+      "firepower": 0.6
     }
   ]
 }

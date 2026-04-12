@@ -19,6 +19,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 EventBus="*res://scripts/autoloads/event_bus.gd"
+GameState="*res://scripts/autoloads/game_state.gd"
+OpState="*res://scripts/autoloads/op_state.gd"
 VoiceHandler="*res://scripts/autoloads/voice_handler.gd"
 Juice="*res://scripts/ui/juice.gd"
 

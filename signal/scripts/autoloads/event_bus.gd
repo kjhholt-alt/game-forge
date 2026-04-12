@@ -36,3 +36,22 @@ signal campaign_phase_changed(phase: String)  # briefing, active, debrief, upgra
 # --- Game state ---
 signal game_loaded()
 signal mission_complete(grade: String)
+
+# --- Campaign & skills ---
+signal campaign_loaded(campaign_id: String)
+signal xp_gained(skill_type: String, amount: int)
+signal skill_leveled_up(skill_type: String, new_level: int)
+signal phase_changed(new_phase: String)
+
+# --- Terminal (BLACKSITE) ---
+signal terminal_command(command: String, args: Array)
+signal file_exfiltrated(file_id: String)
+
+# --- Evidence board (SIGNAL phase) ---
+signal evidence_connection_made(from_id: String, to_id: String, conn_type: String)
+signal evidence_pinned(evidence_id: String)
+signal prep_score_updated(score: float)
+
+# --- Social engineering ---
+signal se_trust_changed(employee_id: String, new_trust: int)
+signal se_secret_revealed(employee_id: String, secret: String)
