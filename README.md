@@ -67,7 +67,20 @@ source .venv/bin/activate   # Linux / macOS / Git Bash
 pip install -e ".[dev]"
 ```
 
-### 2. Configure
+### 2. Install Godot 4.6+
+
+```bash
+# Windows (winget)
+winget install GodotEngine.GodotEngine
+
+# Or download from https://godotengine.org/download
+```
+
+No third-party MCP plugins needed — the Godot template includes a
+custom `mcp_server.gd` that auto-starts a WebSocket server on port 6100
+when you run the game.
+
+### 3. Configure
 
 ```bash
 # Set your Anthropic API key
@@ -77,19 +90,19 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
 ```
 
-### 3. Create Your First Game
+### 4. Create Your First Game
 
 ```bash
 forge create "A roguelike dungeon crawler where you befriend monsters instead of fighting them" --genre roguelike
 ```
 
-### 4. Iterate
+### 5. Iterate
 
 ```bash
 forge iterate "Add a boss encounter in the crystal caves and make the friendship mechanic harder"
 ```
 
-### 5. Export
+### 6. Export
 
 ```bash
 forge export --output ./my-game
@@ -166,7 +179,7 @@ game-forge/
       inventory.gd       # Inventory UI with rarity colors
       quest_tracker.gd   # Quest journal with objectives
       npc_controller.gd  # NPC behavior (wander, talk, follow)
-      mcp_client.gd      # WebSocket bridge to Python orchestrator
+      mcp_server.gd      # WebSocket SERVER on port 6100 (20 JSON-RPC tools)
       procedural/        # Tilemap, dungeon, and encounter generation
   tests/                 # Pytest test suite
   examples/              # Example prompts and outputs
@@ -198,7 +211,7 @@ game-forge/
 | Python | >= 3.11 | async/await, `StrEnum`, type hints |
 | Anthropic API key | -- | Set as `ANTHROPIC_API_KEY` |
 | Godot Engine | >= 4.6 | For opening exported projects |
-| Godot MCP Server | -- | Optional; enables live scene generation via WebSocket |
+| Godot MCP Server | Built-in | `mcp_server.gd` auto-starts on port 6100 — no plugin install needed |
 
 ---
 
