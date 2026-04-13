@@ -5,10 +5,10 @@
 extends Control
 
 
-const GRID_SIZE := 60.0
-const GRID_COLOR := Color(0.06, 0.08, 0.11)
-const GRID_MAJOR_COLOR := Color(0.08, 0.11, 0.15)
-const GRID_MAJOR_EVERY := 5
+const GRID_SIZE := 150.0
+const GRID_COLOR := Color(0.045, 0.055, 0.075)
+const GRID_MAJOR_COLOR := Color(0.06, 0.075, 0.1)
+const GRID_MAJOR_EVERY := 4
 
 const BLIP_COLORS := {
 	"unknown": Color(0.95, 0.6, 0.1),
@@ -47,8 +47,8 @@ var _base_pos := Vector2(100, 400)
 
 # Radar sweep
 var _radar_angle := 0.0
-var _radar_center := Vector2(400, 300)
-var _radar_radius := 500.0
+var _radar_center := Vector2(800, 450)
+var _radar_radius := 1000.0
 
 # Tooltip
 var _tooltip_text := ""
@@ -61,16 +61,25 @@ class BlipData:
 	var pos: Vector2
 	var blip_type: String
 	var label: String
-	var radius: float = 14.0
+	var radius: float = 28.0
 	var pulse_phase: float = 0.0
 	var classified: bool = false
 	var handler_line: String = ""
-	var busy: bool = false  # Asset is on a mission
-	var mission_target: String = ""  # Which target this asset is assigned to
+	var busy: bool = false
+	var mission_target: String = ""
+	# Spawn animation
+	var spawn_progress: float = 0.0  # 0=invisible, 1=fully visible
+	var spawning: bool = true
+	# Classify animation
+	var classify_flash: float = 0.0  # 1.0 when just classified, fades to 0
 
+
+var _onboarding_blip: String = ""  # First blip to highlight for onboarding
+var _onboarding_active := true
 
 func _ready() -> void:
-	_camera_offset = Vector2(200, 150)
+	# Camera starts centered — content fills viewport
+	_camera_offset = Vector2(100, 60)
 
 
 func _process(delta: float) -> void:
@@ -79,6 +88,14 @@ func _process(delta: float) -> void:
 
 	for blip in _blips.values():
 		blip.pulse_phase = fmod(blip.pulse_phase + delta * 2.0, TAU)
+		# Spawn animation
+		if blip.spawning:
+			blip.spawn_progress = min(1.0, blip.spawn_progress + delta * 2.5)
+			if blip.spawn_progress >= 1.0:
+				blip.spawning = false
+		# Classify flash decay
+		if blip.classify_flash > 0:
+			blip.classify_flash = max(0.0, blip.classify_flash - delta * 1.5)
 
 	# Update tooltip
 	if not _hovered_blip.is_empty() and _hovered_blip in _blips:
@@ -119,43 +136,62 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.025, 0.03, 0.045))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.025, 0.04))
 	_draw_grid()
+	_draw_sector_labels()
 	_draw_radar_sweep()
 	_draw_threat_zones()
 	_draw_range_ring()
 	_draw_base()
 
-	# Trails first (behind blips)
+	# Trails with pulsing data-flow effect
 	for mv in _moving_assets:
 		var from_s := _world_to_screen(mv.get("from", Vector2.ZERO))
 		var to_s := _world_to_screen(mv.get("to", Vector2.ZERO))
+		var prog: float = mv.get("progress", 0.0)
 		var current_s := _world_to_screen(
-			(mv.get("from", Vector2.ZERO) as Vector2).lerp(mv.get("to", Vector2.ZERO), mv.get("progress", 0.0))
+			(mv.get("from", Vector2.ZERO) as Vector2).lerp(mv.get("to", Vector2.ZERO), prog)
 		)
-		# Full path (dim)
-		draw_dashed_line(from_s, to_s, Color(0.2, 0.4, 0.6, 0.15), 1.0, 8.0)
-		# Traveled path (bright)
-		draw_line(from_s, current_s, Color(0.3, 0.6, 0.9, 0.5), 1.5)
+		# Full planned path (dim dashed)
+		draw_dashed_line(from_s, to_s, Color(0.15, 0.3, 0.5, 0.12), 1.0, 10.0)
+		# Traveled path (solid bright)
+		if from_s.distance_to(current_s) > 2:
+			draw_line(from_s, current_s, Color(0.3, 0.6, 0.9, 0.6), 2.0)
+		# Pulsing dot along the trail (data flow effect)
+		var pulse_pos: float = fmod(prog + _time * 0.3, 1.0)
+		var dot_s := from_s.lerp(to_s, pulse_pos)
+		draw_circle(dot_s, 3.0, Color(0.4, 0.8, 1.0, 0.4))
 
 	# Blips
 	for blip in _blips.values():
 		_draw_blip(blip)
 
-	# Drag-drop preview
-	if not _dragging_asset.is_empty():
-		draw_line(_world_to_screen(_blips[_dragging_asset].pos), _drag_pos, Color(0.3, 0.9, 0.5, 0.5), 2.0)
-		draw_circle(_drag_pos, 6, Color(0.3, 0.9, 0.5, 0.5))
+	# Drag-drop preview — thicker line with glow
+	if not _dragging_asset.is_empty() and _dragging_asset in _blips:
+		var asset_sp := _world_to_screen(_blips[_dragging_asset].pos)
+		# Glow line
+		draw_line(asset_sp, _drag_pos, Color(0.2, 0.9, 0.4, 0.15), 6.0)
+		# Core line
+		draw_line(asset_sp, _drag_pos, Color(0.3, 0.9, 0.5, 0.6), 2.0)
+		# Target cursor
+		draw_arc(_drag_pos, 12, 0, TAU, 16, Color(0.3, 0.9, 0.5, 0.5), 1.5)
+		draw_line(_drag_pos + Vector2(-16, 0), _drag_pos + Vector2(-6, 0), Color(0.3, 0.9, 0.5, 0.5), 1.5)
+		draw_line(_drag_pos + Vector2(6, 0), _drag_pos + Vector2(16, 0), Color(0.3, 0.9, 0.5, 0.5), 1.5)
+		draw_line(_drag_pos + Vector2(0, -16), _drag_pos + Vector2(0, -6), Color(0.3, 0.9, 0.5, 0.5), 1.5)
+		draw_line(_drag_pos + Vector2(0, 6), _drag_pos + Vector2(0, 16), Color(0.3, 0.9, 0.5, 0.5), 1.5)
 
 	# Selection ring
 	if _selected_blip in _blips:
 		var blip: BlipData = _blips[_selected_blip]
 		var sp := _world_to_screen(blip.pos)
-		var sr: float = (blip.radius + 8) * _zoom
-		draw_arc(sp, sr, 0, TAU, 32, Color.WHITE, 1.5)
-		# Rotating selection arc
+		var sr: float = (blip.radius + 10) * _zoom
+		draw_arc(sp, sr, 0, TAU, 32, Color.WHITE, 2.0)
 		var arc_start: float = _time * 2.0
-		draw_arc(sp, sr + 3, arc_start, arc_start + 1.5, 16, Color(1, 1, 1, 0.3), 1.0)
+		draw_arc(sp, sr + 4, arc_start, arc_start + 1.5, 16, Color(1, 1, 1, 0.25), 1.5)
+
+		# Right-click hint on classified hostile blips
+		if blip.classified and blip.blip_type in ["hostile"]:
+			draw_string(ThemeDB.fallback_font, sp + Vector2(-50, blip.radius * _zoom + 40), "RIGHT-CLICK: OPTIONS", HORIZONTAL_ALIGNMENT_CENTER, 100, 10, Color(0.5, 0.6, 0.7, 0.5 + sin(_time * 2.0) * 0.2))
 
 	# Edge indicators for off-screen blips
 	_draw_edge_indicators()
@@ -248,48 +284,109 @@ func _draw_grid() -> void:
 
 func _draw_blip(blip: BlipData) -> void:
 	var sp := _world_to_screen(blip.pos)
-	if sp.x < -60 or sp.x > size.x + 60 or sp.y < -60 or sp.y > size.y + 60:
+	if sp.x < -80 or sp.x > size.x + 80 or sp.y < -80 or sp.y > size.y + 80:
 		return
 
 	var color: Color = BLIP_COLORS.get(blip.blip_type, BLIP_COLORS["unknown"])
-	var r: float = blip.radius * _zoom
+	var scale_factor: float = blip.spawn_progress if blip.spawning else 1.0
+	var r: float = blip.radius * _zoom * scale_factor
 
-	# Pulse ring (only non-neutralized)
+	# Don't draw if still tiny
+	if r < 2.0:
+		return
+
+	# Spawn flash ring (expanding ring when first appearing)
+	if blip.spawning and blip.spawn_progress > 0.1:
+		var flash_r: float = blip.radius * _zoom * 3.0 * (1.0 - blip.spawn_progress)
+		var flash_alpha: float = 0.4 * (1.0 - blip.spawn_progress)
+		draw_arc(sp, flash_r, 0, TAU, 32, Color(color.r, color.g, color.b, flash_alpha), 2.0)
+
+	# Classify flash (white burst when classified)
+	if blip.classify_flash > 0:
+		var cf: float = blip.classify_flash
+		draw_circle(sp, r * (1.0 + cf * 0.8), Color(1, 1, 1, cf * 0.25))
+		draw_arc(sp, r * (1.5 + cf), 0, TAU, 32, Color(1, 1, 1, cf * 0.3), 2.0)
+
+	# Onboarding highlight — big pulsing ring on first unclassified target
+	if _onboarding_active and blip.id == _onboarding_blip:
+		var ob_r: float = r + 20 + sin(_time * 3.0) * 8.0
+		draw_arc(sp, ob_r, 0, TAU, 48, Color(1, 1, 1, 0.15 + sin(_time * 2.0) * 0.08), 2.5)
+		# "CLICK" label above
+		draw_string(ThemeDB.fallback_font, sp + Vector2(-30, -r - 28), "CLICK TO IDENTIFY", HORIZONTAL_ALIGNMENT_CENTER, 60, 13, Color(1, 1, 1, 0.5 + sin(_time * 2.0) * 0.3))
+
+	# Glow behind blip (ambient light)
 	if blip.blip_type != "neutralized":
-		var pr: float = r + sin(blip.pulse_phase) * 3.0 * _zoom
-		draw_arc(sp, pr, 0, TAU, 24, Color(color.r, color.g, color.b, 0.2), 1.5)
-		# Second pulse ring (delayed)
-		var pr2: float = r + sin(blip.pulse_phase + 1.0) * 5.0 * _zoom
-		draw_arc(sp, pr2, 0, TAU, 24, Color(color.r, color.g, color.b, 0.08), 1.0)
+		draw_circle(sp, r * 1.8, Color(color.r, color.g, color.b, 0.04))
 
-	# Outer ring
-	draw_arc(sp, r, 0, TAU, 24, color, 2.0)
+	# Pulse rings
+	if blip.blip_type != "neutralized":
+		var pr: float = r + sin(blip.pulse_phase) * 6.0 * _zoom
+		draw_arc(sp, pr, 0, TAU, 32, Color(color.r, color.g, color.b, 0.15), 2.0)
+		var pr2: float = r + sin(blip.pulse_phase + 1.2) * 10.0 * _zoom
+		draw_arc(sp, pr2, 0, TAU, 32, Color(color.r, color.g, color.b, 0.06), 1.5)
 
-	# Inner fill
-	draw_circle(sp, r * 0.45, Color(color.r, color.g, color.b, 0.35))
+	# Outer ring — thick and visible
+	draw_arc(sp, r, 0, TAU, 32, color, 3.0)
+
+	# Inner fill — solid enough to see
+	draw_circle(sp, r * 0.55, Color(color.r, color.g, color.b, 0.3))
 
 	# Center dot
-	draw_circle(sp, 2.0 * _zoom, color)
+	draw_circle(sp, 3.5 * _zoom, color)
 
 	# Hover glow
 	if blip.id == _hovered_blip:
-		draw_circle(sp, r + 6 * _zoom, Color(1, 1, 1, 0.08))
+		draw_circle(sp, r + 10 * _zoom, Color(1, 1, 1, 0.06))
+		draw_arc(sp, r + 5 * _zoom, 0, TAU, 32, Color(1, 1, 1, 0.2), 1.5)
 
-	# Busy indicator (spinning arc for assets on mission)
+	# Busy indicator
 	if blip.busy:
 		var a: float = _time * 3.0
-		draw_arc(sp, r + 4 * _zoom, a, a + 2.0, 12, Color(0.2, 0.9, 0.4, 0.6), 2.0)
+		draw_arc(sp, r + 6 * _zoom, a, a + 2.0, 16, Color(0.2, 0.9, 0.4, 0.6), 3.0)
 
-	# Label
-	if blip.classified or blip.blip_type in ["asset", "neutralized"]:
+	# Label — bigger and more readable
+	var label_text := blip.label
+	if blip.blip_type == "unknown":
+		label_text = "UNKNOWN"
+	if blip.classified or blip.blip_type in ["asset", "neutralized", "unknown"]:
+		var label_width := 120
 		draw_string(
 			ThemeDB.fallback_font,
-			sp + Vector2(-20, r + 16 * _zoom),
-			blip.label,
+			sp + Vector2(float(-label_width) / 2.0, r + 20 * _zoom),
+			label_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
-			40, int(10 * _zoom),
-			Color(color.r, color.g, color.b, 0.8),
+			label_width, int(13 * _zoom),
+			Color(color.r, color.g, color.b, 0.9),
 		)
+
+
+func _draw_sector_labels() -> void:
+	# Compass labels at edges
+	var edge_color := Color(0.12, 0.16, 0.22)
+	var font_size := 11
+	draw_string(ThemeDB.fallback_font, Vector2(size.x / 2 - 20, 20), "NORTH", HORIZONTAL_ALIGNMENT_CENTER, 40, font_size, edge_color)
+	draw_string(ThemeDB.fallback_font, Vector2(size.x / 2 - 20, size.y - 10), "SOUTH", HORIZONTAL_ALIGNMENT_CENTER, 40, font_size, edge_color)
+	draw_string(ThemeDB.fallback_font, Vector2(8, size.y / 2 + 4), "WEST", HORIZONTAL_ALIGNMENT_LEFT, 40, font_size, edge_color)
+	draw_string(ThemeDB.fallback_font, Vector2(size.x - 48, size.y / 2 + 4), "EAST", HORIZONTAL_ALIGNMENT_LEFT, 40, font_size, edge_color)
+
+	# Grid coordinate labels at major intersections
+	var gs: float = GRID_SIZE * _zoom * GRID_MAJOR_EVERY
+	if gs < 60:
+		return
+	var ox := fmod(_camera_offset.x, gs)
+	var oy := fmod(_camera_offset.y, gs)
+	var ix := int(-_camera_offset.x / gs)
+	var x := ox
+	while x < size.x:
+		var iy2 := int(-_camera_offset.y / gs)
+		var y := oy
+		while y < size.y:
+			if x > 60 and x < size.x - 60 and y > 30 and y < size.y - 30:
+				draw_string(ThemeDB.fallback_font, Vector2(x + 4, y - 4), "%d,%d" % [ix, iy2], HORIZONTAL_ALIGNMENT_LEFT, 50, 9, Color(0.08, 0.1, 0.14))
+			y += gs
+			iy2 += 1
+		x += gs
+		ix += 1
 
 
 func _draw_threat_zones() -> void:
@@ -311,14 +408,27 @@ func _draw_range_ring() -> void:
 
 func _draw_base() -> void:
 	var sp := _world_to_screen(_base_pos)
-	# Base icon — diamond shape
-	var s: float = 10 * _zoom
+	var s: float = 18 * _zoom
+
+	# Outer perimeter circle
+	draw_arc(sp, s * 2.5, 0, TAU, 32, Color(0.15, 0.4, 0.25, 0.15), 1.0)
+
+	# Landing pad / HQ — double diamond
 	var points := PackedVector2Array([
 		sp + Vector2(0, -s), sp + Vector2(s, 0), sp + Vector2(0, s), sp + Vector2(-s, 0),
 	])
-	draw_colored_polygon(points, Color(0.2, 0.5, 0.3, 0.3))
-	draw_polyline(points + PackedVector2Array([points[0]]), Color(0.2, 0.8, 0.4, 0.5), 1.5)
-	draw_string(ThemeDB.fallback_font, sp + Vector2(-12, s + 14 * _zoom), "BASE", HORIZONTAL_ALIGNMENT_CENTER, 24, int(9 * _zoom), Color(0.2, 0.7, 0.4, 0.5))
+	draw_colored_polygon(points, Color(0.1, 0.25, 0.15, 0.4))
+	draw_polyline(points + PackedVector2Array([points[0]]), Color(0.2, 0.8, 0.4, 0.6), 2.0)
+
+	# Inner diamond
+	var s2: float = s * 0.5
+	var inner := PackedVector2Array([
+		sp + Vector2(0, -s2), sp + Vector2(s2, 0), sp + Vector2(0, s2), sp + Vector2(-s2, 0),
+	])
+	draw_polyline(inner + PackedVector2Array([inner[0]]), Color(0.2, 0.8, 0.4, 0.3), 1.0)
+
+	# Label
+	draw_string(ThemeDB.fallback_font, sp + Vector2(-20, s + 18 * _zoom), "HQ / BASE", HORIZONTAL_ALIGNMENT_CENTER, 40, int(11 * _zoom), Color(0.2, 0.7, 0.4, 0.6))
 
 
 # --- Public API ---
@@ -334,10 +444,22 @@ func add_blip(id: String, pos: Vector2, blip_type: String, label: String, handle
 	_blips[id] = blip
 	EventBus.blip_spawned.emit(id)
 
+	# Set first unknown blip as onboarding target
+	if blip_type == "unknown" and _onboarding_blip.is_empty():
+		_onboarding_blip = id
+
 
 func classify_blip(id: String, new_type: String, new_label: String) -> void:
 	if id in _blips:
 		_blips[id].blip_type = new_type
+		_blips[id].label = new_label
+		_blips[id].classified = true
+		_blips[id].classify_flash = 1.0  # Trigger flash animation
+
+		# Clear onboarding once first blip is classified
+		if id == _onboarding_blip:
+			_onboarding_active = false
+			_onboarding_blip = ""
 		_blips[id].label = new_label
 		_blips[id].classified = true
 		EventBus.blip_classified.emit(id, new_type)
@@ -452,7 +574,13 @@ func _gui_input(event: InputEvent) -> void:
 		elif not _dragging_asset.is_empty():
 			_drag_pos = event.position
 		else:
+			var old_hover := _hovered_blip
 			_hovered_blip = _get_blip_at(event.position)
+			# Cursor change
+			if not _hovered_blip.is_empty():
+				mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			else:
+				mouse_default_cursor_shape = Control.CURSOR_ARROW
 
 
 func _get_blip_at(screen_pos: Vector2) -> String:

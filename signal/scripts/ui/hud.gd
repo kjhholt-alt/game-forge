@@ -7,11 +7,14 @@ extends Control
 @onready var budget_label: Label = $TopBar/BudgetLabel
 @onready var subtitle_label: Label = $SubtitleBar/SubtitleText
 @onready var timer_label: Label = $TopBar/TimerLabel
+@onready var objective_label: Label = $TopBar/ObjectiveLabel
 @onready var asset_tray: HBoxContainer = $AssetTray
 
 var _mission_time := 0.0
 var _mission_active := false
 var _subtitle_tween: Tween
+var _targets_done := 0
+var _targets_total := 0
 
 
 func _ready() -> void:
@@ -21,12 +24,27 @@ func _ready() -> void:
 	EventBus.mission_started.connect(func(_a, _b, _c): _mission_active = true)
 	EventBus.mission_complete.connect(func(_g): _mission_active = false)
 	EventBus.asset_returned.connect(_on_asset_returned)
+	EventBus.blip_spawned.connect(func(_id): _update_objectives())
 
 	detection_bar.min_value = 0.0
 	detection_bar.max_value = 1.0
 	detection_bar.value = 0.0
 	subtitle_label.text = ""
 	timer_label.text = "00:00"
+	objective_label.text = ""
+
+
+func update_objectives(done: int, total: int) -> void:
+	_targets_done = done
+	_targets_total = total
+	_update_objectives()
+
+
+func _update_objectives() -> void:
+	if _targets_total > 0:
+		objective_label.text = "TARGETS: %d/%d" % [_targets_done, _targets_total]
+	else:
+		objective_label.text = ""
 
 
 func _process(delta: float) -> void:

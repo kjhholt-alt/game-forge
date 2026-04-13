@@ -111,13 +111,23 @@ text = "00:00"
 
 [node name="Spacer1b" type="Control" parent="HUD/TopBar"]
 layout_mode = 2
+custom_minimum_size = Vector2(16, 0)
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.6, 0.15, 1)
+theme_override_font_sizes/font_size = 12
+text = "TARGETS: 0/0"
+
+[node name="Spacer1c" type="Control" parent="HUD/TopBar"]
+layout_mode = 2
 custom_minimum_size = Vector2(24, 0)
 
 [node name="DetLabel" type="Label" parent="HUD/TopBar"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.45, 0.5, 1)
 theme_override_font_sizes/font_size = 10
-text = "DETECTION"
+text = "THREAT"
 
 [node name="DetectionBar" type="ProgressBar" parent="HUD/TopBar"]
 layout_mode = 2

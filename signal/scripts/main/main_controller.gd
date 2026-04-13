@@ -21,6 +21,7 @@ var _budget: int = 50000
 var _targets_neutralized: int = 0
 var _total_targets: int = 0
 var _active_missions: Dictionary = {}  # target_id -> {asset_id, coa_id, started_at}
+var _classifications_done: int = 0  # Track for onboarding hints
 
 # --- Campaign paths ---
 const CAMPAIGN_PATH := "res://data/test_campaign.json"
@@ -61,12 +62,8 @@ func _ready() -> void:
 	EventBus.file_exfiltrated.connect(_on_file_exfiltrated)
 	EventBus.analyst_burned.connect(_on_analyst_burned)
 
-	# Try loading campaign first, fall back to standalone mission
-	if GameState.load_campaign(CAMPAIGN_PATH):
-		_start_from_campaign()
-	else:
-		push_warning("No campaign found, loading standalone mission")
-		_load_standalone_mission()
+	# Load standalone tactical mission directly — no campaign briefing walls
+	_load_standalone_mission()
 
 
 # ===========================================================================
@@ -301,44 +298,67 @@ func _load_standalone_mission() -> void:
 
 func _apply_mission_data() -> void:
 	_budget = _mission_data.get("budget", 50000)
-
-	if not GameState.campaign_loaded:
-		hud.set_codename(_mission_data.get("codename", "UNKNOWN"))
-
+	hud.set_codename(_mission_data.get("codename", "UNKNOWN"))
 	EventBus.budget_changed.emit(_budget)
 
-	var base_pos := Vector2(
-		_mission_data.get("base_x", 100),
-		_mission_data.get("base_y", 400)
-	)
+	var base_pos := Vector2(_mission_data.get("base_x", 100), _mission_data.get("base_y", 400))
 	tactical_map.set_base_pos(base_pos)
 
-	# Spawn targets
-	for target in _mission_data.get("targets", []):
-		tactical_map.add_blip(
-			target.get("id", ""),
-			Vector2(target.get("x", 0), target.get("y", 0)),
-			"unknown", "?", target.get("handler_detect", "Contact detected."),
-		)
-		_total_targets += 1
-		if target.get("type", "") == "hostile":
-			tactical_map.add_threat_zone(
-				Vector2(target.get("x", 0), target.get("y", 0)),
-				target.get("threat_radius", 80),
-			)
+	# === STAGGERED INTRODUCTION ===
+	# Don't dump everything at once. Introduce one element at a time.
+	# The handler voice IS the tutorial.
 
-	# Spawn assets at base
+	# Beat 1 (0.8s): Handler speaks, map is empty
+	await get_tree().create_timer(0.8).timeout
+	VoiceHandler.speak("Operations center online. Stand by for contacts.")
+
+	# Beat 2 (2.5s): First target appears with drama
+	await get_tree().create_timer(2.0).timeout
+	var targets: Array = _mission_data.get("targets", [])
+	if targets.size() > 0:
+		var t0: Dictionary = targets[0]
+		tactical_map.add_blip(t0.get("id", ""), Vector2(t0.get("x", 0), t0.get("y", 0)), "unknown", "UNKNOWN", t0.get("handler_detect", "Contact."))
+		_total_targets += 1
+		if t0.get("type", "") == "hostile":
+			tactical_map.add_threat_zone(Vector2(t0.get("x", 0), t0.get("y", 0)), t0.get("threat_radius", 100))
+		hud.update_objectives(0, _total_targets)
+		await get_tree().create_timer(0.5).timeout
+		VoiceHandler.speak("Contact detected. Click on it to identify.")
+
+	# Beat 3 (5s): Wait for player to click first blip, then introduce rest
+	# (We wait up to 15s for them to click, then add remaining anyway)
+	var _waited := 0.0
+	while _waited < 15.0:
+		await get_tree().create_timer(0.5).timeout
+		_waited += 0.5
+		# Check if they classified the first target
+		if targets.size() > 0:
+			var first_blip = tactical_map.get_blip(targets[0].get("id", ""))
+			if first_blip and first_blip.classified:
+				break
+
+	# Beat 4: After first classification, add remaining targets one by one
+	await get_tree().create_timer(1.0).timeout
+	if targets.size() > 1:
+		VoiceHandler.speak("More contacts appearing.")
+	for i in range(1, targets.size()):
+		await get_tree().create_timer(1.2).timeout
+		var t: Dictionary = targets[i]
+		tactical_map.add_blip(t.get("id", ""), Vector2(t.get("x", 0), t.get("y", 0)), "unknown", "UNKNOWN", t.get("handler_detect", "Contact."))
+		_total_targets += 1
+		if t.get("type", "") == "hostile":
+			tactical_map.add_threat_zone(Vector2(t.get("x", 0), t.get("y", 0)), t.get("threat_radius", 100))
+
+	# Beat 5: Introduce assets at base
+	await get_tree().create_timer(1.5).timeout
+	VoiceHandler.speak("Your assets are at base. Drag them to a target, or right-click a target for options.")
 	var offset := Vector2.ZERO
 	for asset in _mission_data.get("assets", []):
+		await get_tree().create_timer(0.6).timeout
 		var aid: String = asset.get("id", "")
 		tactical_map.add_blip(aid, base_pos + offset, "asset", asset.get("label", "UNIT"))
 		_assets[aid] = asset
-		offset.x += 50
-
-	# Handler opens (only in standalone mode — campaign uses briefing)
-	if not GameState.campaign_loaded:
-		await get_tree().create_timer(0.6).timeout
-		VoiceHandler.speak(_mission_data.get("handler_open", "Click contacts to classify."))
+		offset.x += 60
 
 	# Delayed targets
 	if _mission_data.has("delayed_targets"):
@@ -350,10 +370,10 @@ func _spawn_delayed_targets() -> void:
 	for dt in _mission_data.get("delayed_targets", []):
 		tactical_map.add_blip(
 			dt.get("id", ""), Vector2(dt.get("x", 0), dt.get("y", 0)),
-			"unknown", "?", dt.get("handler_detect", "New contact."),
+			"unknown", "UNKNOWN", dt.get("handler_detect", "New contact."),
 		)
 		_total_targets += 1
-		VoiceHandler.speak(dt.get("handler_detect", "New contact on the board."))
+		VoiceHandler.speak(dt.get("handler_detect", "New contact. Click to identify."))
 
 
 # ===========================================================================
@@ -370,6 +390,7 @@ func _on_blip_clicked(blip_id: String) -> void:
 		if td.is_empty():
 			return
 		tactical_map.classify_blip(blip_id, td.get("type", "hostile"), td.get("label", "TARGET"))
+		_classifications_done += 1
 
 		# Claude intel assessment — or fall back to pre-written line
 		var fallback_line: String = td.get("handler_classify", "Target classified.")
@@ -377,14 +398,20 @@ func _on_blip_clicked(blip_id: String) -> void:
 			VoiceHandler.speak(ai_text if not ai_text.is_empty() else fallback_line)
 		)
 
+		# Onboarding hint after first classification (outside lambda — no await issues)
+		if _classifications_done == 1:
+			get_tree().create_timer(3.5).timeout.connect(func():
+				VoiceHandler.speak("Right-click that target for options. Or drag an asset directly to it.")
+			)
+
 		Juice.float_text(
 			tactical_map, td.get("label", ""),
-			tactical_map._world_to_screen(blip.pos) + Vector2(0, -30),
+			tactical_map._world_to_screen(blip.pos) + Vector2(0, -40),
 			Color(0.95, 0.6, 0.1),
 		)
 
 	elif blip.blip_type == "asset" and not blip.busy:
-		VoiceHandler.speak("Drag %s to a target." % blip.label)
+		VoiceHandler.speak("Drag %s onto a red target." % blip.label)
 
 
 func _on_coa_requested(blip_id: String) -> void:
@@ -489,6 +516,7 @@ func _on_asset_arrived(asset_id: String, target_id: String) -> void:
 			)
 
 		_targets_neutralized += 1
+		hud.update_objectives(_targets_neutralized, _total_targets)
 
 		if _targets_neutralized >= _total_targets:
 			await get_tree().create_timer(1.5).timeout
