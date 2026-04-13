@@ -6,8 +6,8 @@ extends Control
 
 
 const GRID_SIZE := 150.0
-const GRID_COLOR := Color(0.16, 0.18, 0.25)
-const GRID_MAJOR_COLOR := Color(0.22, 0.26, 0.35)
+const GRID_COLOR := Color(0.18, 0.21, 0.28)
+const GRID_MAJOR_COLOR := Color(0.25, 0.30, 0.40)
 const GRID_MAJOR_EVERY := 4
 
 const BLIP_COLORS := {
@@ -167,6 +167,7 @@ func _draw() -> void:
 	_draw_range_rings_on_targets()
 	_draw_range_ring()
 	_draw_base()
+	_draw_urban_detail()
 	_draw_map_icons()
 	_draw_scale_bar()
 	_draw_cursor_coords()
@@ -436,7 +437,7 @@ func _draw_geography() -> void:
 
 	# Large water body (bay/delta) — bottom-right area
 	var water_color := Color(0.03, 0.04, 0.09, 0.7)
-	var coast_color := Color(0.30, 0.35, 0.45, 0.7)
+	var coast_color := Color(0.35, 0.40, 0.52, 0.75)
 	var bay_points := PackedVector2Array()
 	for p in [Vector2(1200, 700), Vector2(1400, 650), Vector2(1600, 720), Vector2(1800, 850), Vector2(1920, 900), Vector2(1920, 1080), Vector2(1200, 1080)]:
 		bay_points.append(_world_to_screen(p))
@@ -522,7 +523,7 @@ func _draw_road_network() -> void:
 			draw_line(a, b, road_color, 1.5)
 
 	# Intersection markers — small dots where roads cross
-	var marker_color := Color(0.35, 0.40, 0.50, 0.6)
+	var marker_color := Color(0.40, 0.46, 0.58, 0.7)
 	var intersections := [
 		Vector2(700, 350), Vector2(400, 480), Vector2(1100, 400),
 		Vector2(500, 300), Vector2(900, 300), Vector2(1300, 300),
@@ -554,8 +555,8 @@ func _draw_sector_labels() -> void:
 	draw_string(ThemeDB.fallback_font, Vector2(size.x - 48, size.y / 2 + 4), "EAST", HORIZONTAL_ALIGNMENT_LEFT, 40, font_size, edge_color)
 
 	# Map place names — DENSE, Maven has labels EVERYWHERE
-	var place_color := Color(0.45, 0.52, 0.62)
-	var place_dim := Color(0.30, 0.35, 0.42)
+	var place_color := Color(0.50, 0.58, 0.68)
+	var place_dim := Color(0.35, 0.40, 0.50)
 	var place_size := 11
 	var places := [
 		# Major locations (brighter)
@@ -718,9 +719,29 @@ func _draw_base() -> void:
 
 # --- Public API ---
 
+func _draw_urban_detail() -> void:
+	# Draw subtle building grid patterns inside urban areas
+	# Maven shows this kind of infrastructure detail
+	var block_color := Color(0.28, 0.32, 0.42, 0.35)
+	var urban_centers := [Vector2(870, 370), Vector2(1400, 410), Vector2(400, 580)]
+	for center in urban_centers:
+		var sc := _world_to_screen(center)
+		if sc.x < -100 or sc.x > size.x + 100 or sc.y < -100 or sc.y > size.y + 100:
+			continue
+		# Small grid of "building blocks"
+		var block_size: float = 12 * _zoom
+		for bx in range(-3, 4):
+			for by in range(-2, 3):
+				var bp := sc + Vector2(bx * block_size * 1.5, by * block_size * 1.5)
+				# Skip some blocks randomly for organic feel
+				if (bx + by) % 3 == 0:
+					continue
+				draw_rect(Rect2(bp, Vector2(block_size, block_size * 0.7)), block_color, false, 0.5)
+
+
 func _draw_map_icons() -> void:
 	# Small military-style markers at key locations — Maven has these scattered everywhere
-	var icon_color := Color(0.40, 0.46, 0.56)
+	var icon_color := Color(0.48, 0.54, 0.65)
 	var s: float = 5.0 * _zoom
 
 	# Triangle markers (radar/comms sites)
