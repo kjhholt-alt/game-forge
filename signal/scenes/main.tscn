@@ -97,12 +97,22 @@ offset_bottom = 38.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("hud_bar_bg")
 
+[node name="SigLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.6, 0.9, 1)
+theme_override_font_sizes/font_size = 13
+text = "◉ SIGNAL"
+
+[node name="BarSep" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.25, 0.35, 1)
+theme_override_font_sizes/font_size = 13
+text = " | "
+
 [node name="Codename" type="Label" parent="HUD/TopBar"]
 layout_mode = 2
-offset_left = 16.0
-offset_top = 8.0
 theme_override_colors/font_color = Color(0.75, 0.8, 0.85, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 text = "---"
 
 [node name="Spacer1" type="Control" parent="HUD/TopBar"]
@@ -151,6 +161,18 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.8, 0.4, 1)
 theme_override_font_sizes/font_size = 14
 text = "$50K"
+
+[node name="BarSep2" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.25, 0.35, 1)
+theme_override_font_sizes/font_size = 13
+text = " | "
+
+[node name="SettingsLabel" type="Label" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.4, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "⚙ Settings"
 
 [node name="AssetTray" type="HBoxContainer" parent="HUD"]
 layout_mode = 1
