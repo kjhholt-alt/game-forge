@@ -8,7 +8,9 @@ extends Control
 @onready var tactical_map: Control = $TacticalMap
 @onready var hud: Control = $HUD
 @onready var coa_cards: Control = $COACards
-@onready var crt_overlay: ColorRect = $CRTOverlay
+@onready var target_sidebar: PanelContainer = $TargetSidebar
+@onready var info_card: Control = $InfoCard
+@onready var timeline_bar: PanelContainer = $TimelineBar
 
 # Phase overlay nodes — created dynamically or expected as children
 var _briefing_overlay: Control = null
@@ -317,11 +319,13 @@ func _apply_mission_data() -> void:
 	var targets: Array = _mission_data.get("targets", [])
 	if targets.size() > 0:
 		var t0: Dictionary = targets[0]
-		tactical_map.add_blip(t0.get("id", ""), Vector2(t0.get("x", 0), t0.get("y", 0)), "unknown", "UNKNOWN", t0.get("handler_detect", "Contact."))
+		var t0_id: String = t0.get("id", "")
+		tactical_map.add_blip(t0_id, Vector2(t0.get("x", 0), t0.get("y", 0)), "unknown", "UNKNOWN", t0.get("handler_detect", "Contact."))
+		target_sidebar.add_entry(t0_id, "UNKNOWN CONTACT", "unknown")
 		_total_targets += 1
+		hud.update_objectives(_targets_neutralized, _total_targets)
 		if t0.get("type", "") == "hostile":
 			tactical_map.add_threat_zone(Vector2(t0.get("x", 0), t0.get("y", 0)), t0.get("threat_radius", 100))
-		hud.update_objectives(0, _total_targets)
 		await get_tree().create_timer(0.5).timeout
 		VoiceHandler.speak("Contact detected. Click on it to identify.")
 
@@ -344,8 +348,11 @@ func _apply_mission_data() -> void:
 	for i in range(1, targets.size()):
 		await get_tree().create_timer(1.2).timeout
 		var t: Dictionary = targets[i]
-		tactical_map.add_blip(t.get("id", ""), Vector2(t.get("x", 0), t.get("y", 0)), "unknown", "UNKNOWN", t.get("handler_detect", "Contact."))
+		var tid: String = t.get("id", "")
+		tactical_map.add_blip(tid, Vector2(t.get("x", 0), t.get("y", 0)), "unknown", "UNKNOWN", t.get("handler_detect", "Contact."))
+		target_sidebar.add_entry(tid, "UNKNOWN CONTACT", "unknown")
 		_total_targets += 1
+		hud.update_objectives(_targets_neutralized, _total_targets)
 		if t.get("type", "") == "hostile":
 			tactical_map.add_threat_zone(Vector2(t.get("x", 0), t.get("y", 0)), t.get("threat_radius", 100))
 
@@ -357,6 +364,7 @@ func _apply_mission_data() -> void:
 		await get_tree().create_timer(0.6).timeout
 		var aid: String = asset.get("id", "")
 		tactical_map.add_blip(aid, base_pos + offset, "asset", asset.get("label", "UNIT"))
+		target_sidebar.add_entry(aid, asset.get("label", "UNIT"), "asset")
 		_assets[aid] = asset
 		offset.x += 60
 
@@ -373,6 +381,7 @@ func _spawn_delayed_targets() -> void:
 			"unknown", "UNKNOWN", dt.get("handler_detect", "New contact."),
 		)
 		_total_targets += 1
+		hud.update_objectives(_targets_neutralized, _total_targets)
 		VoiceHandler.speak(dt.get("handler_detect", "New contact. Click to identify."))
 
 
@@ -389,8 +398,26 @@ func _on_blip_clicked(blip_id: String) -> void:
 		var td := _find_target(blip_id)
 		if td.is_empty():
 			return
-		tactical_map.classify_blip(blip_id, td.get("type", "hostile"), td.get("label", "TARGET"))
+		var target_label: String = td.get("label", "TARGET")
+		var target_type: String = td.get("type", "hostile")
+		tactical_map.classify_blip(blip_id, target_type, target_label)
 		_classifications_done += 1
+
+		# Update sidebar
+		target_sidebar.update_entry(blip_id, target_label, target_type)
+
+		# Show rich info card near the blip (Maven-style analysis)
+		var card_pos: Vector2 = tactical_map._world_to_screen(blip.pos) + tactical_map.global_position
+		var analysis: Dictionary = td.get("analysis", {})
+		var card_data := {
+			"label": target_label,
+			"type": target_type,
+			"classification": analysis.get("classification", "Target classified"),
+			"threat": analysis.get("threat", "unknown"),
+			"details": analysis.get("details", []),
+			"recommendation": analysis.get("recommendation", ""),
+		}
+		info_card.show_card(card_pos, card_data)
 
 		# Claude intel assessment — or fall back to pre-written line
 		var fallback_line: String = td.get("handler_classify", "Target classified.")
@@ -398,14 +425,14 @@ func _on_blip_clicked(blip_id: String) -> void:
 			VoiceHandler.speak(ai_text if not ai_text.is_empty() else fallback_line)
 		)
 
-		# Onboarding hint after first classification (outside lambda — no await issues)
+		# Onboarding hint after first classification
 		if _classifications_done == 1:
 			get_tree().create_timer(3.5).timeout.connect(func():
 				VoiceHandler.speak("Right-click that target for options. Or drag an asset directly to it.")
 			)
 
 		Juice.float_text(
-			tactical_map, td.get("label", ""),
+			tactical_map, target_label,
 			tactical_map._world_to_screen(blip.pos) + Vector2(0, -40),
 			Color(0.95, 0.6, 0.1),
 		)
@@ -479,6 +506,10 @@ func _start_tactical_mission(target_id: String, coa_id: String, asset_id: String
 
 	EventBus.mission_started.emit(target_id, coa_id, asset_id)
 
+	# Add to timeline bar
+	var asset_label: String = _assets.get(asset_id, {}).get("label", "UNIT")
+	timeline_bar.add_mission(target_id, asset_label, coa_id)
+
 	# Schedule complication
 	var complication: Dictionary = coa.get("complication", {})
 	if not complication.is_empty():
@@ -502,6 +533,7 @@ func _on_asset_arrived(asset_id: String, target_id: String) -> void:
 	if success:
 		VoiceHandler.speak(td.get("handler_resolve", "Mission complete."))
 		tactical_map.classify_blip(target_id, "neutralized", "DONE")
+		target_sidebar.update_entry(target_id, "NEUTRALIZED", "neutralized")
 
 		var reward: int = BUDGET_REWARDS.get(coa_id, 5000)
 		_budget += reward
@@ -555,6 +587,7 @@ func _trigger_complication(target_id: String, complication: Dictionary) -> void:
 			"unknown", "?",
 		)
 		_total_targets += 1
+		hud.update_objectives(_targets_neutralized, _total_targets)
 
 	OpState.add_detection("scan")
 	Juice.pulse_color(tactical_map, Color(0.9, 0.7, 0.2, 0.15), 0.4)

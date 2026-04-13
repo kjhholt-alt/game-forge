@@ -14,6 +14,12 @@
       "threat_radius": 120,
       "handler_detect": "Movement detected, sector 7.",
       "handler_classify": "Three vehicles heading east. Possible arms shipment.",
+      "analysis": {
+        "classification": "CV Detection • Vehicle Group",
+        "threat": "medium",
+        "details": ["3 vehicles, eastbound on Route 4", "2 trucks + 1 armed escort", "Speed: 45 km/h, consistent with cargo transport", "Thermal signature: engine heat elevated"],
+        "recommendation": "Intercept before border crossing"
+      },
       "handler_coa": "Three options for the convoy.",
       "handler_resolve": "Convoy intercepted. Cargo seized.",
       "coas": [
@@ -56,6 +62,12 @@
       "threat_radius": 160,
       "handler_detect": "Thermal signature, south sector.",
       "handler_classify": "Fortified compound. Possible command post.",
+      "analysis": {
+        "classification": "SIGINT + Thermal • Fortified Structure",
+        "threat": "high",
+        "details": ["Walled compound, approx 200m x 150m", "4-6 personnel detected via thermal", "Active radio emissions on encrypted freq", "Vehicle bay with 2 SUVs", "Possible underground level"],
+        "recommendation": "Cyber intrusion or spec ops capture"
+      },
       "handler_coa": "High-value target. Choose carefully.",
       "handler_resolve": "Compound secured. Intel recovered.",
       "coas": [
@@ -93,6 +105,12 @@
       "threat_radius": 90,
       "handler_detect": "Signal intercept. Unknown origin.",
       "handler_classify": "Encrypted comms. Someone is coordinating operations.",
+      "analysis": {
+        "classification": "SIGINT • Encrypted Communications",
+        "threat": "medium",
+        "details": ["AES-256 encrypted radio traffic", "Burst transmission pattern: 3-second intervals", "Signal strength suggests mobile emitter", "Frequency hopping detected"],
+        "recommendation": "Monitor to map network, or jam to disrupt"
+      },
       "handler_coa": "We need to trace this signal.",
       "handler_resolve": "Signal traced. Source identified and logged.",
       "coas": [

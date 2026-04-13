@@ -7,14 +7,15 @@ extends Control
 
 signal coa_selected(coa_id: String)
 
-const CARD_WIDTH := 100
-const CARD_HEIGHT := 140
-const CARD_SPACING := 16
+const CARD_WIDTH := 140
+const CARD_HEIGHT := 180
+const CARD_SPACING := 20
 const CARD_Y_HIDDEN := 200.0  # Below screen
 const CARD_Y_VISIBLE := 20.0  # Visible position from bottom
 
 const ICON_MAP := {
 	"surveil": "EYE",
+	"monitor": "EYE",
 	"intercept": "NET",
 	"strike": "BOLT",
 	"extract": "OUT",
@@ -94,7 +95,7 @@ func _create_card(opt: Dictionary, index: int) -> PanelContainer:
 	var icon_label := Label.new()
 	var coa_id: String = opt.get("id", "")
 	icon_label.text = ICON_MAP.get(coa_id, "?")
-	icon_label.add_theme_font_size_override("font_size", 22)
+	icon_label.add_theme_font_size_override("font_size", 28)
 	icon_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(icon_label)
@@ -136,6 +137,9 @@ func _create_card(opt: Dictionary, index: int) -> PanelContainer:
 
 	card.add_child(vbox)
 
+	# Store option data for debug server access
+	card.set_meta("coa_option", opt)
+
 	# Click handler
 	card.gui_input.connect(func(event: InputEvent):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -159,6 +163,33 @@ func _on_card_clicked(opt: Dictionary) -> void:
 	var coa_id: String = opt.get("id", "")
 	EventBus.coa_selected.emit(_target_blip_id, coa_id)
 	dismiss()
+
+
+func select_by_index(index: int) -> bool:
+	if not _visible or index < 0 or index >= _cards.size():
+		return false
+	var card: Control = _cards[index]
+	var opt: Dictionary = card.get_meta("coa_option", {})
+	if not opt.is_empty():
+		_on_card_clicked(opt)
+		return true
+	return false
+
+
+func try_click_at(viewport_pos: Vector2) -> bool:
+	if not _visible or _cards.is_empty():
+		return false
+	for i in range(_cards.size()):
+		var card: Control = _cards[i]
+		var card_rect := Rect2(card.global_position, card.size)
+		if card_rect.has_point(viewport_pos):
+			# Found the card — trigger it
+			# Need the option data — store it on the card
+			var opt: Dictionary = card.get_meta("coa_option", {})
+			if not opt.is_empty():
+				_on_card_clicked(opt)
+				return true
+	return false
 
 
 func _on_coa_requested(_blip_id: String) -> void:
