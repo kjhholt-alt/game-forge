@@ -61,7 +61,7 @@ def config() -> GameConfig:
     """GameConfig with test defaults (no real API key)."""
     return GameConfig(
         anthropic_api_key="test-key-not-real",
-        director_model="claude-opus-4-6",
+        director_model="claude-opus-4-7",
         worker_model="claude-sonnet-4-6",
         fast_model="claude-haiku-4-5",
         godot_mcp_url="ws://localhost:6100",

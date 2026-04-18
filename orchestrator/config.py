@@ -71,7 +71,7 @@ class GameConfig(BaseSettings):
 
     # --- Models ---
     director_model: str = Field(
-        default="claude-opus-4-6",
+        default="claude-opus-4-7",
         description="Model used by the Director (Opus-tier coordinator).",
     )
     worker_model: str = Field(

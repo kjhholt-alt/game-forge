@@ -34,7 +34,7 @@ from schemas import (
 def config() -> GameConfig:
     return GameConfig(
         anthropic_api_key="test-key",
-        director_model="claude-opus-4-6",
+        director_model="claude-opus-4-7",
         worker_model="claude-sonnet-4-6",
         state_db_path=":memory:",
         max_retries=1,
@@ -198,7 +198,7 @@ class TestDispatchWorker:
         )
 
         call_kwargs = director._client.messages.create.call_args[1]
-        assert call_kwargs["model"] == "claude-opus-4-6"
+        assert call_kwargs["model"] == "claude-opus-4-7"
 
 
 class TestCreateGamePipeline:
