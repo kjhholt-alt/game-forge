@@ -6,7 +6,8 @@ to a complete game project with dungeon layout, NPCs, items, and QA report.
 Usage:
     python examples/generate_dungeon.py
 
-Requires ANTHROPIC_API_KEY to be set in the environment or .env file.
+Uses claudex (Max-sub `claude -p` subprocess) — no API key required.
+The Claude CLI must be installed and signed in.
 """
 
 from __future__ import annotations
@@ -24,11 +25,6 @@ from orchestrator.config import GameConfig, GameGenre
 
 async def main() -> None:
     config = GameConfig()
-
-    if not config.anthropic_api_key:
-        print("ERROR: Set ANTHROPIC_API_KEY in your environment or .env file.")
-        sys.exit(1)
-
     forge = GameForge(config)
 
     project = await forge.create(

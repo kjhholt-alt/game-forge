@@ -14,7 +14,7 @@ import logging
 import os
 from typing import Any
 
-import anthropic
+import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="SIGNAL DM Server")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+_client = anthropic.AsyncAnthropic()  # Max-sub via claudex shim; api_key is a no-op
 
 # ---------------------------------------------------------------------------
 # System prompts for each Claude role

@@ -62,11 +62,13 @@ class GameConfig(BaseSettings):
         extra="ignore",
     )
 
-    # --- API ---
+    # --- Claude transport ---
+    # Calls go through claudex (Max-sub `claude -p` subprocess) — no API key.
+    # `anthropic_api_key` retained as a no-op for back-compat with code that
+    # passes it to `Anthropic(api_key=...)`. The shim ignores it.
     anthropic_api_key: str = Field(
-        default="",
-        description="Anthropic API key. Loaded from ANTHROPIC_API_KEY env var.",
-        json_schema_extra={"env": "ANTHROPIC_API_KEY"},
+        default="ignored-via-claudex",
+        description="Unused — Claude calls go through claudex (Max sub).",
     )
 
     # --- Models ---

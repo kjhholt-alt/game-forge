@@ -34,12 +34,7 @@ def _get_forge(ctx: click.Context) -> GameForge:
     """Retrieve or create the GameForge instance from Click context."""
     if "forge" not in ctx.ensure_object(dict):
         config = GameConfig()
-        if not config.anthropic_api_key:
-            console.print(
-                "[red bold]Error:[/red bold] ANTHROPIC_API_KEY is not set.\n"
-                "Set it in your environment or in a .env file.",
-            )
-            sys.exit(1)
+        # Claude calls go through claudex (Max-sub) — no API key gate.
         _setup_logging(config.log_level)
         ctx.obj["forge"] = GameForge(config)
     return ctx.obj["forge"]

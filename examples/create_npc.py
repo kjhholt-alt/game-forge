@@ -6,7 +6,8 @@ with personality traits, dialogue trees, and contextual barks.
 Usage:
     python examples/create_npc.py
 
-Requires ANTHROPIC_API_KEY to be set in the environment or .env file.
+Uses claudex (Max-sub `claude -p` subprocess) — no API key required.
+The Claude CLI must be installed and signed in.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from pathlib import Path
 # Ensure the project root is on sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import anthropic
+import claudex_anthropic_shim as anthropic  # Max-sub via claudex
 
 from orchestrator.config import GameConfig
 from orchestrator.prompts import NARRATIVE_SYSTEM
@@ -28,12 +29,7 @@ from schemas.game import NPC
 
 async def main() -> None:
     config = GameConfig()
-
-    if not config.anthropic_api_key:
-        print("ERROR: Set ANTHROPIC_API_KEY in your environment or .env file.")
-        sys.exit(1)
-
-    client = anthropic.AsyncAnthropic(api_key=config.anthropic_api_key)
+    client = anthropic.AsyncAnthropic()
 
     npc_schema = json.dumps(NPC.model_json_schema(), indent=2)
     prompt = f"""Create a detailed NPC for a dark fantasy RPG:

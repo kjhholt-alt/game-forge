@@ -13,7 +13,7 @@ import logging
 import uuid
 from typing import Any
 
-import anthropic
+import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn

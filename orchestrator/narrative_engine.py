@@ -11,7 +11,7 @@ import json
 import logging
 from typing import Any
 
-import anthropic
+import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
 
 from schemas.combat import StyleGuide
 from schemas.npc import NPCDefinition, NPCRole, Personality

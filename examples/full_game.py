@@ -6,7 +6,8 @@ world building, narrative design, QA testing, iteration, and export.
 Usage:
     python examples/full_game.py
 
-Requires ANTHROPIC_API_KEY to be set in the environment or .env file.
+Uses claudex (Max-sub `claude -p` subprocess) — no API key required.
+The Claude CLI must be installed and signed in.
 """
 
 from __future__ import annotations
@@ -24,11 +25,6 @@ from orchestrator.config import GameConfig, GameGenre
 
 async def main() -> None:
     config = GameConfig()
-
-    if not config.anthropic_api_key:
-        print("ERROR: Set ANTHROPIC_API_KEY in your environment or .env file.")
-        sys.exit(1)
-
     forge = GameForge(config)
 
     # ------------------------------------------------------------------
