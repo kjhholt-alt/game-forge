@@ -6,13 +6,20 @@
 
 AI-agent-powered game development toolkit. A team of Claude agents (Opus directing, Sonnet generating, Haiku testing) creates complete Godot 4 games from natural-language prompts. Python orchestrator talks to Godot via JSON-RPC 2.0 over WebSocket — no intermediary servers, no third-party plugins.
 
-## 2026-05-14 milestone — FIRST END-TO-END GENERATION WORKS
+## 2026-05-14 milestone — FULL 5-STAGE PIPELINE WORKS
 
 The 5-agent pipeline had been sitting idle since 2026-04-12 (foundation
-complete, but never actually run with real model calls). Tonight the
-Director's `_generate_concept` stage produced a valid Pydantic
-`GameConcept` end-to-end in 30 seconds, via the Claude CLI (Max sub),
+complete, but never actually run with real model calls). Tonight all
+five stages produced a complete Pydantic-validated `GameProject`
+end-to-end in 278 seconds (~4.5 min), via the Claude CLI (Max sub),
 no Anthropic API key required.
+
+**Live smoke output (smoke_full_pipeline.py):**
+- title: "Wickwater"
+- setting: sunken ossuary beneath a drowned coastal monastery
+- 12 items / 6 quests / 5 NPCs / full style guide
+- QA agent found 12 specific design issues
+  ("quest_unfinished_compline is currently uncompletable as wired")
 
 **Root cause uncovered:** the `claudex_anthropic_shim` was flattening
 the Director's multi-turn message envelope into XML-tagged text and

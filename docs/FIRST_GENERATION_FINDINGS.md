@@ -2,14 +2,25 @@
 
 ## TL;DR
 
-**Game-Forge can now generate a Pydantic-validated `GameConcept` end-to-end
-in 30s via the Claude CLI, no Anthropic API key required.** Smoke harness
-lives at `scripts/smoke_first_generation.py`. The Director's
-`_generate_concept` stage uses the new `_call_structured()` helper.
+**Game-Forge now generates a complete 5-stage game project — concept →
+world → mechanics → narrative → art → QA — end-to-end in ~4.5 minutes
+via the Claude CLI. No Anthropic API key required.** Smoke harnesses
+live at:
+
+- `scripts/smoke_first_generation.py` — concept stage only (~30s)
+- `scripts/smoke_full_pipeline.py` — full 5-stage pipeline (~4.5 min)
 
 This is the first time the agent pipeline has been *actually run* with
-real model calls since the v0.1 foundation landed (2026-04-12). The
-previous attempt failed: see below.
+real model calls since the v0.1 foundation landed (2026-04-12).
+
+**Live smoke result (2026-05-14):**
+  - title: "Wickwater"
+  - world: sunken ossuary beneath a drowned coastal monastery
+  - 12 items, 6 quests, 5 NPCs, full style guide
+  - QA agent found 12 design issues including specific bugs
+    ("quest_unfinished_compline is currently uncompletable as wired")
+  - elapsed: 278s, total cost ~$1.50 (Opus 4.7, 1M context, mixed
+    cache-creation + cache-read tokens)
 
 ## What didn't work — and why
 
