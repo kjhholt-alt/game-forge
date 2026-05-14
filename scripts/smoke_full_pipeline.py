@@ -78,6 +78,17 @@ async def main() -> int:
             ),
             timeout=900,  # 15 min hard cap
         )
+        # Export to a tmp dir + verify the Godot scaffolding landed
+        export_dir = HERE / "smoke_full_pipeline.export"
+        if export_dir.exists():
+            import shutil as _sh
+            _sh.rmtree(export_dir, ignore_errors=True)
+        forge.export(export_dir)
+        manifest = export_dir / "game_project.json"
+        manifest_ok = manifest.exists() and manifest.stat().st_size > 1000
+        project_godot = export_dir / "project.godot"
+        mcp_server = export_dir / "scripts" / "mcp_server.gd"
+
         record["ok"] = True
         record["summary"] = {
             "concept_title": project.concept.title,
@@ -91,6 +102,12 @@ async def main() -> int:
             "qa_issue_count": (
                 len(project.qa_report.issues) if project.qa_report else None
             ),
+            "export_dir": str(export_dir),
+            "export_manifest_kb": (
+                round(manifest.stat().st_size / 1024, 1) if manifest_ok else None
+            ),
+            "export_has_project_godot": project_godot.exists(),
+            "export_has_mcp_server": mcp_server.exists(),
         }
     except asyncio.TimeoutError:
         record["error"] = "pipeline timeout after 900s"
