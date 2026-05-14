@@ -109,37 +109,50 @@ on the first invocation): ~$0.26. With caching warm and at standard
 8192-token context: $0.05-0.10. Full 5-stage generation should land in
 the $0.50-1.50 range per game.
 
-## What's next (NOT done in this sprint)
+## Update — 2026-05-14 (later same sprint): all 5 stages migrated
 
-The path forward is clear; everything below is straightforward port
-work, no more architectural unknowns:
+All five director stages now route through `_call_structured`:
 
-1. **Migrate the other 4 stages** to `_call_structured`:
-   - `_build_world` → `WorldDefinition`
-   - `_design_mechanics` → `(ItemDefinition[], dict)` (compound; needs
-     two stages or a wrapper Pydantic model)
-   - `_write_narrative` → `(Quest[], NPCDefinition[])`
-   - `_direct_art` → `StyleGuide`
-   - `_run_qa` → `QAReport`
+- `_generate_concept` → `GameConcept`
+- `_build_world` → `WorldDefinition`
+- `_design_mechanics` → `_ItemsBundle` (private wrapper) → `list[ItemDefinition]`
+- `_write_narrative` → `_NarrativeBundle` → `(list[Quest], list[NPCDefinition])`
+- `_direct_art` → `StyleGuide`
+- `_run_qa` → `QAReport`
 
-2. **`_dispatch_worker` migration.** Most stages already go through
-   `_dispatch_worker(role, task, response_schema)` which then calls
-   `_call_claude`. Punching `ask_structured` through to that level
-   would migrate everything at once.
+Two private Pydantic wrappers (`_ItemsBundle`, `_NarrativeBundle`) were
+needed because the CLI's `--json-schema` flag operates on a single root
+object, but mechanics returns a list and narrative returns two lists.
+The wrappers give us a stable root shape that the CLI can validate.
 
-3. **Full `forge create` E2E.** Once all stages are on
-   `ask_structured`, a full 5-agent run should land in 3-5 minutes
-   wall-clock. Demo target: video of `forge create "<prompt>"` →
-   playable Godot project in under 10 min.
+Test layer also migrated. The two `TestCreateGamePipeline` tests
+previously mocked `_client.messages.create` (the Anthropic shim).
+Now they mock `claudex.ask_structured` with a sequence of 6 stage
+responses. 9/9 director tests pass.
 
-4. **Asset pipeline smoke.** Replicate FLUX integration for sprite
+`scripts/smoke_full_pipeline.py` runs the entire 5-stage pipeline
+end-to-end via `GameForge.create()`. See the report file for results.
+
+## What's next (still NOT done)
+
+1. **Asset pipeline smoke.** Replicate FLUX integration for sprite
    generation is wired but never run end-to-end. Token is in
    `pool-prospector/.env.local` — copy into `game-forge/.env`.
 
-5. **Streaming.** `claude -p` supports `--output-format stream-json`
+2. **Godot export E2E.** After a project is created, `forge export
+   <path>` instantiates the Godot template, writes scripts, and
+   wires up the MCP server. Smoke that against a fresh `tmp/` dir.
+
+3. **Streaming.** `claude -p` supports `--output-format stream-json`
    for incremental output. Useful for the rich.Progress UI in
-   `forge create` so users see concept → world → mechanics → narrative
-   arrive sequentially instead of staring at a spinner for 3 min.
+   `forge create` so users see stages arriving sequentially.
+
+4. **CLI bin wrapper / install script.** `forge create` works but
+   `forge.bat` / `pip install -e .` flow needs documenting.
+
+5. **`iterate()` migration.** Same pattern — `_iterate_on_qa` still
+   uses `_call_claude` via `_dispatch_worker`. Lower priority since
+   `create()` is the demo path.
 
 ## Files touched this sprint
 

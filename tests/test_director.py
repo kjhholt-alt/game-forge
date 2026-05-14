@@ -204,23 +204,27 @@ class TestDispatchWorker:
 
 class TestCreateGamePipeline:
     async def test_full_pipeline_flow(self, director: GameDirector) -> None:
-        """Mock all API calls and verify the full pipeline produces a GameProject."""
-        # The concept stage now uses claudex.ask_structured (CLI structured
-        # output). The remaining stages still go through the shim until they
-        # migrate too. Mock both paths.
-        responses = [
-            _make_mock_response(_mock_world()),          # world
-            _make_mock_response(_mock_items()),          # items
-            _make_mock_response(_mock_narrative()),      # narrative
-            _make_mock_response(_mock_style_guide()),    # style guide
-            _make_mock_response(_mock_qa(True)),         # QA
+        """Mock all API calls and verify the full pipeline produces a GameProject.
+
+        2026-05-14: All 5 stages migrated to claudex.ask_structured. The
+        mock returns the right shape for each stage in order based on
+        the schema_cls argument.
+        """
+        items_data = _mock_items()  # {"items": [...]}
+        narrative_data = _mock_narrative()  # {"quests": [...], "npcs": [...]}
+
+        # Map schema class names to their expected payload for this run.
+        # ask_structured is called once per stage in pipeline order.
+        responses_by_call = [
+            _mock_concept(),       # GameConcept
+            _mock_world(),         # WorldDefinition
+            items_data,            # _ItemsBundle wraps {"items": [...]}
+            narrative_data,        # _NarrativeBundle wraps {"quests":..., "npcs":...}
+            _mock_style_guide(),   # StyleGuide
+            _mock_qa(True),        # QAReport
         ]
 
-        director._client = MagicMock()
-        director._client.messages = MagicMock()
-        director._client.messages.create = AsyncMock(side_effect=responses)
-
-        with patch("claudex.ask_structured", return_value=_mock_concept()):
+        with patch("claudex.ask_structured", side_effect=responses_by_call):
             project = await director.create_game("A fantasy RPG", GameGenre.RPG)
 
         assert isinstance(project, GameProject)
@@ -234,29 +238,19 @@ class TestCreateGamePipeline:
         assert project.qa_report.playable is True
 
     async def test_pipeline_qa_failure_still_returns_project(self, director: GameDirector) -> None:
-        """If QA fails and iteration can't proceed, we still get a project back.
-
-        Note: _iterate_on_qa calls self.iterate() which requires self._project,
-        but _project is only assigned after the pipeline completes. This is a
-        known limitation: the iterate() call raises DirectorError. We verify
-        the pipeline handles this gracefully by still returning a project.
-        """
-        # Concept now goes through claudex.ask_structured (see migration note
-        # in test_full_pipeline_flow). Remaining stages still go through the
-        # Anthropic shim.
-        responses = [
-            _make_mock_response(_mock_world()),          # world
-            _make_mock_response(_mock_items()),          # items
-            _make_mock_response(_mock_narrative()),      # narrative
-            _make_mock_response(_mock_style_guide()),    # style guide
-            _make_mock_response(_mock_qa(True)),         # QA passes (skip iteration path)
+        """If QA passes (no failure path here), we still get a project back."""
+        items_data = _mock_items()
+        narrative_data = _mock_narrative()
+        responses_by_call = [
+            _mock_concept(),
+            _mock_world(),
+            items_data,
+            narrative_data,
+            _mock_style_guide(),
+            _mock_qa(True),  # QA passes (skip iteration path)
         ]
 
-        director._client = MagicMock()
-        director._client.messages = MagicMock()
-        director._client.messages.create = AsyncMock(side_effect=responses)
-
-        with patch("claudex.ask_structured", return_value=_mock_concept()):
+        with patch("claudex.ask_structured", side_effect=responses_by_call):
             project = await director.create_game("A fantasy RPG", GameGenre.RPG)
         assert project.qa_report is not None
         assert project.qa_report.playable is True

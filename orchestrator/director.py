@@ -14,6 +14,7 @@ import uuid
 from typing import Any
 
 import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
+from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -31,6 +32,25 @@ from schemas import (
     StyleGuide,
     WorldDefinition,
 )
+
+
+# ---------------------------------------------------------------------------
+# Internal Pydantic wrappers for compound stage responses
+# ---------------------------------------------------------------------------
+# These exist because the CLI's --json-schema flag works on a single root
+# object, but mechanics returns a list and narrative returns two lists.
+# The wrappers give us a stable JSON shape that ask_structured can validate.
+
+
+class _ItemsBundle(BaseModel):
+    """Mechanics stage response: a list of items wrapped in a single root."""
+    items: list[ItemDefinition] = Field(default_factory=list)
+
+
+class _NarrativeBundle(BaseModel):
+    """Narrative stage response: quests + NPCs."""
+    quests: list[Quest] = Field(default_factory=list)
+    npcs: list[NPCDefinition] = Field(default_factory=list)
 
 logger = logging.getLogger(__name__)
 console = Console()
@@ -209,20 +229,16 @@ class GameDirector:
 
     async def _build_world(self, concept: GameConcept) -> WorldDefinition:
         """Dispatch WorldBuilder to create the world structure."""
-        user_message = (
-            f"Build a world for this game concept:\n\n"
-            f"{concept.model_dump_json(indent=2)}\n\n"
-            f"Respond with a JSON object matching this schema:\n"
-            f"{json.dumps(WorldDefinition.model_json_schema(), indent=2)}"
+        return await self._call_structured(
+            WorldDefinition,
+            system=ROLE_PROMPTS["world_builder"],
+            user_message=(
+                f"Build a world for this game concept:\n\n"
+                f"{concept.model_dump_json(indent=2)}\n\n"
+                f"Output ONLY a single JSON object matching the schema. "
+                f"Pick region names that fit the concept's setting and mood."
+            ),
         )
-
-        result = await self._dispatch_worker(
-            role=AgentRole.WORLD_BUILDER,
-            task={"concept": concept.model_dump(mode="json")},
-            response_schema="WorldDefinition",
-            override_message=user_message,
-        )
-        return WorldDefinition.model_validate(result)
 
     async def _design_mechanics(
         self,
@@ -230,29 +246,20 @@ class GameDirector:
         world: WorldDefinition,
     ) -> list[ItemDefinition]:
         """Dispatch MechanicsEngine to define items and balance."""
-        user_message = (
-            f"Design the item system for this game:\n\n"
-            f"Concept: {concept.model_dump_json(indent=2)}\n\n"
-            f"World: {world.model_dump_json(indent=2)}\n\n"
-            f"Respond with a JSON object: {{\"items\": [...]}} where each item "
-            f"matches this schema:\n"
-            f"{json.dumps(ItemDefinition.model_json_schema(), indent=2)}"
+        bundle = await self._call_structured(
+            _ItemsBundle,
+            system=ROLE_PROMPTS["mechanics"],
+            user_message=(
+                f"Design the item system for this game.\n\n"
+                f"Concept:\n{concept.model_dump_json(indent=2)}\n\n"
+                f"World:\n{world.model_dump_json(indent=2)}\n\n"
+                f"Output ONLY a JSON object with one key 'items' whose value "
+                f"is an array of 5-12 item definitions matching the schema. "
+                f"Items must fit the concept's tone and reference world "
+                f"regions/factions where natural."
+            ),
         )
-
-        result = await self._dispatch_worker(
-            role=AgentRole.MECHANICS,
-            task={
-                "concept": concept.model_dump(mode="json"),
-                "world": world.model_dump(mode="json"),
-            },
-            response_schema="items_list",
-            override_message=user_message,
-        )
-
-        raw_items = result.get("items", result) if isinstance(result, dict) else result
-        if isinstance(raw_items, list):
-            return [ItemDefinition.model_validate(i) for i in raw_items]
-        return []
+        return list(bundle.items)
 
     async def _write_narrative(
         self,
@@ -261,30 +268,21 @@ class GameDirector:
         items: list[ItemDefinition],
     ) -> tuple[list[Quest], list[NPCDefinition]]:
         """Dispatch NarrativeEngine to create quests, NPCs, and dialogue."""
-        user_message = (
-            f"Write the narrative content for this game:\n\n"
-            f"Concept: {concept.model_dump_json(indent=2)}\n\n"
-            f"World: {world.model_dump_json(indent=2)}\n\n"
-            f"Available items: {json.dumps([i.model_dump(mode='json') for i in items])}\n\n"
-            f"Respond with a JSON object: {{\"quests\": [...], \"npcs\": [...]}}.\n"
-            f"Quest schema:\n{json.dumps(Quest.model_json_schema(), indent=2)}\n"
-            f"NPC schema:\n{json.dumps(NPCDefinition.model_json_schema(), indent=2)}"
+        bundle = await self._call_structured(
+            _NarrativeBundle,
+            system=ROLE_PROMPTS["narrative"],
+            user_message=(
+                f"Write the narrative content for this game.\n\n"
+                f"Concept:\n{concept.model_dump_json(indent=2)}\n\n"
+                f"World:\n{world.model_dump_json(indent=2)}\n\n"
+                f"Items in this game:\n"
+                f"{json.dumps([i.model_dump(mode='json') for i in items])}\n\n"
+                f"Output ONLY a JSON object with two keys: 'quests' (3-6 quests) "
+                f"and 'npcs' (3-8 NPCs). Each quest/NPC must match its schema. "
+                f"Quests can reference NPCs by id; NPCs can be quest givers."
+            ),
         )
-
-        result = await self._dispatch_worker(
-            role=AgentRole.NARRATIVE,
-            task={
-                "concept": concept.model_dump(mode="json"),
-                "world": world.model_dump(mode="json"),
-                "items": [i.model_dump(mode="json") for i in items],
-            },
-            response_schema="narrative",
-            override_message=user_message,
-        )
-
-        quests = [Quest.model_validate(q) for q in result.get("quests", [])]
-        npcs = [NPCDefinition.model_validate(n) for n in result.get("npcs", [])]
-        return quests, npcs
+        return list(bundle.quests), list(bundle.npcs)
 
     async def _direct_art(
         self,
@@ -293,44 +291,36 @@ class GameDirector:
         npcs: list[NPCDefinition],
     ) -> StyleGuide:
         """Dispatch ArtDirector to produce a style guide for the game."""
-        user_message = (
-            f"Create an art style guide for this game:\n\n"
-            f"Concept: {concept.model_dump_json(indent=2)}\n\n"
-            f"World: {world.model_dump_json(indent=2)}\n\n"
-            f"NPCs: {json.dumps([n.model_dump(mode='json') for n in npcs])}\n\n"
-            f"Respond with a JSON object matching this schema:\n"
-            f"{json.dumps(StyleGuide.model_json_schema(), indent=2)}"
+        return await self._call_structured(
+            StyleGuide,
+            system=ROLE_PROMPTS["art_director"],
+            user_message=(
+                f"Create an art style guide for this game.\n\n"
+                f"Concept:\n{concept.model_dump_json(indent=2)}\n\n"
+                f"World:\n{world.model_dump_json(indent=2)}\n\n"
+                f"NPCs in this game:\n"
+                f"{json.dumps([n.model_dump(mode='json') for n in npcs])}\n\n"
+                f"Output ONLY a JSON object matching the schema. Style notes "
+                f"must be specific (palette hex values where appropriate, "
+                f"animation frame counts, resolution targets) so artists can "
+                f"reference them directly."
+            ),
         )
-
-        result = await self._dispatch_worker(
-            role=AgentRole.ART_DIRECTOR,
-            task={
-                "concept": concept.model_dump(mode="json"),
-                "world": world.model_dump(mode="json"),
-                "npcs": [n.model_dump(mode="json") for n in npcs],
-            },
-            response_schema="StyleGuide",
-            override_message=user_message,
-        )
-
-        return StyleGuide.model_validate(result)
 
     async def _run_qa(self, project: GameProject) -> QAReport:
         """Dispatch QATester to playtest and report issues."""
-        user_message = (
-            f"Perform a QA playtest review of this game project:\n\n"
-            f"{project.model_dump_json(indent=2)}\n\n"
-            f"Respond with a JSON object matching this schema:\n"
-            f"{json.dumps(QAReport.model_json_schema(), indent=2)}"
+        return await self._call_structured(
+            QAReport,
+            system=ROLE_PROMPTS["qa_tester"],
+            user_message=(
+                f"Perform a QA playtest review of this game project.\n\n"
+                f"Project:\n{project.model_dump_json(indent=2)}\n\n"
+                f"Output ONLY a JSON object matching the QAReport schema. "
+                f"Be specific about issues — include file/system references "
+                f"where possible. Mark 'playable: true' only if no blocker "
+                f"issues exist."
+            ),
         )
-
-        result = await self._dispatch_worker(
-            role=AgentRole.QA_TESTER,
-            task={"project": project.model_dump(mode="json")},
-            response_schema="QAReport",
-            override_message=user_message,
-        )
-        return QAReport.model_validate(result)
 
     async def _iterate_on_qa(
         self,
