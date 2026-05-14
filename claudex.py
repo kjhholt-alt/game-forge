@@ -153,6 +153,42 @@ def ask_json(
     return _extract_json(resp.text)
 
 
+def _inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
+    """Inline $ref + $defs so the schema is self-contained.
+
+    Anthropic's structured-output API rejects schemas with `$ref` /
+    `$defs` (the standard Pydantic output shape). This walker resolves
+    every `{"$ref": "#/$defs/Name"}` by substituting the actual
+    definition, then strips the `$defs` block. Side-effect-free.
+    """
+    defs = schema.get("$defs") or schema.get("definitions") or {}
+    if not defs:
+        return schema
+
+    def _walk(node: Any) -> Any:
+        if isinstance(node, dict):
+            ref = node.get("$ref")
+            if isinstance(ref, str) and (ref.startswith("#/$defs/")
+                                          or ref.startswith("#/definitions/")):
+                name = ref.split("/")[-1]
+                target = defs.get(name)
+                if target is not None:
+                    # Resolve recursively in case the target itself has refs
+                    return _walk(target)
+                return node
+            return {k: _walk(v) for k, v in node.items() if k not in ("$defs", "definitions")}
+        if isinstance(node, list):
+            return [_walk(x) for x in node]
+        return node
+
+    resolved = _walk(schema)
+    # Strip $defs at the root if present
+    if isinstance(resolved, dict):
+        resolved.pop("$defs", None)
+        resolved.pop("definitions", None)
+    return resolved
+
+
 def ask_structured(
     prompt: str,
     schema: dict[str, Any],
@@ -185,22 +221,43 @@ def ask_structured(
     if use_cache and cache_file.exists():
         return json.loads(cache_file.read_text(encoding="utf-8"))
 
+    # Schema strategy (after a long fight with Anthropic's strict validator):
+    #
+    # 1. Inline $defs/$ref so the schema is self-contained — Anthropic's
+    #    structured-output API rejects $ref-bearing schemas.
+    # 2. Embed the schema IN THE PROMPT so the model knows what shape to
+    #    produce. The `--json-schema` CLI flag is post-validation only; it
+    #    does NOT constrain generation. Without an in-prompt schema the
+    #    model invents whatever shape it likes.
+    # 3. Drop `--json-schema` entirely. Empirically, Anthropic's validator
+    #    rejects JSON that Pydantic happily accepts (likely some
+    #    JSON-Schema strictness around additionalProperties or anyOf that
+    #    Pydantic doesn't enforce). It also blows past Windows' 32K
+    #    cmdline limit when schemas are >5KB. Caller's
+    #    `Schema.model_validate(...)` is the real gate.
+    # 4. Parse JSON out of the CLI's prose `result` field.
+    inlined = _inline_refs(schema)
+    schema_doc = json.dumps(inlined, indent=2)
+    combined_prompt = (
+        f"{prompt}\n\n"
+        f"Your output must be ONE JSON object that matches this schema. "
+        f"No prose. No markdown fences. No outer wrapper key. Begin with "
+        f"{{ and end with }}.\n\n"
+        f"Schema:\n{schema_doc}"
+    )
+
     bin_path = _resolve_claude_bin()
     cmd = [
         bin_path,
         "-p",
         "--output-format", "json",
-        "--json-schema", json.dumps(schema),
     ]
     if system_prompt:
         cmd.extend(["--append-system-prompt", system_prompt])
-    # Pass the prompt via stdin to avoid command-line length limits and
-    # argument-escaping issues on Windows where the schema can be ~1KB+
-    # and Python's subprocess + the shell mangle long positional args.
     try:
         proc = subprocess.run(
             cmd,
-            input=prompt,
+            input=combined_prompt,
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -226,12 +283,29 @@ def ask_structured(
         raise ClaudexError(
             f"CLI returned error: {envelope.get('result') or envelope.get('error')}"
         )
-    out = envelope.get("structured_output")
-    if out is None:
+    # Parse JSON out of the prose `result` field. The Pydantic validate
+    # at the caller side is the real gate.
+    result_text = (envelope.get("result") or "").strip()
+    if result_text.startswith("```"):
+        first_nl = result_text.find("\n")
+        if first_nl > 0:
+            result_text = result_text[first_nl + 1 :]
+        if result_text.endswith("```"):
+            result_text = result_text[:-3]
+        result_text = result_text.strip()
+    try:
+        parsed = json.loads(result_text)
+    except json.JSONDecodeError as e:
         raise ClaudexError(
-            "CLI envelope missing structured_output. Likely the schema was "
-            "rejected. Envelope keys: " + ", ".join(envelope.keys())
+            f"CLI `result` is not valid JSON: {e}. "
+            f"result[:300]={result_text[:300]!r}"
+        ) from e
+    if not isinstance(parsed, dict):
+        raise ClaudexError(
+            f"CLI returned valid JSON but not an object: {type(parsed).__name__}. "
+            f"result[:300]={result_text[:300]!r}"
         )
+    out = parsed
     if use_cache:
         cache_file.write_text(json.dumps(out), encoding="utf-8")
     return out

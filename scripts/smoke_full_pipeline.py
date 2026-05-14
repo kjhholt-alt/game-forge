@@ -18,10 +18,22 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sys
 import time
 import traceback
 from pathlib import Path
+
+# Force UTF-8 stdout BEFORE rich loads — its Progress spinner uses
+# braille-pattern chars (⠇, ⠋, etc.) that cp1252 (Windows
+# console default) can't render. Without this the 5-stage pipeline
+# crashes in the spinner, not in the generation.
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent

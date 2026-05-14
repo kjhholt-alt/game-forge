@@ -109,6 +109,42 @@ on the first invocation): ~$0.26. With caching warm and at standard
 8192-token context: $0.05-0.10. Full 5-stage generation should land in
 the $0.50-1.50 range per game.
 
+## Update 2 — 2026-05-14 (deeper): `--json-schema` is post-validation only
+
+Initial assumption: `claude -p --output-format json --json-schema <schema>`
+constrains generation. **Wrong.** Empirical findings after migrating
+all 5 stages:
+
+- `--json-schema` validates the model's output against the schema and
+  populates `envelope.structured_output` only if validation passes.
+  It does **not** influence what the model produces.
+- Without the schema in the prompt, the model invents shape freely.
+  WorldDefinition (which has nested `overworld.regions[].rooms[]`)
+  came back as `{"world": {...}, "landmarks": [...]}` — totally
+  different from the Pydantic schema.
+- Anthropic's structured-output validator is **stricter than Pydantic**.
+  We saw cases where the model produced a JSON object that
+  `WorldDefinition.model_validate(...)` accepts cleanly, but
+  `structured_output` was still null. Likely cause: missing
+  `additionalProperties: false` somewhere in the tree, or strict
+  enforcement of JSON Schema features Pydantic emits leniently.
+- The schema also has to fit on the Windows command line (~32K).
+  At 6.6KB inlined for WorldDefinition, headroom shrinks fast and
+  the `_NarrativeBundle` schema at ~7KB pushes too close to the
+  limit.
+
+**Final approach** (locked in master 5fae0d8 + follow-up):
+
+1. Embed the inlined schema in the user prompt — this drives shape.
+2. Drop `--json-schema` from the CLI args — it's not helping and it
+   blows the cmdline limit.
+3. Parse JSON out of the prose `result` field of the envelope.
+4. Caller's `Schema.model_validate(...)` is the real gate.
+
+`ask_structured()` now reads the docstring "schema-validated call"
+loosely: the CLI is doing best-effort, Pydantic is doing the actual
+validation. That's fine — Pydantic is what we ultimately care about.
+
 ## Update — 2026-05-14 (later same sprint): all 5 stages migrated
 
 All five director stages now route through `_call_structured`:
