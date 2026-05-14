@@ -1,0 +1,101 @@
+"""Third-genre Game-Forge smoke — RPG to round out the gallery.
+
+Different from Wickwater (roguelike) and Steeped (puzzle). Tests whether
+the pipeline produces coherent RPGs with quest chains, party-style
+NPCs, and a multi-region overworld.
+
+Writes scripts/smoke_full_pipeline_rpg.state.json + report.json.
+"""
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+import sys
+import time
+import traceback
+from pathlib import Path
+
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+sys.path.insert(0, str(ROOT))
+
+REPORT_PATH = HERE / "smoke_full_pipeline_rpg.report.json"
+
+
+async def main() -> int:
+    started_at = time.time()
+    record: dict = {"started_at_iso": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "ok": False}
+
+    try:
+        os.environ.setdefault("ANTHROPIC_API_KEY", "claudex-shim-no-key")
+        from orchestrator.config import GameConfig, GameGenre
+        from orchestrator.forge import GameForge
+
+        config = GameConfig(
+            anthropic_api_key="claudex-shim-no-key",
+            state_db_path=str(HERE / "smoke_full_pipeline_rpg.state.db"),
+            max_retries=1,
+            enable_streaming=False,
+        )
+        forge = GameForge(config)
+        forge._project = None  # fresh
+
+        project = await asyncio.wait_for(
+            forge.create(
+                prompt=(
+                    "A short cozy RPG about a tea-merchant traveling between "
+                    "three coastal villages by sailboat. Trade goods, befriend "
+                    "shopkeepers, deliver letters, decipher local recipes. "
+                    "No combat — challenges are puzzles, weather, and "
+                    "navigation. Pixel art with watercolor textures, ambient "
+                    "ocean sounds, slow 3-4 hour campaign."
+                ),
+                genre=GameGenre.RPG,
+            ),
+            timeout=900,
+        )
+        record["ok"] = True
+        record["summary"] = {
+            "concept_title": project.concept.title,
+            "concept_setting": project.concept.setting[:200],
+            "world_name": project.world.name if project.world else None,
+            "items_count": len(project.items),
+            "quests_count": len(project.quests),
+            "npcs_count": len(project.npcs),
+            "qa_playable": project.qa_report.playable if project.qa_report else None,
+            "qa_issue_count": len(project.qa_report.issues) if project.qa_report else None,
+        }
+    except asyncio.TimeoutError:
+        record["error"] = "timeout"
+    except Exception as e:
+        record["error"] = f"{type(e).__name__}: {e}"
+        record["traceback"] = traceback.format_exc()
+
+    record["elapsed_s"] = round(time.time() - started_at, 2)
+    REPORT_PATH.write_text(json.dumps(record, indent=2))
+
+    print("=" * 60)
+    print(f"RPG-GENRE SMOKE — {'OK' if record['ok'] else 'FAIL'}")
+    print("=" * 60)
+    if record["ok"]:
+        s = record["summary"]
+        print(f"  title:  {s['concept_title']}")
+        print(f"  world:  {s['world_name']}")
+        print(f"  items:  {s['items_count']}, quests: {s['quests_count']}, npcs: {s['npcs_count']}")
+        print(f"  qa:     {'playable' if s['qa_playable'] else 'NOT playable'} ({s['qa_issue_count']} issues)")
+    else:
+        print(f"  error:  {record.get('error')}")
+    print(f"  elapsed: {record['elapsed_s']:.1f}s")
+    return 0 if record["ok"] else 1
+
+
+if __name__ == "__main__":
+    sys.exit(asyncio.run(main()))
