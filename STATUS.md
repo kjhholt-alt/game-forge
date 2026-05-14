@@ -20,6 +20,24 @@ no Anthropic API key required.
 - 12 items / 6 quests / 5 NPCs / full style guide
 - QA agent found 12 specific design issues
   ("quest_unfinished_compline is currently uncompletable as wired")
+- 278s wall-clock
+
+**Second generation (smoke_full_pipeline_puzzle.py, 2026-05-14):**
+- title: "Steeped"  ·  genre: puzzle (proves multi-genre support)
+- setting: a back-alley tea room on a rainy evening
+- 12 items / 6 quests / 4 NPCs / full style guide
+- QA verdict: **PLAYABLE** (12 minor issues, no blockers)
+- 4 tea-themed glass orb colors, 3 difficulty modes, Steep+Pour
+  combo mechanic, hand-lettered receipt scoring
+- 358s wall-clock
+
+Galleries:
+- `docs/GAME_GALLERY.md` — Wickwater
+- `docs/GAME_GALLERY_STEEPED.md` — Steeped
+
+Mission Control's GAME-FORGE RUNS widget lists both runs once
+the studio-os server is restarted (the running instance has the
+pre-widget mission_control.py module cached in memory).
 
 **Root cause uncovered:** the `claudex_anthropic_shim` was flattening
 the Director's multi-turn message envelope into XML-tagged text and
