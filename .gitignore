@@ -45,3 +45,11 @@ desktop.ini
 .pytest_cache/
 htmlcov/
 .coverage
+
+# claudex local response cache (per-prompt SHA-keyed)
+.claudex_cache/
+
+# smoke harness transient artifacts + cross-project operator dropbox
+scripts/*.state.db
+scripts/*.report.json
+.operator/

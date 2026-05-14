@@ -63,11 +63,11 @@ def _resolve_claude_bin() -> str:
     raise ClaudexError("Claude CLI not found. Install from https://claude.ai/code.")
 
 
-def _cache_path(project_root: Path, prompt: str) -> Path:
+def _cache_path(project_root: Path, prompt: str, suffix: str = ".txt") -> Path:
     h = hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
     cache_dir = project_root / CACHE_DIRNAME
     cache_dir.mkdir(exist_ok=True)
-    return cache_dir / f"{h}.txt"
+    return cache_dir / f"{h}{suffix}"
 
 
 @dataclass
@@ -151,6 +151,90 @@ def ask_json(
     """
     resp = ask(prompt, project_root=project_root, use_cache=use_cache, timeout_s=timeout_s)
     return _extract_json(resp.text)
+
+
+def ask_structured(
+    prompt: str,
+    schema: dict[str, Any],
+    *,
+    system_prompt: str | None = None,
+    project_root: Path | None = None,
+    use_cache: bool = True,
+    timeout_s: int = DEFAULT_TIMEOUT_S,
+) -> dict[str, Any]:
+    """Call `claude -p` with `--output-format json --json-schema <schema>`.
+
+    Returns the validated JSON object from the CLI's structured_output field.
+    Bypasses the conversational "I'm ready to help, what would you like?"
+    behavior that the plain ``-p`` mode falls into when the prompt looks
+    like agent setup. The structured-output mode forces the model to
+    produce schema-matching JSON.
+
+    Raises
+    ------
+    ClaudexError
+        If the CLI returns non-success status, or if the structured_output
+        field is missing from the response envelope.
+    """
+    project_root = project_root or Path.cwd()
+    cache_key = f"{prompt}\n---SCHEMA---\n{json.dumps(schema, sort_keys=True)}"
+    if system_prompt:
+        cache_key += f"\n---SYS---\n{system_prompt}"
+    h = hashlib.sha256(cache_key.encode("utf-8")).hexdigest()[:16]
+    cache_file = _cache_path(project_root, cache_key, suffix=".json")
+    if use_cache and cache_file.exists():
+        return json.loads(cache_file.read_text(encoding="utf-8"))
+
+    bin_path = _resolve_claude_bin()
+    cmd = [
+        bin_path,
+        "-p",
+        "--output-format", "json",
+        "--json-schema", json.dumps(schema),
+    ]
+    if system_prompt:
+        cmd.extend(["--append-system-prompt", system_prompt])
+    # Pass the prompt via stdin to avoid command-line length limits and
+    # argument-escaping issues on Windows where the schema can be ~1KB+
+    # and Python's subprocess + the shell mangle long positional args.
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=prompt,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=timeout_s,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise ClaudexError(f"Claude CLI timed out after {timeout_s}s") from e
+    if proc.returncode != 0:
+        raise ClaudexError(
+            f"Claude CLI exit {proc.returncode}: {proc.stderr.strip()[:500]}"
+        )
+    raw = (proc.stdout or "").strip()
+    if not raw:
+        raise ClaudexError("Claude CLI returned empty stdout (structured mode).")
+    try:
+        envelope = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise ClaudexError(
+            f"CLI envelope was not JSON: {e}; raw={raw[:200]}"
+        ) from e
+    if envelope.get("is_error"):
+        raise ClaudexError(
+            f"CLI returned error: {envelope.get('result') or envelope.get('error')}"
+        )
+    out = envelope.get("structured_output")
+    if out is None:
+        raise ClaudexError(
+            "CLI envelope missing structured_output. Likely the schema was "
+            "rejected. Envelope keys: " + ", ".join(envelope.keys())
+        )
+    if use_cache:
+        cache_file.write_text(json.dumps(out), encoding="utf-8")
+    return out
 
 
 def ask_batch(

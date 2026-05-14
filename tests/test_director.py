@@ -157,11 +157,12 @@ def _make_mock_response(data: dict) -> MagicMock:
 
 class TestGenerateConcept:
     async def test_produces_valid_concept(self, director: GameDirector) -> None:
-        director._client = MagicMock()
-        director._client.messages = MagicMock()
-        director._client.messages.create = AsyncMock(return_value=_make_mock_response(_mock_concept()))
-
-        concept = await director._generate_concept("A fantasy RPG", GameGenre.RPG)
+        # Migrated 2026-05-14: _generate_concept now calls
+        # claudex.ask_structured directly (bypasses the Anthropic shim) so
+        # the schema-validation happens at CLI level. See
+        # docs/FIRST_GENERATION_FINDINGS.md.
+        with patch("claudex.ask_structured", return_value=_mock_concept()):
+            concept = await director._generate_concept("A fantasy RPG", GameGenre.RPG)
 
         assert isinstance(concept, GameConcept)
         assert concept.title == "Test Game"
@@ -204,8 +205,10 @@ class TestDispatchWorker:
 class TestCreateGamePipeline:
     async def test_full_pipeline_flow(self, director: GameDirector) -> None:
         """Mock all API calls and verify the full pipeline produces a GameProject."""
+        # The concept stage now uses claudex.ask_structured (CLI structured
+        # output). The remaining stages still go through the shim until they
+        # migrate too. Mock both paths.
         responses = [
-            _make_mock_response(_mock_concept()),       # concept
             _make_mock_response(_mock_world()),          # world
             _make_mock_response(_mock_items()),          # items
             _make_mock_response(_mock_narrative()),      # narrative
@@ -217,7 +220,8 @@ class TestCreateGamePipeline:
         director._client.messages = MagicMock()
         director._client.messages.create = AsyncMock(side_effect=responses)
 
-        project = await director.create_game("A fantasy RPG", GameGenre.RPG)
+        with patch("claudex.ask_structured", return_value=_mock_concept()):
+            project = await director.create_game("A fantasy RPG", GameGenre.RPG)
 
         assert isinstance(project, GameProject)
         assert project.concept.title == "Test Game"
@@ -237,8 +241,10 @@ class TestCreateGamePipeline:
         known limitation: the iterate() call raises DirectorError. We verify
         the pipeline handles this gracefully by still returning a project.
         """
+        # Concept now goes through claudex.ask_structured (see migration note
+        # in test_full_pipeline_flow). Remaining stages still go through the
+        # Anthropic shim.
         responses = [
-            _make_mock_response(_mock_concept()),       # concept
             _make_mock_response(_mock_world()),          # world
             _make_mock_response(_mock_items()),          # items
             _make_mock_response(_mock_narrative()),      # narrative
@@ -250,7 +256,8 @@ class TestCreateGamePipeline:
         director._client.messages = MagicMock()
         director._client.messages.create = AsyncMock(side_effect=responses)
 
-        project = await director.create_game("A fantasy RPG", GameGenre.RPG)
+        with patch("claudex.ask_structured", return_value=_mock_concept()):
+            project = await director.create_game("A fantasy RPG", GameGenre.RPG)
         assert project.qa_report is not None
         assert project.qa_report.playable is True
 

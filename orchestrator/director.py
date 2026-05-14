@@ -187,21 +187,25 @@ class GameDirector:
     # ------------------------------------------------------------------
 
     async def _generate_concept(self, prompt: str, genre: GameGenre) -> GameConcept:
-        """Use Opus to create a detailed game design document from a prompt."""
-        user_message = (
-            f"Create a game concept for the following idea:\n\n"
-            f"Prompt: {prompt}\n"
-            f"Genre: {genre.value}\n\n"
-            f"Respond with a JSON object matching this schema:\n"
-            f"{json.dumps(GameConcept.model_json_schema(), indent=2)}"
-        )
+        """Use Opus to create a detailed game design document from a prompt.
 
-        result = await self._call_claude(
-            model=self.config.director_model,
+        Uses claudex.ask_structured (CLI --output-format json --json-schema)
+        which bypasses the Claude-Code conversational fallback that the
+        plain ``claude -p`` mode falls into when the prompt looks like
+        agent setup. See docs/FIRST_GENERATION_FINDINGS.md.
+        """
+        return await self._call_structured(
+            GameConcept,
             system=ROLE_PROMPTS["director"],
-            user_message=user_message,
+            user_message=(
+                f"Design a game concept for this idea:\n\n"
+                f"Idea: {prompt}\n"
+                f"Genre: {genre.value}\n\n"
+                f"Pick names that feel earned, not generic. Be specific about "
+                f"the setting (1-2 sentences), the mechanics (3-6 concrete "
+                f"items), and the mood. Output ONLY the schema-matching JSON."
+            ),
         )
-        return GameConcept.model_validate(result)
 
     async def _build_world(self, concept: GameConcept) -> WorldDefinition:
         """Dispatch WorldBuilder to create the world structure."""
@@ -403,6 +407,35 @@ class GameDirector:
 
         logger.debug("Dispatching %s (model=%s, schema=%s)", role.value, model, response_schema)
         return await self._call_claude(model=model, system=system, user_message=user_message)
+
+    async def _call_structured(
+        self,
+        schema_cls: Any,
+        system: str,
+        user_message: str,
+        *,
+        timeout_s: int = 240,
+    ) -> Any:
+        """Schema-validated call via claudex.ask_structured.
+
+        Bypasses the Anthropic-shape shim entirely. Uses the Claude CLI's
+        native ``--output-format json --json-schema`` mode which forces
+        the model to produce schema-matching JSON regardless of what the
+        loaded project context wants to talk about.
+        """
+        import asyncio as _aio
+        import claudex as _cx
+
+        schema = schema_cls.model_json_schema()
+        result = await _aio.to_thread(
+            _cx.ask_structured,
+            user_message,
+            schema,
+            system_prompt=system,
+            use_cache=True,
+            timeout_s=timeout_s,
+        )
+        return schema_cls.model_validate(result)
 
     async def _call_claude(
         self,
