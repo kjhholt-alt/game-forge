@@ -49,6 +49,32 @@ project.
                       +-----------------------+
 ```
 
+## Try it right now
+
+If you're on Windows with the Claude CLI installed (Max sub), you can
+**generate a complete game in 5 minutes without an API key**:
+
+```cmd
+scripts\quickrun.bat
+```
+
+That runs the full 5-stage pipeline (concept → world → mechanics →
+narrative → art → QA), exports a Godot 4.6 project, and opens the
+folder in Explorer. The first generation (Wickwater) is already
+committed at `docs/GAME_GALLERY.md` — peek there to see what the
+agents produce.
+
+The smoke harnesses individually:
+
+```bash
+py scripts/smoke_first_generation.py    # concept stage only (~30s)
+py scripts/smoke_full_pipeline.py       # all 5 stages (~4.5 min)
+py scripts/dump_game_gallery.py         # convert state to Markdown
+```
+
+Cost: $0 incremental on Claude Max sub (claudex uses `claude -p`
+subprocess). No Anthropic API key required for this path.
+
 ## Quick Start
 
 ### 1. Install
