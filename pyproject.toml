@@ -51,6 +51,13 @@ forge = "orchestrator.cli:main"
 [tool.setuptools.packages.find]
 include = ["orchestrator*", "schemas*", "tools*", "state*"]
 
+# Top-level single-module shims live next to the orchestrator package
+# (claudex.py + claudex_anthropic_shim.py). Without explicitly listing
+# them here, `pip install -e .` excludes them and the installed `forge`
+# entry point breaks at import time on `import claudex_anthropic_shim`.
+[tool.setuptools]
+py-modules = ["claudex", "claudex_anthropic_shim"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
