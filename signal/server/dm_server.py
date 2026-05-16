@@ -14,7 +14,7 @@ import logging
 import os
 from typing import Any
 
-import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
+import claudex_client as claude
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="SIGNAL DM Server")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-_client = anthropic.AsyncAnthropic()  # Max-sub via claudex shim; api_key is a no-op
+_client = claude.AsyncClaudeClient()
 
 # ---------------------------------------------------------------------------
 # System prompts for each Claude role
@@ -244,11 +244,11 @@ async def health():
 
 
 # ---------------------------------------------------------------------------
-# Claude API helper
+# Claude CLI helper
 # ---------------------------------------------------------------------------
 
 async def _call_claude(system: str, user_msg: str, model: str = "claude-haiku-4-5", max_tokens: int = 100) -> str:
-    """Call Claude API and return text response."""
+    """Call Claude CLI and return text response."""
     try:
         response = _client.messages.create(
             model=model,
@@ -262,5 +262,5 @@ async def _call_claude(system: str, user_msg: str, model: str = "claude-haiku-4-
                 text += block.text
         return text.strip()
     except Exception as e:
-        logger.error("Claude API error: %s", e)
+        logger.error("Claude CLI error: %s", e)
         return "Handler offline. Proceed with caution."

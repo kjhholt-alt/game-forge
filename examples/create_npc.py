@@ -20,7 +20,7 @@ from pathlib import Path
 # Ensure the project root is on sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import claudex_anthropic_shim as anthropic  # Max-sub via claudex
+import claudex_client as claude
 
 from orchestrator.config import GameConfig
 from orchestrator.prompts import NARRATIVE_SYSTEM
@@ -29,7 +29,7 @@ from schemas.game import NPC
 
 async def main() -> None:
     config = GameConfig()
-    client = anthropic.AsyncAnthropic()
+    client = claude.AsyncClaudeClient()
 
     npc_schema = json.dumps(NPC.model_json_schema(), indent=2)
     prompt = f"""Create a detailed NPC for a dark fantasy RPG:

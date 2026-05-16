@@ -58,9 +58,8 @@ from schemas.world import (
 
 @pytest.fixture
 def config() -> GameConfig:
-    """GameConfig with test defaults (no real API key)."""
+    """GameConfig with test defaults (no paid API transport)."""
     return GameConfig(
-        anthropic_api_key="test-key-not-real",
         director_model="claude-opus-4-7",
         worker_model="claude-sonnet-4-6",
         fast_model="claude-haiku-4-5",

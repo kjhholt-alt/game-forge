@@ -1,7 +1,7 @@
 """Full 5-stage pipeline smoke for GameForge.
 
 Runs concept → world → mechanics → narrative → art → QA end-to-end
-through claudex.ask_structured. No Anthropic API key required; all
+through claudex.ask_structured. No model API key required; all
 model calls go through `claude -p --output-format json --json-schema`
 backed by the Max-sub Claude CLI.
 
@@ -53,27 +53,25 @@ async def main() -> int:
     }
 
     try:
-        import os
-        os.environ.setdefault("ANTHROPIC_API_KEY", "claudex-shim-no-key")
         from orchestrator.config import GameConfig, GameGenre
         from orchestrator.forge import GameForge
 
         config = GameConfig(
-            anthropic_api_key="claudex-shim-no-key",
             state_db_path=str(HERE / "smoke_full_pipeline.state.db"),
             max_retries=1,
             enable_streaming=False,
         )
         forge = GameForge(config)
+        prompt = os.environ.get("GAMEFORGE_SMOKE_PROMPT") or (
+            "A short cozy roguelike about a lantern-keeper exploring "
+            "a flooded crypt. One dungeon. Three enemy types, all "
+            "puzzles not DPS-checks. One hidden treasure room per "
+            "run. Pixel art, calm and contemplative, ~15 min sessions."
+        )
 
         project = await asyncio.wait_for(
             forge.create(
-                prompt=(
-                    "A short cozy roguelike about a lantern-keeper exploring "
-                    "a flooded crypt. One dungeon. Three enemy types, all "
-                    "puzzles not DPS-checks. One hidden treasure room per "
-                    "run. Pixel art, calm and contemplative, ~15 min sessions."
-                ),
+                prompt=prompt,
                 genre=GameGenre.ROGUELIKE,
             ),
             timeout=900,  # 15 min hard cap
@@ -82,7 +80,9 @@ async def main() -> int:
         export_dir = HERE / "smoke_full_pipeline.export"
         if export_dir.exists():
             import shutil as _sh
-            _sh.rmtree(export_dir, ignore_errors=True)
+            archive_dir = HERE / f"smoke_full_pipeline.export.prev-{int(started_at)}"
+            _sh.move(str(export_dir), str(archive_dir))
+            record["archived_previous_export_dir"] = str(archive_dir)
         forge.export(export_dir)
         manifest = export_dir / "game_project.json"
         manifest_ok = manifest.exists() and manifest.stat().st_size > 1000
@@ -97,6 +97,7 @@ async def main() -> int:
             "items_count": len(project.items),
             "quests_count": len(project.quests),
             "npcs_count": len(project.npcs),
+            "prompt": prompt,
             "style_guide_present": project.style_guide is not None,
             "qa_playable": project.qa_report.playable if project.qa_report else None,
             "qa_issue_count": (

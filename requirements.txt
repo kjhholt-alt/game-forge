@@ -1,4 +1,4 @@
-# Claude calls go through claudex (Max-sub `claude -p` subprocess) — see claudex_anthropic_shim.py
+# Claude calls go through claudex (Max-sub `claude -p` subprocess).
 pydantic>=2.0
 pydantic-settings>=2.0
 httpx>=0.27

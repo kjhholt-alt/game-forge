@@ -11,7 +11,7 @@ import json
 import logging
 from typing import Any
 
-import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
+import claudex_client as claude
 
 from schemas.combat import StyleGuide
 from schemas.npc import NPCDefinition, NPCRole, Personality
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class NarrativeEngine:
     """Generates narrative content: quests, dialogue trees, lore, NPC personalities, story arcs.
 
-    Every public method makes one or more Claude API calls with a narrative-design-focused
+    Every public method makes one or more Claude CLI calls with a narrative-design-focused
     system prompt and returns validated Pydantic models from ``schemas.quest`` and
     ``schemas.npc``.
     """
@@ -88,7 +88,7 @@ Output rules:
     # Construction
     # ------------------------------------------------------------------
 
-    def __init__(self, client: anthropic.AsyncAnthropic, model: str = "claude-sonnet-4-6") -> None:
+    def __init__(self, client: claude.AsyncClaudeClient, model: str = "claude-sonnet-4-6") -> None:
         self._client = client
         self._model = model
 
@@ -338,7 +338,7 @@ Output rules:
     # ------------------------------------------------------------------
 
     async def _call(self, user_message: str, max_retries: int = 3) -> dict[str, Any]:
-        """Make a Claude API call and parse the JSON response.
+        """Make a Claude CLI call and parse the JSON response.
 
         Retries on transient API errors and JSON parse failures.
         """
@@ -347,7 +347,7 @@ Output rules:
         for attempt in range(1, max_retries + 1):
             try:
                 logger.debug(
-                    "NarrativeEngine API call attempt %d/%d (model=%s)",
+                    "NarrativeEngine Claude CLI attempt %d/%d (model=%s)",
                     attempt, max_retries, self._model,
                 )
 
@@ -370,7 +370,7 @@ Output rules:
                 )
                 last_error = exc
 
-            except anthropic.APIStatusError as exc:
+            except claude.ClaudeCliError as exc:
                 logger.warning(
                     "NarrativeEngine attempt %d/%d: API status error %d -- %s",
                     attempt, max_retries, exc.status_code, exc.message,
@@ -379,7 +379,7 @@ Output rules:
                 if exc.status_code == 401:
                     raise
 
-            except anthropic.APIConnectionError as exc:
+            except claude.ConnectionError as exc:
                 logger.warning(
                     "NarrativeEngine attempt %d/%d: connection error -- %s",
                     attempt, max_retries, exc,
@@ -391,7 +391,7 @@ Output rules:
         )
 
     @staticmethod
-    def _extract_text(response: anthropic.types.Message) -> str:
+    def _extract_text(response: claude.types.Message) -> str:
         """Pull the text content from a Claude response and strip code fences."""
         text = ""
         for block in response.content:

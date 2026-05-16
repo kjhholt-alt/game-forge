@@ -12,7 +12,7 @@ The 5-agent pipeline had been sitting idle since 2026-04-12 (foundation
 complete, but never actually run with real model calls). Tonight all
 five stages produced a complete Pydantic-validated `GameProject`
 end-to-end in 278 seconds (~4.5 min), via the Claude CLI (Max sub),
-no Anthropic API key required.
+no model API key required.
 
 **Live smoke output (smoke_full_pipeline.py):**
 - title: "Wickwater"
@@ -39,7 +39,7 @@ Mission Control's GAME-FORGE RUNS widget lists both runs once
 the studio-os server is restarted (the running instance has the
 pre-widget mission_control.py module cached in memory).
 
-**Root cause uncovered:** the `claudex_anthropic_shim` was flattening
+**Root cause uncovered:** the old SDK-shaped shim was flattening
 the Director's multi-turn message envelope into XML-tagged text and
 piping to `claude -p`. The CLI loaded the project's CLAUDE.md, saw a
 vaguely-formatted prompt, and replied conversationally ("I'm ready to
@@ -99,7 +99,7 @@ warm. Full 5-stage generation should land $0.50-1.50 per game.
 
 ### Not Yet Done
 
-- **Full `forge create` end-to-end**: Agent pipeline generates content but hasn't been run with real API key → Godot yet
+- **Full `forge create` end-to-end**: Agent pipeline generates content through Claude CLI; next proof is opening/exporting the generated Godot project and hitting Play
 - **Image generation**: AssetTools has Replicate FLUX integration code but needs `REPLICATE_API_TOKEN`; Pillow placeholders work now
 - **Audio generation**: Stubbed in asset pipeline, not implemented
 - **NobodyWho integration**: Local LLM for shipped NPC dialogue (zero API cost) — identified but not integrated
@@ -149,8 +149,8 @@ Python Orchestrator (Claude Agent SDK)
 
 ## What Comes Next
 
-1. **First full game generation**: Run `forge create` with real API key, output into Godot, hit Play
-2. **Asset generation**: Wire up Replicate API key, test sprite/tileset output
+1. **First full game generation**: Run `forge create` through Claude CLI, output into Godot, hit Play
+2. **Asset generation**: Prefer local/placeholders first; only wire external image services if explicitly wanted
 3. **NobodyWho plugin**: Local LLM for NPC dialogue in shipped games
 4. **Multi-agent parallelism**: WorldBuilder + NarrativeEngine can run concurrently
 5. **Campaign mode**: Chain multiple `forge iterate` calls with persistent state

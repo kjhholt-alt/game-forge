@@ -73,7 +73,7 @@ py scripts/dump_game_gallery.py         # convert state to Markdown
 ```
 
 Cost: $0 incremental on Claude Max sub (claudex uses `claude -p`
-subprocess). No Anthropic API key required for this path.
+subprocess). No model API key is required for this path.
 
 ## Quick Start
 
@@ -108,12 +108,10 @@ when you run the game.
 
 ### 3. Configure
 
-```bash
-# Set your Anthropic API key
-export ANTHROPIC_API_KEY="sk-ant-..."
+Sign in to the Claude CLI once, then GameForge uses that local session:
 
-# Or create a .env file
-echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env
+```bash
+claude --version
 ```
 
 ### 4. Create Your First Game
@@ -218,7 +216,7 @@ game-forge/
 ## Tech Stack
 
 - **Python 3.11+** -- async throughout
-- **Anthropic Claude API** -- Opus for direction, Sonnet for workers, Haiku for fast tasks
+- **Claude CLI via claudex** -- Opus-tier direction, Sonnet-tier workers, Haiku-tier fast tasks
 - **Pydantic v2** -- schema validation for every agent input/output
 - **Click** -- CLI framework
 - **Rich** -- terminal UI (progress spinners, tables, panels)
@@ -235,7 +233,7 @@ game-forge/
 | Requirement | Version | Notes |
 |-------------|---------|-------|
 | Python | >= 3.11 | async/await, `StrEnum`, type hints |
-| Anthropic API key | -- | Set as `ANTHROPIC_API_KEY` |
+| Claude CLI login | Claude Max subscription | Used by `claude -p`; no model API key required |
 | Godot Engine | >= 4.6 | For opening exported projects |
 | Godot MCP Server | Built-in | `mcp_server.gd` auto-starts on port 6100 — no plugin install needed |
 
@@ -248,7 +246,7 @@ import asyncio
 from orchestrator import GameForge, GameConfig, GameGenre
 
 async def main():
-    config = GameConfig(anthropic_api_key="sk-ant-...")
+    config = GameConfig()
     forge = GameForge(config)
 
     # Create

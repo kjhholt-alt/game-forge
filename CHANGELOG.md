@@ -7,6 +7,14 @@ and the project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+### Changed
+- Removed the real Anthropic SDK dependency and the fake
+  `anthropic_api_key` config path. GameForge now treats Claude CLI via
+  `claudex` as the only model transport for the pipeline.
+- Added `claudex_client.py` as the neutral internal messages-style client.
+  The old `claudex_anthropic_shim.py` file remains only as a deprecated
+  compatibility wrapper for older scripts.
+
 ## [0.1.1] — 2026-05-14
 
 This is the first release where the 5-agent pipeline actually runs
@@ -81,8 +89,8 @@ instead of producing schema-matching JSON.
 
 ### Cost
 - Per call: ~$0 incremental on Claude Max sub (claudex → `claude -p`).
-- Per call (if using API key path): ~$0.26 first time, $0.05-0.10
-  warm with cache.
+- API-key model transport has been removed from the active path; use the
+  signed-in Claude CLI session.
 
 ## [0.1.0] — 2026-04-12
 

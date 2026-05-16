@@ -13,7 +13,7 @@ import logging
 import uuid
 from typing import Any
 
-import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
+import claudex_client as claude
 
 from schemas.combat import (
     BalanceReport,
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 class QATester:
     """Simulates playtesting by analyzing game content for issues.
 
-    Every public method makes one or more Claude API calls with a QA-focused
+    Every public method makes one or more Claude CLI calls with a QA-focused
     system prompt and returns validated ``QAReport`` models with issues,
     warnings, suggestions, and an overall quality score.
     """
@@ -105,7 +105,7 @@ Output rules:
     # Construction
     # ------------------------------------------------------------------
 
-    def __init__(self, client: anthropic.AsyncAnthropic, model: str = "claude-haiku-4-5") -> None:
+    def __init__(self, client: claude.AsyncClaudeClient, model: str = "claude-haiku-4-5") -> None:
         self._client = client
         self._model = model
 
@@ -308,7 +308,7 @@ Output rules:
     # ------------------------------------------------------------------
 
     async def _call(self, user_message: str, max_retries: int = 3) -> dict[str, Any]:
-        """Make a Claude API call and parse the JSON response.
+        """Make a Claude CLI call and parse the JSON response.
 
         Retries on transient API errors and JSON parse failures.
         """
@@ -317,7 +317,7 @@ Output rules:
         for attempt in range(1, max_retries + 1):
             try:
                 logger.debug(
-                    "QATester API call attempt %d/%d (model=%s)",
+                    "QATester Claude CLI attempt %d/%d (model=%s)",
                     attempt, max_retries, self._model,
                 )
 
@@ -340,7 +340,7 @@ Output rules:
                 )
                 last_error = exc
 
-            except anthropic.APIStatusError as exc:
+            except claude.ClaudeCliError as exc:
                 logger.warning(
                     "QATester attempt %d/%d: API status error %d -- %s",
                     attempt, max_retries, exc.status_code, exc.message,
@@ -349,7 +349,7 @@ Output rules:
                 if exc.status_code == 401:
                     raise
 
-            except anthropic.APIConnectionError as exc:
+            except claude.ConnectionError as exc:
                 logger.warning(
                     "QATester attempt %d/%d: connection error -- %s",
                     attempt, max_retries, exc,
@@ -361,7 +361,7 @@ Output rules:
         )
 
     @staticmethod
-    def _extract_text(response: anthropic.types.Message) -> str:
+    def _extract_text(response: claude.types.Message) -> str:
         """Pull the text content from a Claude response and strip code fences."""
         text = ""
         for block in response.content:

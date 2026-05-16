@@ -1,7 +1,7 @@
 """GameForge configuration.
 
-Uses pydantic-settings to load config from environment variables and
-.env files. All tunables for the agent pipeline live here.
+Uses pydantic-settings to load config from environment variables and .env
+files. All tunables for the agent pipeline live here.
 """
 
 from __future__ import annotations
@@ -12,12 +12,9 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-# ---------------------------------------------------------------------------
-# Enums
-# ---------------------------------------------------------------------------
-
 class AgentRole(str, Enum):
     """Roles an agent can assume inside the GameForge pipeline."""
+
     DIRECTOR = "director"
     WORLD_BUILDER = "world_builder"
     NARRATIVE = "narrative"
@@ -35,6 +32,7 @@ class AgentRole(str, Enum):
 
 class GameGenre(str, Enum):
     """Supported game genres."""
+
     RPG = "rpg"
     ROGUELIKE = "roguelike"
     PLATFORMER = "platformer"
@@ -43,17 +41,11 @@ class GameGenre(str, Enum):
     ADVENTURE = "adventure"
 
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-
 class GameConfig(BaseSettings):
     """Central configuration for every GameForge session.
 
-    Values are loaded (in priority order) from:
-      1. Explicit kwargs
-      2. Environment variables (prefixed ``FORGE_`` or bare for the API key)
-      3. A ``.env`` file in the working directory
+    Values are loaded in priority order from explicit kwargs, ``FORGE_``
+    environment variables, then a ``.env`` file in the working directory.
     """
 
     model_config = SettingsConfigDict(
@@ -63,12 +55,11 @@ class GameConfig(BaseSettings):
     )
 
     # --- Claude transport ---
-    # Calls go through claudex (Max-sub `claude -p` subprocess) — no API key.
-    # `anthropic_api_key` retained as a no-op for back-compat with code that
-    # passes it to `Anthropic(api_key=...)`. The shim ignores it.
-    anthropic_api_key: str = Field(
-        default="ignored-via-claudex",
-        description="Unused — Claude calls go through claudex (Max sub).",
+    # Calls go through claudex (Max-sub `claude -p` subprocess). No API key
+    # fields are loaded or required.
+    llm_backend: str = Field(
+        default="claude-cli",
+        description="Model transport. Currently 'claude-cli' via claudex.",
     )
 
     # --- Models ---

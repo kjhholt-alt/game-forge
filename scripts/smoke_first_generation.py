@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import sys
 import time
 import traceback
@@ -72,9 +71,7 @@ async def main() -> int:
     try:
         # Use empty key — claudex doesn't read it but Pydantic settings
         # config may require it. The actual Anthropic SDK is shimmed.
-        os.environ.setdefault("ANTHROPIC_API_KEY", "claudex-shim-no-key")
         config = GameConfig(
-            anthropic_api_key="claudex-shim-no-key",
             state_db_path=str(HERE / "smoke_first_generation.state.db"),
             max_retries=1,
             enable_streaming=False,

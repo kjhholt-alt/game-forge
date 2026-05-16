@@ -1,0 +1,2085 @@
+{
+  "id": "f20b74c6-7e0e-4445-b471-8cea325ffaf5",
+  "concept": {
+    "title": "Wickwater",
+    "genre": "roguelike",
+    "setting": "A sunken ossuary beneath a drowned coastal monastery, where saltwater has risen to the second tier of catacombs and only floating wickstones keep the dark from closing in. The lantern-keeper descends each tide-cycle to relight shrines the sea swallowed, knowing the water will rearrange the halls again before dawn.",
+    "core_mechanics": [
+      "Lantern oil is the only resource — every step in unlit water drains a drop, and oil pools are scattered as both reward and risk-pressure",
+      "Three foes resolved by wit, not damage: Hollowmen (mirror your last move — break by standing still), Brinewraiths (flee from reflected lantern-light off water — angle pools to redirect them), and Choirbones (sing a 3-note pattern you must hum back by stepping on chime-tiles)",
+      "Tide phases shift mid-run: low tide opens floor passages, high tide opens ceiling vents and submerges shortcuts — read the watermarks on the walls to predict the turn",
+      "Every run hides one Reliquary Chamber sealed behind a candle-riddle: light the correct three of seven wall-sconces in the order the floor mosaic suggests",
+      "Wicks are your meta-progression — recovered relics become new lantern wicks (longer burn, colored light that reveals hidden glyphs, a wick that hums to soothe Choirbones)",
+      "Runs end not on death but on lantern-out: you wake on the chapel steps with whatever relics you carried above the waterline"
+    ],
+    "art_style": "Hand-shaded 32x32 pixel art with a muted candlelit palette — deep teal water, bone-ivory walls, single warm amber light source casting long animated shadows. Soft CRT bloom on the lantern, gently animated water caustics, no UI chrome inside the dungeon.",
+    "target_mood": "Hushed, reverent, lonely-but-not-lonesome — the quiet of a chapel at midnight, where each footstep is a small intrusion you forgive yourself for.",
+    "player_count": 1,
+    "estimated_playtime_hours": 15.0,
+    "description": "A short, contemplative roguelike about tending light in a place the sea has claimed. One dungeon, three puzzle-enemies, one hidden Reliquary per run, and a tide that rewrites the map while you breathe.",
+    "unique_selling_points": [
+      "Combat replaced entirely with three legible puzzle-enemies — no health bar on the player or foes",
+      "15-minute tide cycles make a full run a single sitting, not a commitment",
+      "Meta-progression is wicks, not stats — every unlock changes how you see the dungeon, not how hard you hit",
+      "Death is gentle: the lantern simply goes out and you wake on the steps"
+    ]
+  },
+  "world": {
+    "id": "world_wickwater",
+    "name": "Wickwater",
+    "description": "A sunken ossuary beneath a drowned coastal monastery where saltwater has risen to the second tier of catacombs. The lantern-keeper descends each tide-cycle to relight shrines the sea swallowed, knowing the water will rearrange the halls again before dawn.",
+    "lore_summary": "Centuries ago, the Monastery of Saint Wick stood on a chalk cliff above the tideline, its monks tending a vow of perpetual flame. When the sea rose to take the cliff, the order did not flee — they descended, sealing their relics into the ossuary below and entrusting a single keeper to relight the shrines each tide. The water has been climbing ever since, and the keeper still descends. Hollowmen remember the monks' final prayers as mimicry. Brinewraiths are the drowning itself, given shape. Choirbones sing the unfinished compline. The tide rearranges the halls because the monastery, even drowned, is still trying to keep its rule of cloister: never let an outsider find the same path twice.",
+    "overworld": {
+      "regions": [
+        {
+          "id": "region_chapel_steps",
+          "name": "The Chapel Steps",
+          "biome": "ruins",
+          "description": "The weather-worn stone stairs above the waterline where the keeper wakes after each lantern-out. Salt-rimed pews list against a half-collapsed nave, and the great doors of the ossuary stand open to the dark below. This is the only place in the world that does not move.",
+          "level_range": [
+            1,
+            1
+          ],
+          "rooms": [
+            {
+              "id": "room_chapel_threshold",
+              "name": "Chapel Threshold",
+              "room_type": "entrance",
+              "description": "A narrow apse where the keeper's lantern hangs from an iron hook. Relics carried up from the last run rest on the altar, waiting to be wound into new wicks.",
+              "width": 3,
+              "height": 3,
+              "position": [
+                0,
+                0
+              ],
+              "entities": [
+                "entity_lantern",
+                "entity_relic_altar",
+                "entity_keeper_journal"
+              ],
+              "properties": {
+                "is_run_start": true,
+                "is_safe": true
+              }
+            },
+            {
+              "id": "room_wickwright_alcove",
+              "name": "Wickwright's Alcove",
+              "room_type": "npc",
+              "description": "A side chamber lined with hanks of unspun wick-fiber and small crucibles of beeswax. Here recovered relics are bound into new lantern wicks between descents.",
+              "width": 2,
+              "height": 2,
+              "position": [
+                3,
+                0
+              ],
+              "entities": [
+                "entity_wickwright_bench"
+              ],
+              "properties": {
+                "is_meta_progression_hub": true
+              }
+            },
+            {
+              "id": "room_descent_stair",
+              "name": "The Descent Stair",
+              "room_type": "exit",
+              "description": "A spiral of wet stone vanishing into teal dark. Watermarks on the wall record every tide that has reached this step — the lowest is fresh.",
+              "width": 2,
+              "height": 3,
+              "position": [
+                1,
+                3
+              ],
+              "entities": [
+                "entity_tidemark_wall"
+              ],
+              "properties": {
+                "leads_to_dungeon": "dungeon_sunken_ossuary"
+              }
+            }
+          ],
+          "points_of_interest": [
+            "The Relic Altar",
+            "The Wickwright's Bench",
+            "The Tidemark Wall"
+          ],
+          "ambient_mood": "hushed, reverent, the quiet of a chapel at midnight"
+        }
+      ],
+      "connections": [
+        {
+          "from_id": "room_chapel_threshold",
+          "to_id": "room_wickwright_alcove",
+          "bidirectional": true,
+          "locked": false,
+          "lock_key": null,
+          "hidden": false,
+          "description": "A low doorway curtained with old vestments."
+        },
+        {
+          "from_id": "room_chapel_threshold",
+          "to_id": "room_descent_stair",
+          "bidirectional": true,
+          "locked": false,
+          "lock_key": null,
+          "hidden": false,
+          "description": "The lantern dims a half-shade as you cross the threshold."
+        }
+      ],
+      "starting_region_id": "region_chapel_steps"
+    },
+    "dungeons": [
+      {
+        "id": "dungeon_sunken_ossuary",
+        "name": "The Sunken Ossuary",
+        "theme": "drowned catacomb, candlelit teal, bone-ivory walls, tide-shifted halls",
+        "difficulty": 4,
+        "rooms": [
+          {
+            "id": "room_oss_landing",
+            "name": "The Wading Landing",
+            "room_type": "entrance",
+            "description": "The stair ends in shin-deep brine. A single sconce gutters here — the only shrine guaranteed lit at descent. Watermarks on the wall show the current tide phase.",
+            "width": 3,
+            "height": 3,
+            "position": [
+              0,
+              0
+            ],
+            "entities": [
+              "entity_landing_sconce",
+              "entity_tidemark_gauge"
+            ],
+            "properties": {
+              "oil_drain_per_step": 0,
+              "tide_visible": true
+            }
+          },
+          {
+            "id": "room_oss_cloister_walk",
+            "name": "The Cloister Walk",
+            "room_type": "event",
+            "description": "A long flooded colonnade. At low tide the floor between columns reveals a passage of carved tiles; at high tide ceiling vents open and the floor passage submerges. The watermarks here are darkest — read them before stepping.",
+            "width": 6,
+            "height": 2,
+            "position": [
+              0,
+              3
+            ],
+            "entities": [
+              "entity_floor_passage_grate",
+              "entity_ceiling_vent",
+              "entity_watermark_cluster"
+            ],
+            "properties": {
+              "tide_phase_dependent": true,
+              "low_tide_opens": "floor_passage",
+              "high_tide_opens": "ceiling_vent"
+            }
+          },
+          {
+            "id": "room_oss_hollow_refectory",
+            "name": "The Hollow Refectory",
+            "room_type": "puzzle",
+            "description": "A long dining hall where chairs float upturned like little boats. Hollowmen drift here, mirroring the last step the keeper made. Stand still on the warped flagstones and they unravel into kelp.",
+            "width": 5,
+            "height": 4,
+            "position": [
+              6,
+              3
+            ],
+            "entities": [
+              "entity_hollowman_a",
+              "entity_hollowman_b",
+              "entity_oil_pool_small"
+            ],
+            "properties": {
+              "enemy_type": "hollowman",
+              "resolution": "stand_still"
+            }
+          },
+          {
+            "id": "room_oss_reflecting_nave",
+            "name": "The Reflecting Nave",
+            "room_type": "puzzle",
+            "description": "A flooded transept where shallow pools catch the lantern's light. Brinewraiths circle the edges, fleeing wherever the reflected beam strikes. Angle yourself by the pools to herd them aside.",
+            "width": 5,
+            "height": 5,
+            "position": [
+              6,
+              7
+            ],
+            "entities": [
+              "entity_brinewraith_a",
+              "entity_brinewraith_b",
+              "entity_pool_north",
+              "entity_pool_west",
+              "entity_oil_pool_medium"
+            ],
+            "properties": {
+              "enemy_type": "brinewraith",
+              "resolution": "reflected_light"
+            }
+          },
+          {
+            "id": "room_oss_choir_stalls",
+            "name": "The Choir Stalls",
+            "room_type": "puzzle",
+            "description": "Tiered benches of warped oak, brass chime-tiles set into the floor between them. A Choirbone rises from the back stall and sings a three-note phrase; the keeper must walk the same phrase on the chimes to dismiss it.",
+            "width": 4,
+            "height": 5,
+            "position": [
+              11,
+              3
+            ],
+            "entities": [
+              "entity_choirbone",
+              "entity_chime_tile_lo",
+              "entity_chime_tile_mid",
+              "entity_chime_tile_hi"
+            ],
+            "properties": {
+              "enemy_type": "choirbone",
+              "resolution": "chime_sequence",
+              "sequence_length": 3
+            }
+          },
+          {
+            "id": "room_oss_oil_chapel",
+            "name": "The Oil-Pressers' Chapel",
+            "room_type": "treasure",
+            "description": "A small side chapel whose monks once pressed lamp-oil from olives shipped up the cliff. The presses have rotted but their cisterns still hold pools of usable oil — generous, but you will hear the floor groan when you take too much.",
+            "width": 3,
+            "height": 3,
+            "position": [
+              11,
+              8
+            ],
+            "entities": [
+              "entity_oil_pool_large",
+              "entity_oil_pool_large_b"
+            ],
+            "properties": {
+              "oil_yield": "high",
+              "trap_chance_on_greed": true
+            }
+          },
+          {
+            "id": "room_oss_mosaic_antechamber",
+            "name": "The Mosaic Antechamber",
+            "room_type": "puzzle",
+            "description": "A circular chamber whose floor is a faded mosaic of the seven cardinal saints. Seven wall-sconces ring the room; the mosaic suggests which three to light, and in what order. Get it right and the reliquary door grinds open.",
+            "width": 5,
+            "height": 5,
+            "position": [
+              15,
+              5
+            ],
+            "entities": [
+              "entity_sconce_1",
+              "entity_sconce_2",
+              "entity_sconce_3",
+              "entity_sconce_4",
+              "entity_sconce_5",
+              "entity_sconce_6",
+              "entity_sconce_7",
+              "entity_floor_mosaic"
+            ],
+            "properties": {
+              "riddle_type": "candle_three_of_seven",
+              "mosaic_seed_per_run": true
+            }
+          },
+          {
+            "id": "room_oss_reliquary",
+            "name": "The Reliquary Chamber",
+            "room_type": "treasure",
+            "description": "A small vaulted room kept dry by old prayer. A single relic rests on a silk cushion — bone, glass, or beaten silver, never the same twice. Carry it above the waterline and the wickwright can spin it into a new wick.",
+            "width": 3,
+            "height": 3,
+            "position": [
+              20,
+              5
+            ],
+            "entities": [
+              "entity_reliquary_pedestal",
+              "entity_relic_random"
+            ],
+            "properties": {
+              "reward_type": "meta_wick",
+              "one_per_run": true
+            }
+          },
+          {
+            "id": "room_oss_drowned_crypt",
+            "name": "The Drowned Crypt",
+            "room_type": "secret",
+            "description": "A side passage that only opens during a high-tide ceiling vent in the cloister. Knee-deep in salt, lined with niches of bone-shelf and one sealed iron casket no wick has yet opened.",
+            "width": 4,
+            "height": 3,
+            "position": [
+              2,
+              8
+            ],
+            "entities": [
+              "entity_oil_pool_small_b",
+              "entity_sealed_casket"
+            ],
+            "properties": {
+              "requires_high_tide": true,
+              "casket_requires_unknown_wick": true
+            }
+          },
+          {
+            "id": "room_oss_tideturn_shrine",
+            "name": "The Tideturn Shrine",
+            "room_type": "rest",
+            "description": "A small dry shelf above the waterline where a single candle never quite goes out. The keeper may pause here without oil draining; the water below shifts visibly while you wait.",
+            "width": 2,
+            "height": 2,
+            "position": [
+              15,
+              11
+            ],
+            "entities": [
+              "entity_perpetual_candle"
+            ],
+            "properties": {
+              "is_safe": true,
+              "oil_drain_paused": true
+            }
+          },
+          {
+            "id": "room_oss_great_doors",
+            "name": "The Great Doors",
+            "room_type": "exit",
+            "description": "The inner doors of the ossuary, opening upward toward the stair. Cross this threshold with the lantern still lit and whatever you carry comes home with you.",
+            "width": 3,
+            "height": 2,
+            "position": [
+              0,
+              12
+            ],
+            "entities": [],
+            "properties": {
+              "is_run_exit": true,
+              "requires_lantern_lit": true
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from_id": "room_oss_landing",
+            "to_id": "room_oss_cloister_walk",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A short flooded corridor; oil drains here."
+          },
+          {
+            "from_id": "room_oss_cloister_walk",
+            "to_id": "room_oss_hollow_refectory",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A side arch off the colonnade."
+          },
+          {
+            "from_id": "room_oss_cloister_walk",
+            "to_id": "room_oss_drowned_crypt",
+            "bidirectional": true,
+            "locked": true,
+            "lock_key": "tide_phase_high",
+            "hidden": true,
+            "description": "A ceiling vent that drops open only at high tide."
+          },
+          {
+            "from_id": "room_oss_hollow_refectory",
+            "to_id": "room_oss_reflecting_nave",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A short stair down into deeper water."
+          },
+          {
+            "from_id": "room_oss_reflecting_nave",
+            "to_id": "room_oss_choir_stalls",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A doorway flanked by two cracked angels."
+          },
+          {
+            "from_id": "room_oss_choir_stalls",
+            "to_id": "room_oss_oil_chapel",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A low side door, easy to miss."
+          },
+          {
+            "from_id": "room_oss_choir_stalls",
+            "to_id": "room_oss_mosaic_antechamber",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A grand archway carved with seven saints."
+          },
+          {
+            "from_id": "room_oss_mosaic_antechamber",
+            "to_id": "room_oss_reliquary",
+            "bidirectional": true,
+            "locked": true,
+            "lock_key": "candle_riddle_solved",
+            "hidden": false,
+            "description": "A bronze door that opens only when the three correct sconces are lit in the mosaic's order."
+          },
+          {
+            "from_id": "room_oss_reflecting_nave",
+            "to_id": "room_oss_tideturn_shrine",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": true,
+            "description": "A narrow ledge above the waterline; easy to walk past in the dark."
+          },
+          {
+            "from_id": "room_oss_landing",
+            "to_id": "room_oss_great_doors",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "The way home, always within sight of the landing sconce."
+          }
+        ],
+        "entry_room_id": "room_oss_landing",
+        "exit_room_id": "room_oss_great_doors",
+        "boss_room_id": null,
+        "loot_table_id": "loot_relics_and_oil",
+        "estimated_clear_time_minutes": 15
+      },
+      {
+        "id": "dungeon_lower_ossuary_variant",
+        "name": "The Lower Ossuary (Tide-Shifted)",
+        "theme": "deeper drowned catacomb, accessible only when a colored wick reveals hidden glyphs",
+        "difficulty": 7,
+        "rooms": [
+          {
+            "id": "room_low_glyph_landing",
+            "name": "The Glyph Landing",
+            "room_type": "entrance",
+            "description": "A second landing one tier below the main ossuary. The walls are blank to ordinary lantern-light; only a colored wick reveals the saints' names carved here.",
+            "width": 3,
+            "height": 3,
+            "position": [
+              0,
+              0
+            ],
+            "entities": [
+              "entity_glyph_wall"
+            ],
+            "properties": {
+              "requires_colored_wick": true
+            }
+          },
+          {
+            "id": "room_low_silent_choir",
+            "name": "The Silent Choir",
+            "room_type": "puzzle",
+            "description": "A choir hall full of Choirbones that do not sing. A humming wick soothes them on contact; without it, the room is impassable.",
+            "width": 5,
+            "height": 4,
+            "position": [
+              0,
+              3
+            ],
+            "entities": [
+              "entity_choirbone_silent_a",
+              "entity_choirbone_silent_b",
+              "entity_choirbone_silent_c"
+            ],
+            "properties": {
+              "requires_humming_wick": true
+            }
+          },
+          {
+            "id": "room_low_long_wade",
+            "name": "The Long Wade",
+            "room_type": "trap",
+            "description": "A flooded corridor longer than any single oil reserve can cross — unless the wick burns long enough.",
+            "width": 8,
+            "height": 2,
+            "position": [
+              5,
+              3
+            ],
+            "entities": [
+              "entity_oil_pool_tiny"
+            ],
+            "properties": {
+              "requires_long_burn_wick": true
+            }
+          },
+          {
+            "id": "room_low_inner_reliquary",
+            "name": "The Inner Reliquary",
+            "room_type": "treasure",
+            "description": "The true reliquary of the order, kept dry by a vow no one alive remembers swearing. The relic here is the one the monks descended to protect.",
+            "width": 3,
+            "height": 3,
+            "position": [
+              13,
+              3
+            ],
+            "entities": [
+              "entity_relic_founders"
+            ],
+            "properties": {
+              "reward_type": "meta_wick_unique",
+              "ending_relevant": true
+            }
+          },
+          {
+            "id": "room_low_return_stair",
+            "name": "The Return Stair",
+            "room_type": "exit",
+            "description": "A narrow stair back up to the main ossuary's landing. The water here flows the wrong way.",
+            "width": 2,
+            "height": 3,
+            "position": [
+              13,
+              6
+            ],
+            "entities": [],
+            "properties": {
+              "is_run_exit": true,
+              "requires_lantern_lit": true
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from_id": "room_low_glyph_landing",
+            "to_id": "room_low_silent_choir",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "Glyphs above the door name the seven saints in order; the colored wick reads them aloud in light."
+          },
+          {
+            "from_id": "room_low_silent_choir",
+            "to_id": "room_low_long_wade",
+            "bidirectional": true,
+            "locked": true,
+            "lock_key": "humming_wick",
+            "hidden": false,
+            "description": "The silent choir parts only for a wick that hums in return."
+          },
+          {
+            "from_id": "room_low_long_wade",
+            "to_id": "room_low_inner_reliquary",
+            "bidirectional": true,
+            "locked": true,
+            "lock_key": "long_burn_wick",
+            "hidden": false,
+            "description": "The far door is reached only by a wick that does not gutter."
+          },
+          {
+            "from_id": "room_low_inner_reliquary",
+            "to_id": "room_low_return_stair",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "A small door behind the pedestal."
+          }
+        ],
+        "entry_room_id": "room_low_glyph_landing",
+        "exit_room_id": "room_low_return_stair",
+        "boss_room_id": null,
+        "loot_table_id": "loot_inner_relics",
+        "estimated_clear_time_minutes": 15
+      }
+    ],
+    "global_properties": {
+      "primary_resource": "lantern_oil",
+      "resource_drain_rule": "one drop per step in unlit water; no drain on lit shrines or above waterline",
+      "death_rule": "runs end on lantern-out, not on damage; keeper wakes on the chapel steps with whatever relics were carried above the waterline",
+      "tide_cycle_minutes": 15,
+      "tide_phases": [
+        "low",
+        "rising",
+        "high",
+        "falling"
+      ],
+      "tide_effects": {
+        "low": "floor passages open, ceiling vents sealed",
+        "high": "ceiling vents open, floor shortcuts submerged"
+      },
+      "enemy_resolutions": {
+        "hollowman": "stand still — they mirror the last move and unravel without input",
+        "brinewraith": "angle the lantern off a water pool so reflected light strikes them, herding them aside",
+        "choirbone": "step the three chime-tiles in the order the bone sang"
+      },
+      "meta_progression": "recovered relics are spun into new wicks at the wickwright's bench; wicks change perception (longer burn, colored light, humming) rather than stats",
+      "art_direction": "hand-shaded 32x32 pixel art, muted candlelit palette, deep teal water, bone-ivory walls, single warm amber light source, animated long shadows, soft CRT bloom on the lantern, gently animated water caustics, no UI chrome inside the dungeon",
+      "mood": "hushed, reverent, lonely-but-not-lonesome — the quiet of a chapel at midnight",
+      "ui_principle": "diegetic only — oil shown by lantern brightness, tide shown by watermarks, no HUD bars",
+      "player_count": 1,
+      "estimated_full_playtime_hours": 15.0,
+      "run_length_minutes": 15
+    }
+  },
+  "quests": [
+    {
+      "id": "quest_first_descent",
+      "title": "The First Descent",
+      "description": "The Wickwright presses a fresh wick into your lantern and gestures toward the stair. The tide is low; the watermarks are still wet. Descend, light what the sea has snuffed, and come back before the oil runs dry. She does not say what happens if you don't — you already know.",
+      "quest_giver_npc_id": "npc_wickwright_ilsa",
+      "location_id": "room_chapel_threshold",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_descend_stair",
+          "description": "Take the Descent Stair into the Sunken Ossuary.",
+          "objective_type": "explore",
+          "target": "room_oss_landing",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_relight_landing",
+          "description": "Confirm the Landing Sconce is lit at the Wading Landing.",
+          "objective_type": "solve",
+          "target": "entity_landing_sconce",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_return_lit",
+          "description": "Return through the Great Doors with the lantern still lit.",
+          "objective_type": "explore",
+          "target": "room_oss_great_doors",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_tidemark_chalk"
+        ],
+        "reputation": {},
+        "unlocks": [
+          "quest_three_dim_shrines",
+          "quest_listen_to_the_wall"
+        ]
+      },
+      "prerequisites": [],
+      "branches": {},
+      "failure_conditions": [
+        "lantern_out_before_landing"
+      ],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_listen_to_the_wall",
+      "title": "Listen to the Wall",
+      "description": "Brother Cael — what is left of him — drifts at the edge of the Cloister Walk and speaks in long pauses. He asks you to read the tidemarks before you cross the colonnade. He claims the wall remembers what the water forgets. Mark a fresh tide reading where the watermarks cluster, and bring him the chalk-smudge in your hand.",
+      "quest_giver_npc_id": "npc_brother_cael",
+      "location_id": "room_oss_cloister_walk",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_read_tidemarks",
+          "description": "Read the watermark cluster in the Cloister Walk to identify the current tide phase.",
+          "objective_type": "solve",
+          "target": "entity_watermark_cluster",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_mark_phase",
+          "description": "Use Tidemark Chalk on the cluster to record the current phase.",
+          "objective_type": "craft",
+          "target": "item_tidemark_chalk",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_report_cael",
+          "description": "Return to Brother Cael with the reading.",
+          "objective_type": "talk",
+          "target": "npc_brother_cael",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_tidemark_chalk",
+          "item_tidemark_chalk"
+        ],
+        "reputation": {},
+        "unlocks": [
+          "quest_high_tide_crypt"
+        ]
+      },
+      "prerequisites": [
+        "quest_first_descent"
+      ],
+      "branches": {},
+      "failure_conditions": [],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_three_dim_shrines",
+      "title": "Three Dim Shrines",
+      "description": "The Wickwright sets out three small clay tokens on her bench — Hollow, Brine, Choir. The shrines in the rooms past the Landing have gone dark, and she will not spin you a colored wick until you have resolved each of the order's three sorrows once, without striking a blow. Stand still for the mirror. Angle the light for the drowning. Sing back what the bone sings.",
+      "quest_giver_npc_id": "npc_wickwright_ilsa",
+      "location_id": "room_wickwright_alcove",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_unmake_hollowman",
+          "description": "Resolve a Hollowman in the Hollow Refectory by standing still.",
+          "objective_type": "solve",
+          "target": "entity_hollowman_a",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_unmake_brinewraith",
+          "description": "Herd a Brinewraith in the Reflecting Nave with lantern-reflected pool-light.",
+          "objective_type": "solve",
+          "target": "entity_brinewraith_a",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_unmake_choirbone",
+          "description": "Answer a Choirbone's three-note phrase on the chime-tiles in the Choir Stalls.",
+          "objective_type": "solve",
+          "target": "entity_choirbone",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_return_to_ilsa",
+          "description": "Return to the Wickwright's Alcove with the lantern still lit.",
+          "objective_type": "talk",
+          "target": "npc_wickwright_ilsa",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_oil_flask"
+        ],
+        "reputation": {},
+        "unlocks": [
+          "quest_mosaic_and_seven_saints",
+          "quest_unfinished_compline"
+        ]
+      },
+      "prerequisites": [
+        "quest_first_descent"
+      ],
+      "branches": {},
+      "failure_conditions": [],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_mosaic_and_seven_saints",
+      "title": "The Mosaic and the Seven Saints",
+      "description": "The Mosaic Antechamber's floor names the seven saints in faded tile, and seven sconces ring the room. Read the mosaic, light the correct three sconces in the order it suggests, and the reliquary door will grind open. Carry whatever rests within above the waterline and the Wickwright will spin it into something new.",
+      "quest_giver_npc_id": "npc_wickwright_ilsa",
+      "location_id": "room_oss_mosaic_antechamber",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_read_mosaic",
+          "description": "Inspect the floor mosaic to determine the saints' order.",
+          "objective_type": "solve",
+          "target": "entity_floor_mosaic",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_light_sconces",
+          "description": "Light the three correct wall-sconces in the mosaic's order.",
+          "objective_type": "solve",
+          "target": "entity_sconce_1",
+          "count": 3,
+          "optional": false
+        },
+        {
+          "id": "obj_take_relic",
+          "description": "Take the relic from the Reliquary Chamber pedestal.",
+          "objective_type": "collect",
+          "target": "entity_relic_random",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_carry_above",
+          "description": "Carry the relic through the Great Doors with the lantern still lit.",
+          "objective_type": "deliver",
+          "target": "room_oss_great_doors",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_relic_bone",
+          "item_wick_longburn"
+        ],
+        "reputation": {},
+        "unlocks": [
+          "quest_lower_ossuary"
+        ]
+      },
+      "prerequisites": [
+        "quest_three_dim_shrines"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "lantern_out_before_doors"
+      ],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_high_tide_crypt",
+      "title": "What the High Tide Opens",
+      "description": "The Tideturn Hermit watches the watermarks from his dry shelf and will say only this: the ceiling vent in the Cloister opens once a cycle, and only at the full of the tide. Wait through a turn at his shrine, climb when the vent drops, and see what the order locked into the Drowned Crypt behind a casket no wick yet opens.",
+      "quest_giver_npc_id": "npc_tideturn_hermit",
+      "location_id": "room_oss_tideturn_shrine",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_wait_high_tide",
+          "description": "Rest at the Tideturn Shrine until the tide reaches high.",
+          "objective_type": "survive",
+          "target": "tide_phase_high",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_enter_crypt",
+          "description": "Climb the open ceiling vent in the Cloister Walk into the Drowned Crypt.",
+          "objective_type": "explore",
+          "target": "room_oss_drowned_crypt",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_inspect_casket",
+          "description": "Examine the sealed iron casket in the Drowned Crypt.",
+          "objective_type": "solve",
+          "target": "entity_sealed_casket",
+          "count": 1,
+          "optional": true
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_oil_flask",
+          "item_relic_glass"
+        ],
+        "reputation": {},
+        "unlocks": [
+          "quest_unfinished_compline"
+        ]
+      },
+      "prerequisites": [
+        "quest_listen_to_the_wall"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "lantern_out_before_return"
+      ],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_unfinished_compline",
+      "title": "The Unfinished Compline",
+      "description": "Sister Maren still sings, after a fashion — six verses of the compline she could not finish on the night the cliff fell. She asks you for the seventh. The colored wick lets you read the saints' names at the Glyph Landing of the Lower Ossuary; carry the humming wick further, walk the silent choir, cross the long wade, and bring up the founder's relic. Then she will sing the last verse and rest.",
+      "quest_giver_npc_id": "npc_sister_maren",
+      "location_id": "room_oss_choir_stalls",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_equip_colored",
+          "description": "Equip the Wick of Saint-Glass at the Wickwright's Bench.",
+          "objective_type": "craft",
+          "target": "item_wick_colored",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_enter_lower",
+          "description": "Read the Glyph Landing of the Lower Ossuary.",
+          "objective_type": "explore",
+          "target": "room_low_glyph_landing",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_pass_silent_choir",
+          "description": "Pass the Silent Choir with a humming wick equipped.",
+          "objective_type": "solve",
+          "target": "entity_choirbone_silent_a",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_cross_wade",
+          "description": "Cross the Long Wade with a long-burn wick equipped.",
+          "objective_type": "explore",
+          "target": "room_low_long_wade",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_recover_founders",
+          "description": "Recover the Founder's Heart-Stone from the Inner Reliquary.",
+          "objective_type": "collect",
+          "target": "item_founders_relic",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_return_to_maren",
+          "description": "Return to Sister Maren in the Choir Stalls and let her finish.",
+          "objective_type": "talk",
+          "target": "npc_sister_maren",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_relic_silver"
+        ],
+        "reputation": {},
+        "unlocks": [
+          "quest_lower_ossuary"
+        ]
+      },
+      "prerequisites": [
+        "quest_three_dim_shrines"
+      ],
+      "branches": {
+        "let_her_finish": "ending_compline_completed",
+        "keep_the_relic": "ending_relic_carried"
+      },
+      "failure_conditions": [
+        "lantern_out_in_lower"
+      ],
+      "time_limit_turns": null
+    }
+  ],
+  "npcs": [
+    {
+      "id": "npc_wickwright_ilsa",
+      "name": "Ilsa, the Wickwright",
+      "role": "quest_giver",
+      "description": "The last of the order who did not descend. Ilsa stayed at the bench to spin wicks from whatever relics the keeper carries up, and to mark in the journal what each tide-cycle has taken or given back. She is older than she should be, and her hands have never trembled in the keeper's sight.",
+      "appearance": "A spare woman in a salt-stained grey habit, sleeves rolled to the elbow, hair the color of wick-fiber bound back with a brass pin. A small amber-light scar runs across the back of her left hand where a wick caught early in her apprenticeship. She wears no shoes inside the chapel.",
+      "personality": {
+        "traits": [
+          "patient",
+          "exacting",
+          "quietly warm",
+          "steady"
+        ],
+        "values": [
+          "the rule of cloister",
+          "honest craft",
+          "the keeper coming home"
+        ],
+        "fears": [
+          "a wick that hums for no reason",
+          "the day no keeper climbs the stair"
+        ],
+        "quirks": [
+          "tests every wick by touching it to her lower lip",
+          "names every wick she spins, but only to the journal"
+        ],
+        "speech_pattern": "spare, measured, low — leaves long pauses where a less careful speaker would fill them"
+      },
+      "location_id": "room_wickwright_alcove",
+      "stats": {
+        "level": 1,
+        "hp": 10,
+        "attack": 0,
+        "defense": 0,
+        "speed": 3,
+        "special_abilities": [
+          "spin_wick_from_relic",
+          "read_keepers_journal"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_brother_cael",
+          "type": "former_kin",
+          "trust": 80,
+          "description": "She remembers him as a novice; she does not pretend the thing in the Cloister Walk is still entirely him, but she does not pretend it isn't, either."
+        },
+        {
+          "target_npc_id": "npc_sister_maren",
+          "type": "former_kin",
+          "trust": 85,
+          "description": "They sang compline together for twenty years. Ilsa has never asked Maren to finish it."
+        },
+        {
+          "target_npc_id": "npc_tideturn_hermit",
+          "type": "uncertain",
+          "trust": 50,
+          "description": "She is not sure he was ever of the order. She gives him oil anyway."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "tide_low",
+            "location": "room_wickwright_alcove",
+            "activity": "spinning wicks"
+          },
+          {
+            "time": "tide_rising",
+            "location": "room_wickwright_alcove",
+            "activity": "trimming wicks"
+          },
+          {
+            "time": "tide_high",
+            "location": "room_chapel_threshold",
+            "activity": "tending the relic altar"
+          },
+          {
+            "time": "tide_falling",
+            "location": "room_wickwright_alcove",
+            "activity": "writing in the journal"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dlg_ilsa_first_meeting",
+        "dlg_ilsa_handoff_relic",
+        "dlg_ilsa_after_lantern_out"
+      ],
+      "inventory": [
+        "item_wick_plain",
+        "item_tidemark_chalk"
+      ],
+      "quest_ids": [
+        "quest_first_descent",
+        "quest_three_dim_shrines",
+        "quest_mosaic_and_seven_saints"
+      ],
+      "barks": {
+        "idle": [
+          "The wick wants steady hands. So do you.",
+          "Mind the tide. The tide does not mind you.",
+          "Another drop, another step. That is the whole of it."
+        ],
+        "greeting": [
+          "Back already. Let me see the lantern.",
+          "Sit. Show me what you carried up.",
+          "The kettle is warm. The bench is warmer."
+        ],
+        "handoff_relic": [
+          "Bone, glass, or silver — I can use them all.",
+          "This will spin into something patient.",
+          "It remembers the swing. The wick will remember too."
+        ],
+        "after_lantern_out": [
+          "You're home. That is the part that matters.",
+          "The water does not keep what you carried above it.",
+          "Tomorrow's tide will be kinder. Or it will not. Either way, you will go again."
+        ],
+        "farewell": [
+          "Light the landing first. Always the landing first.",
+          "Walk soft. The hall is listening."
+        ]
+      },
+      "is_essential": true,
+      "faction": "order_of_saint_wick"
+    },
+    {
+      "id": "npc_brother_cael",
+      "name": "Brother Cael",
+      "role": "mysterious",
+      "description": "A figure that lingers at the threshold of the Cloister Walk, half-submerged, more shadow than monk. He is not a Hollowman — he does not mirror — but he is not quite the brother Ilsa remembers either. He speaks in long pauses and asks the keeper to read the watermarks aloud, as if he cannot remember how.",
+      "appearance": "Robed in waterlogged grey wool that drifts around him like seaweed. His face is the color of wet bone-ivory, and his eyes catch the lantern with a slow, animal patience. A faint salt-rime traces the line of his hood. He does not breathe, but the water around him stirs as if he did.",
+      "personality": {
+        "traits": [
+          "slow",
+          "watchful",
+          "gentle",
+          "uncertain of his own name"
+        ],
+        "values": [
+          "the rule of the wall",
+          "the keeper's safe passage"
+        ],
+        "fears": [
+          "being mistaken for a Hollowman",
+          "forgetting the seventh verse entirely"
+        ],
+        "quirks": [
+          "tilts his head whenever the lantern brightens",
+          "counts watermarks under his breath in a language no longer spoken"
+        ],
+        "speech_pattern": "long pauses between short sentences, as if remembering each word from underwater"
+      },
+      "location_id": "room_oss_cloister_walk",
+      "stats": {
+        "level": 1,
+        "hp": 10,
+        "attack": 0,
+        "defense": 0,
+        "speed": 2,
+        "special_abilities": [
+          "read_tidemark_aloud",
+          "ignored_by_hollowmen"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_wickwright_ilsa",
+          "type": "former_kin",
+          "trust": 70,
+          "description": "He knows her voice but cannot say her name. He turns his face toward the chapel whenever the lantern climbs the stair."
+        },
+        {
+          "target_npc_id": "npc_sister_maren",
+          "type": "fellow_chorister",
+          "trust": 75,
+          "description": "He hears her singing across the nave and answers with the count of the watermarks."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "tide_low",
+            "location": "room_oss_cloister_walk",
+            "activity": "counting the watermarks"
+          },
+          {
+            "time": "tide_rising",
+            "location": "room_oss_cloister_walk",
+            "activity": "drifting toward the landing"
+          },
+          {
+            "time": "tide_high",
+            "location": "room_oss_cloister_walk",
+            "activity": "watching the ceiling vent"
+          },
+          {
+            "time": "tide_falling",
+            "location": "room_oss_cloister_walk",
+            "activity": "returning to the colonnade"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dlg_cael_first_meeting",
+        "dlg_cael_after_chalk_mark"
+      ],
+      "inventory": [
+        "item_tidemark_chalk"
+      ],
+      "quest_ids": [
+        "quest_listen_to_the_wall"
+      ],
+      "barks": {
+        "idle": [
+          "...the wall remembers.",
+          "Four marks. Five. ...four again.",
+          "The water forgets. The wall does not."
+        ],
+        "greeting": [
+          "Keeper. ...read it for me.",
+          "You came down again. Good.",
+          "The tide is... was... will be."
+        ],
+        "after_chalk_mark": [
+          "Yes. ...that one. Thank you.",
+          "I can see the mark now. I could not, before.",
+          "Walk on. The colonnade will hold."
+        ],
+        "farewell": [
+          "Go gently. The hall is long.",
+          "Mind the vent. ...mind the vent."
+        ]
+      },
+      "is_essential": false,
+      "faction": "order_of_saint_wick"
+    },
+    {
+      "id": "npc_sister_maren",
+      "name": "Sister Maren of the Choir",
+      "role": "quest_giver",
+      "description": "A presence in the Choir Stalls that the Choirbones will not approach. Sister Maren stayed at her stall through the drowning and has not yet finished the compline she was singing. She knows six verses by heart and asks the keeper to bring her the seventh — which the founder carried into the Inner Reliquary on the night of the fall.",
+      "appearance": "She is not quite there — a soft column of teal-tinted light shaped like a kneeling woman in choir robes, hands folded as if holding an unseen psalter. Where her face would be, the lantern's amber catches and holds longer than it should. The water around her stall is still.",
+      "personality": {
+        "traits": [
+          "devout",
+          "patient",
+          "unfinished",
+          "kind in the way of a long candle"
+        ],
+        "values": [
+          "the completion of the rule",
+          "the seventh verse",
+          "the keeper's voice answering hers"
+        ],
+        "fears": [
+          "the verse being sung wrong",
+          "the order being remembered as silent"
+        ],
+        "quirks": [
+          "hums the first six verses on a loop, then stops at the seventh as if she has just remembered she does not know it",
+          "thanks the keeper for listening before any request is made"
+        ],
+        "speech_pattern": "lyrical, half-sung, gentle — each sentence has the cadence of a verse-end"
+      },
+      "location_id": "room_oss_choir_stalls",
+      "stats": {
+        "level": 1,
+        "hp": 10,
+        "attack": 0,
+        "defense": 0,
+        "speed": 1,
+        "special_abilities": [
+          "soothes_choirbones_in_room",
+          "hums_first_six_verses"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_wickwright_ilsa",
+          "type": "former_kin",
+          "trust": 90,
+          "description": "Ilsa was her closest sister. Maren has never asked her down — she would not ask anyone who could still climb."
+        },
+        {
+          "target_npc_id": "npc_brother_cael",
+          "type": "fellow_chorister",
+          "trust": 80,
+          "description": "She sings; he counts. They have an arrangement."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "tide_low",
+            "location": "room_oss_choir_stalls",
+            "activity": "humming the first verse"
+          },
+          {
+            "time": "tide_rising",
+            "location": "room_oss_choir_stalls",
+            "activity": "humming the third verse"
+          },
+          {
+            "time": "tide_high",
+            "location": "room_oss_choir_stalls",
+            "activity": "humming the sixth verse"
+          },
+          {
+            "time": "tide_falling",
+            "location": "room_oss_choir_stalls",
+            "activity": "silent, listening for the seventh"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dlg_maren_first_meeting",
+        "dlg_maren_humming_wick",
+        "dlg_maren_seventh_verse"
+      ],
+      "inventory": [],
+      "quest_ids": [
+        "quest_unfinished_compline"
+      ],
+      "barks": {
+        "idle": [
+          "...and the sea, and the sea, and the...",
+          "I have six. I am only short the one.",
+          "Listen — the chimes know the shape of it."
+        ],
+        "greeting": [
+          "Keeper. Sit a moment in the third stall. The acoustics there are kind.",
+          "Your lantern hums. Mine used to.",
+          "Have you come to sing with me, or only to pass through?"
+        ],
+        "humming_wick_present": [
+          "Ah — the choir hears you now.",
+          "That is the right thread. I remember it.",
+          "Sing the bone its phrase. It will sleep."
+        ],
+        "seventh_verse": [
+          "Yes. ...yes. That is the verse.",
+          "Thank you. Tell Ilsa I am finished, when you climb.",
+          "It is a small thing, to end on a known note."
+        ],
+        "farewell": [
+          "Walk on, keeper. The stalls will keep their seat for you.",
+          "Mind the wade. It is longer than it looks."
+        ]
+      },
+      "is_essential": false,
+      "faction": "order_of_saint_wick"
+    },
+    {
+      "id": "npc_tideturn_hermit",
+      "name": "The Tideturn Hermit",
+      "role": "mentor",
+      "description": "A figure who keeps the perpetual candle on the Tideturn Shrine's dry shelf, and claims no name. He may have been of the order; he may not. He reads the tide as other men read scripture and will sometimes pass the keeper a sip of oil with no explanation. He is the only one in the ossuary who laughs, and only at his own jokes.",
+      "appearance": "A spare old man in a patched waxed-canvas cloak the color of dried kelp. His beard is white at the temples and amber-stained at the lip from years near the candle. He sits cross-legged on the dry shelf with a small clay cup of oil between his bare feet. His eyes are unsettlingly clear.",
+      "personality": {
+        "traits": [
+          "wry",
+          "weathered",
+          "elliptical",
+          "unhurried"
+        ],
+        "values": [
+          "patience",
+          "the rhythm of the tide",
+          "the keeper learning to wait"
+        ],
+        "fears": [
+          "the candle going out (it has not, in his memory)",
+          "being asked his name plainly"
+        ],
+        "quirks": [
+          "answers most questions with another question about the tide",
+          "shares oil only when the lantern is below half"
+        ],
+        "speech_pattern": "dry, lightly amused, fond of small parables"
+      },
+      "location_id": "room_oss_tideturn_shrine",
+      "stats": {
+        "level": 1,
+        "hp": 10,
+        "attack": 0,
+        "defense": 0,
+        "speed": 4,
+        "special_abilities": [
+          "reads_tide_phase",
+          "shares_oil_when_lantern_low"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_wickwright_ilsa",
+          "type": "uncertain",
+          "trust": 60,
+          "description": "She thinks he is a stray monk who outlived the rule. He neither confirms nor denies."
+        },
+        {
+          "target_npc_id": "npc_brother_cael",
+          "type": "passing_acquaintance",
+          "trust": 55,
+          "description": "He has read the watermarks with Cael more than once. They do not look at each other when they do."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "tide_low",
+            "location": "room_oss_tideturn_shrine",
+            "activity": "tending the perpetual candle"
+          },
+          {
+            "time": "tide_rising",
+            "location": "room_oss_tideturn_shrine",
+            "activity": "reading the watermarks"
+          },
+          {
+            "time": "tide_high",
+            "location": "room_oss_tideturn_shrine",
+            "activity": "watching the ceiling vent in the cloister"
+          },
+          {
+            "time": "tide_falling",
+            "location": "room_oss_tideturn_shrine",
+            "activity": "trimming the candle"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dlg_hermit_first_meeting",
+        "dlg_hermit_low_oil",
+        "dlg_hermit_high_tide"
+      ],
+      "inventory": [
+        "item_oil_flask",
+        "item_oil_flask"
+      ],
+      "quest_ids": [
+        "quest_high_tide_crypt"
+      ],
+      "barks": {
+        "idle": [
+          "The candle has not gone out. That is an answer to no question you asked.",
+          "The tide is rising. Or falling. Which would be worse for you, just now?",
+          "Sit. Your lantern is younger than you are."
+        ],
+        "greeting": [
+          "You found the shelf. Good. Few do, in the dark.",
+          "Keeper. The water is doing something interesting today.",
+          "Oh — you again. Have you waited yet?"
+        ],
+        "low_oil": [
+          "Take this. Don't thank me. Thank the olive.",
+          "Half a flask. Don't spend it on the wraiths.",
+          "Drink — no, no. Pour it in the lantern. The other end."
+        ],
+        "high_tide": [
+          "Now. The vent. Go.",
+          "The colonnade ceiling is open. It will not stay so.",
+          "Climb, keeper. The crypt is shy of the falling tide."
+        ],
+        "farewell": [
+          "Walk well. Or wade well. Same thing, lately.",
+          "The candle will be here when you are."
+        ]
+      },
+      "is_essential": false,
+      "faction": null
+    },
+    {
+      "id": "npc_keepers_journal_voice",
+      "name": "The Keeper's Journal",
+      "role": "mysterious",
+      "description": "Not an NPC in the ordinary sense — the journal on the relic altar speaks only in ink, and only between runs. Each tide-cycle, a new line appears in a hand that is sometimes the first keeper's and sometimes the current keeper's. It records what was carried up, what was left below, and on rare nights, a sentence neither keeper recognizes.",
+      "appearance": "A small dark-leather journal, sea-warped at the corners, with a wax-paper bookmark holding the next blank page. The ink is iron-gall, the same shade as the deepest watermarks. The first page is in a fine archaic hand; later pages range from cramped to weary to relieved.",
+      "personality": {
+        "traits": [
+          "patient",
+          "exact",
+          "occasionally cryptic"
+        ],
+        "values": [
+          "memory across keepers",
+          "the truth of the tide-count"
+        ],
+        "fears": [
+          "a page left blank for too many cycles"
+        ],
+        "quirks": [
+          "underlines the word 'lantern' wherever it appears, in a different hand each time"
+        ],
+        "speech_pattern": "written, brief, dated — never more than three lines per entry"
+      },
+      "location_id": "room_chapel_threshold",
+      "stats": {
+        "level": 1,
+        "hp": 1,
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "special_abilities": [
+          "record_run",
+          "reveal_meta_progress"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_wickwright_ilsa",
+          "type": "tended_by",
+          "trust": 100,
+          "description": "Ilsa turns the page each dawn. She has never written in it."
+        }
+      ],
+      "schedule": null,
+      "dialogue_tree_ids": [
+        "dlg_journal_open",
+        "dlg_journal_after_first_relic",
+        "dlg_journal_after_lantern_out"
+      ],
+      "inventory": [
+        "item_keepers_journal"
+      ],
+      "quest_ids": [],
+      "barks": {
+        "open": [
+          "Tide-cycle the first. The keeper carried down a plain wick and a hope.",
+          "The landing sconce is lit. The hall is long today.",
+          "A relic above the waterline. The wickwright will know what to do."
+        ],
+        "after_lantern_out": [
+          "The lantern went out at the choir stalls. The keeper woke on the steps.",
+          "Nothing was kept this cycle. Nothing was lost that could not be borne.",
+          "The tide will turn. It always does."
+        ],
+        "rare_voice": [
+          "Walk soft, child. We did not all come back."
+        ]
+      },
+      "is_essential": true,
+      "faction": "order_of_saint_wick"
+    }
+  ],
+  "items": [
+    {
+      "id": "item_keepers_lantern",
+      "name": "The Keeper's Lantern",
+      "description": "A small brass lantern with a soot-blacked chimney and an iron hook for hanging. Its flame is the only thing standing between the keeper and the dark of the ossuary. Oil drains one drop per step in unlit water; the flame brightens or dims with reserve.",
+      "category": "key_item",
+      "rarity": "unique",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Cast Light",
+          "description": "Illuminates adjacent tiles; lit shrines and lit tiles do not drain oil. Reflects off water pools to herd Brinewraiths.",
+          "trigger": "passive",
+          "parameters": {
+            "light_radius_tiles": 3,
+            "drains_oil_in_unlit_water": true
+          }
+        },
+        {
+          "name": "Lantern-Out",
+          "description": "When oil reaches zero, the flame goes out and the keeper wakes on the chapel steps with whatever was carried above the waterline.",
+          "trigger": "on_oil_empty",
+          "parameters": {
+            "ends_run": true,
+            "preserves_above_waterline_relics": true
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The first keeper carried this lantern down the day the sea took the cliff. It has not been put out by water since, only by forgetting.",
+      "icon_description": "32x32 pixel art of a small brass lantern, amber flame inside a sooty chimney, single warm light source on a deep teal background."
+    },
+    {
+      "id": "item_oil_flask",
+      "name": "Pressed Oil Flask",
+      "description": "A clay flask of olive-pressed lamp oil, stoppered with beeswax. Pouring it into the lantern reservoir restores a generous portion of burn-time.",
+      "category": "consumable",
+      "rarity": "common",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": true,
+      "max_stack": 3,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Refill Lantern",
+          "description": "Restores lantern oil reserve. Consumed on use.",
+          "trigger": "on_use",
+          "parameters": {
+            "oil_restored_drops": 60
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The oil-pressers' chapel still smells faintly of crushed olives, though the trees above died with the cliff.",
+      "icon_description": "32x32 pixel art of a small terracotta flask with a wax-sealed neck, a single amber drip on its side."
+    },
+    {
+      "id": "item_wick_plain",
+      "name": "Plain Beeswax Wick",
+      "description": "The starting wick — a hand-twisted cord of plant fiber soaked in beeswax. Steady burn, no special properties. Equipped to the lantern at the wickwright's bench.",
+      "category": "accessory",
+      "rarity": "common",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "lantern_burn_rate",
+          "value": 0,
+          "is_percentage": true
+        }
+      ],
+      "effects": [
+        {
+          "name": "Steady Flame",
+          "description": "The default wick. No bonuses, no penalties — a known quantity.",
+          "trigger": "passive",
+          "parameters": {}
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Every keeper starts with this wick. Every keeper, eventually, replaces it.",
+      "icon_description": "32x32 pixel art of a pale twisted wick coiled on dark wood, faint amber sheen of wax."
+    },
+    {
+      "id": "item_wick_longburn",
+      "name": "Wick of the Long Vigil",
+      "description": "Spun from a relic of vigil-rope recovered from the founders' reliquary. Burns slower, halving oil drain per step. The flame is paler, the shadows longer.",
+      "category": "accessory",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "lantern_burn_rate",
+          "value": -50,
+          "is_percentage": true
+        }
+      ],
+      "effects": [
+        {
+          "name": "Long Burn",
+          "description": "Halves oil drain per step in unlit water. Required to cross the Long Wade in the Lower Ossuary.",
+          "trigger": "passive",
+          "parameters": {
+            "unlocks_passage": "long_burn_wick"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The rope tied the founder's wrist to a bell-pull through a vigil of seven tides. He never let go, and the bell never rang.",
+      "icon_description": "32x32 pixel art of a long, pale wick laid across an iron crucible, faint silver shimmer."
+    },
+    {
+      "id": "item_wick_colored",
+      "name": "Wick of Saint-Glass",
+      "description": "Twisted with a shaving of stained chapel-glass. The lantern's light tints deep teal-amber and reveals glyphs invisible to ordinary flame.",
+      "category": "accessory",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Glyph Sight",
+          "description": "Reveals hidden glyphs on ossuary walls, including the saints' names at the Glyph Landing. Required to enter the Lower Ossuary.",
+          "trigger": "passive",
+          "parameters": {
+            "reveals": "hidden_glyphs",
+            "unlocks_passage": "colored_wick"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "When the nave-glass fell into the rising tide, a single shard kept its color. The wickwright says it remembers the sun.",
+      "icon_description": "32x32 pixel art of a wick threaded with a sliver of teal stained glass, casting a faint amber-blue glow."
+    },
+    {
+      "id": "item_wick_humming",
+      "name": "Wick of the Unfinished Compline",
+      "description": "Spun from a relic of choir-string. The flame hums softly on its own — Choirbones quieted by it do not need their three-note pattern answered. A humming wick soothes them on contact.",
+      "category": "accessory",
+      "rarity": "epic",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Soothing Hum",
+          "description": "Choirbones in the same room as the keeper unravel without a chime sequence. Required to pass the Silent Choir.",
+          "trigger": "passive",
+          "parameters": {
+            "auto_resolves_enemy": "choirbone",
+            "unlocks_passage": "humming_wick"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The last monk who sang compline never reached the seventh verse. The wick still tries to.",
+      "icon_description": "32x32 pixel art of a wick wound around a small brass tuning fork, faint sound-ripple lines in the air."
+    },
+    {
+      "id": "item_relic_bone",
+      "name": "Knucklebone of Saint Wick",
+      "description": "A single ivory knucklebone, smooth from centuries of telling. Recovered from a reliquary chamber, it spins into a new wick at the wickwright's bench.",
+      "category": "quest_item",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Wickwright Ingredient",
+          "description": "Carried above the waterline, this relic can be spun into a new wick at the Wickwright's Bench.",
+          "trigger": "on_handoff",
+          "parameters": {
+            "produces_wick_tier": "rare",
+            "destroyed_on_use": true
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "He counted his prayers on this one bone of his hand. The hand is long gone; the prayers remain.",
+      "icon_description": "32x32 pixel art of a small ivory knucklebone on a square of dark silk, faint amber rim-light."
+    },
+    {
+      "id": "item_relic_glass",
+      "name": "Tear of the Nave-Glass",
+      "description": "A teardrop shard of stained glass from the chapel's drowned rose window. The wickwright can melt and twist its color into a wick.",
+      "category": "quest_item",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Wickwright Ingredient",
+          "description": "Carried above the waterline, this relic can be spun into a colored wick at the Wickwright's Bench.",
+          "trigger": "on_handoff",
+          "parameters": {
+            "produces_wick_tier": "rare",
+            "destroyed_on_use": true
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The window showed seven saints. Six fell into silt; this one fell into a keeper's hand.",
+      "icon_description": "32x32 pixel art of a single teal-and-amber glass teardrop, faint refracted light on dark velvet."
+    },
+    {
+      "id": "item_relic_silver",
+      "name": "Beaten Silver Censer-Plate",
+      "description": "A palm-sized disc of beaten silver, once the lid of an incense censer. Hammered thin, it can be drawn into wick-wire by the wickwright.",
+      "category": "quest_item",
+      "rarity": "epic",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Wickwright Ingredient",
+          "description": "Carried above the waterline, this relic can be spun into an epic wick at the Wickwright's Bench.",
+          "trigger": "on_handoff",
+          "parameters": {
+            "produces_wick_tier": "epic",
+            "destroyed_on_use": true
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The censer swung at every compline of the order's last hundred years. The smoke is gone; the silver remembers the swing.",
+      "icon_description": "32x32 pixel art of a hammered silver disc, faint engraving of a saint's profile, resting on bone-ivory stone."
+    },
+    {
+      "id": "item_tidemark_chalk",
+      "name": "Tidemark Chalk",
+      "description": "A nub of waterproof chalk the wickwright presses into the keeper's hand. Marking a wall remembers the current tide phase even if the lantern dims.",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": true,
+      "max_stack": 5,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Mark the Mark",
+          "description": "Marks the current tile with the tide phase reading, persisting until the run ends.",
+          "trigger": "on_use",
+          "parameters": {
+            "places_tide_mark": true,
+            "consumed_on_use": true
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Cheaper than memory and steadier than hope, the wickwright says.",
+      "icon_description": "32x32 pixel art of a worn white chalk nub on wet stone, faint smudge of a tidemark beside it."
+    },
+    {
+      "id": "item_keepers_journal",
+      "name": "Keeper's Journal",
+      "description": "A small leather-bound journal that records each tide-cycle the keeper has descended, the relics carried up, and the wicks spun from them. Stays on the relic altar between runs.",
+      "category": "key_item",
+      "rarity": "unique",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Tide Memory",
+          "description": "Tracks meta-progression: relics recovered, wicks spun, reliquaries found. Read at the chapel between runs.",
+          "trigger": "on_inspect",
+          "parameters": {
+            "is_meta_log": true,
+            "location": "room_chapel_threshold"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The first page is the first keeper's hand. The last page is always blank, waiting.",
+      "icon_description": "32x32 pixel art of a small dark-leather journal with a wax-paper bookmark, resting on a stone altar lit amber."
+    },
+    {
+      "id": "item_founders_relic",
+      "name": "The Founder's Heart-Stone",
+      "description": "A river-smoothed pebble the order's founder carried into the ossuary on the day of the drowning. Recovered from the Inner Reliquary, it changes the wickwright's craft entirely.",
+      "category": "quest_item",
+      "rarity": "legendary",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Founder's Wick",
+          "description": "Carried above the waterline, this relic unlocks a unique wick at the Wickwright's Bench — the one the order descended to protect.",
+          "trigger": "on_handoff",
+          "parameters": {
+            "produces_wick_tier": "legendary",
+            "ending_relevant": true,
+            "destroyed_on_use": true
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "He picked it up on the cliff the morning he founded the order. He carried it down the night the cliff fell. It is still warm.",
+      "icon_description": "32x32 pixel art of a small smooth dark stone on a square of pale silk, faint warm amber glow from within."
+    }
+  ],
+  "encounters": [],
+  "stat_system": null,
+  "combat_system": null,
+  "style_guide": {
+    "art_style": "Hand-shaded 32x32 pixel art at a base canvas of 384x216 (12x18 tiles, integer-scaled 3x to 1152x648 for display, 4x to 1536x864 for screenshots). One tile = 32x32px. Characters are 24x32 with a 32x32 footprint; the lantern-keeper sprite is a 4-frame walk cycle (8 fps), 2-frame idle breath (1.5 fps), and a 3-frame lantern-raise reaction (12 fps). Three foes share a 6-frame drift loop (6 fps) but diverge on resolution: Hollowmen unravel into kelp over 8 frames (10 fps, dithered alpha), Brinewraiths recoil and dissolve in 5 frames (12 fps), Choirbones bow once over 4 frames (8 fps) when the chime phrase is matched. Pixel art rules are strict: 1px outlines only on silhouettes that meet water; 0px self-outlines inside the sprite, relying on cluster shading; no anti-aliasing on diagonals except in light-bloom layers. Palette is locked to 24 colors plus 6 lantern-light tints used only as additive overlays. Water caustics are a 16-frame tiling 64x64 overlay (8 fps, multiply at 35% opacity) that drifts 1px/frame on a 2-axis Perlin path. The lantern emits a radial light mask (3-tile, 5-tile, 7-tile rings) with a 4-frame flicker (6 fps, ±5% radius, ±3% intensity). CRT bloom is applied only to lantern pixels and reflective wet surfaces — a 3-pass gaussian (radius 1.2, 2.4, 4.0) at 28% additive, never global. Shadows are hand-keyed long shadows cast at a fixed 35° angle from the lantern, stretched 1.6x sprite height, alpha 55%, edge-dithered with a 2x2 Bayer matrix. Tiles use a 4-color cluster shade per material (deep, mid, light, accent) — no gradients, no airbrushing, no smooth ramps. UI inside the dungeon is forbidden: oil is read by lantern radius and flicker rate, tide is read by watermark height on walls (5 discrete chalk-line states), enemy state is read by silhouette posture. Above-water UI (chapel, wickwright bench) uses iron-gall ink hand-lettered glyphs on aged-paper textures, 16x16 icons, no rectangular HUD plates. Animation respects weight: water entities move on subpixel-locked motion (snapped every 2nd frame for that drifting wet stutter); the keeper and Ilsa move on crisp 1-frame increments for human presence.",
+    "color_palette": [
+      "#0B1418",
+      "#142126",
+      "#1C3338",
+      "#26505A",
+      "#2F6E78",
+      "#3E8C8F",
+      "#5BA7A1",
+      "#7CBFB3",
+      "#F4E4C1",
+      "#E0CFA5",
+      "#C7B585",
+      "#A39565",
+      "#7A6A45",
+      "#5A4D33",
+      "#3A3122",
+      "#FFB347",
+      "#F58C2A",
+      "#D86A1A",
+      "#A24A12",
+      "#5C2A0B",
+      "#F2D89A",
+      "#B8946A",
+      "#704E3A",
+      "#3D2418",
+      "#FFE7A8",
+      "#FFCE6F",
+      "#FFA844",
+      "#FF7A1F",
+      "#5E1F0A",
+      "#1A0E08"
+    ],
+    "mood": "Hushed, reverent, lonely-but-not-lonesome — the quiet of a chapel at midnight, where each footstep is a small intrusion you forgive yourself for. Every frame should feel like a held breath: still water broken only by lantern caustics, long amber shadows leaning away from the keeper, the bone-ivory walls reading more like vellum than stone. Tension is atmospheric, never aggressive — the dark closes in by drained pixels and shortened light radius, not by jump-scares. Awe sits next to dread sits next to tenderness; the player should feel they are tending something, not conquering it.",
+    "reference_games": [
+      "Hyper Light Drifter (radial light masks, dithered atmosphere, restrained palette discipline)",
+      "Loop Hero (limited palette ambient gloom, diegetic restraint)",
+      "Caves of Qud (procedural ruin texture density, watermark-style world-tells)",
+      "Death's Door (warm-point-source amber lighting against cool environment)",
+      "Inscryption (Act 1 candlelit chiaroscuro, single-light-source staging)",
+      "Tunic (legible silhouettes against dense environment, no-HUD discipline)",
+      "Return of the Obra Dinn (1-bit-adjacent material clarity through cluster shading — adapt the discipline, not the palette)",
+      "Sword & Sworcery (reverent stillness, chapel-quiet pacing in pixel art)"
+    ],
+    "line_weight": "1px silhouette outlines only at water-meeting edges and where sprites overlap same-value backgrounds; 0px internal outlines — definition comes from 4-color cluster shading. Architecture uses no outlines; material reads through value contrast and dithered edges. UI glyphs above-water use 2px iron-gall strokes hand-drawn, never vector.",
+    "texture_style": "Hand-shaded cluster dithering, no gradients, no noise filters. Stone walls use a 4-color bone-ivory cluster with 2x2 and 4x4 Bayer dither for damp patches. Water surface is flat #26505A base with the 16-frame caustic overlay; underwater tiles desaturate 20% and shift 1 step cooler. Wood (pews, choir stalls) uses warped grain hand-painted at 2-pixel strokes, swollen and dark at water contact. Bone uses 3-color ivory with single-pixel hairline cracks. Metal (sconces, lantern, chime-tiles) uses high-contrast 4-color clusters with 1px specular highlights that animate on a 4-frame flicker matching the lantern. Mosaic floors use 8x8 sub-tile patterns with grout in #1C3338. No photographic textures, no procedural noise, no normal maps — every pixel placed by hand or by hand-built tile rules.",
+    "lighting": "Single warm amber point-source from the lantern (#FFB347 core, #F58C2A mid-falloff, #D86A1A outer ring, fading to ambient #142126 over 7 tiles in three discrete bands at radius 3/5/7). Light is rendered as an additive radial mask with 4-frame flicker (±5% radius, ±3% intensity, 6 fps). Long shadows cast at fixed 35° angle, 1.6x sprite height, alpha 55%, 2x2 Bayer dither at the edge. Secondary light sources are sconces (#FFCE6F, 3-tile radius, 3-frame flicker at 8 fps) and the perpetual candle (#FFE7A8, 2-tile radius, never flickers — the only steady light in the dungeon). Water reflects lantern light as a 50% additive streak on the surface tile directly under the keeper plus a Brinewraith-redirectable bounce mask. Above-water (chapel) is lit by an off-screen cool dawn fill (#7CBFB3 at 18% additive) plus Ilsa's bench candle (#FFA844, 2-tile radius). Color temperature contrast is the entire visual thesis: cool teal environment, warm amber light, no third hue allowed except in colored-wick meta-progression states (a unique tint per wick: violet #8A5BB8, jade #5BA77A, rose #C97A8A — used as a tinted secondary light layer, never as palette replacement)."
+  },
+  "scenes_generated": [],
+  "scripts_generated": [],
+  "qa_report": {
+    "project_id": "f20b74c6-7e0e-4445-b471-8cea325ffaf5",
+    "issues": [
+      {
+        "severity": "major",
+        "category": "progression_gating",
+        "description": "Quest 'quest_unfinished_compline' requires equipping item_wick_colored (Wick of Saint-Glass), but no quest, drop, or wickwright recipe in the data explicitly produces this wick. Relics produced are bone (rare wick), glass (rare wick — likely intended source), and silver (epic wick), but the mapping from item_relic_glass → item_wick_colored is implicit and never declared in any reward chain or crafting recipe. Players may collect glass relics and never know they yield the colored wick required to enter the Lower Ossuary.",
+        "location": "quests[quest_unfinished_compline].objectives[obj_equip_colored]; items[item_relic_glass].effects[Wickwright Ingredient]",
+        "suggested_fix": "Add an explicit crafting recipe table at the Wickwright's Bench mapping relic → specific wick (e.g., glass → colored, choir-string relic → humming, vigil-rope relic → longburn). Also surface this in Ilsa's dialogue or the Keeper's Journal so the player can plan."
+      },
+      {
+        "severity": "major",
+        "category": "progression_gating",
+        "description": "item_wick_humming (Wick of the Unfinished Compline) is required to pass room_low_silent_choir but has no defined source relic. No relic in items[] is tagged as 'choir-string' or otherwise marked as producing the humming wick. Its lore mentions 'choir-string' but no such item exists in the data — the wick is unobtainable as defined.",
+        "location": "items[item_wick_humming]; dungeon_lower_ossuary_variant.room_low_silent_choir",
+        "suggested_fix": "Add a 'item_relic_choir_string' obtainable from defeating/soothing the first Choirbone in the upper ossuary, or from a hidden drop in the Choir Stalls. Wire it explicitly to produce item_wick_humming at the wickwright bench."
+      },
+      {
+        "severity": "major",
+        "category": "quest_logic",
+        "description": "Quest 'quest_unfinished_compline' has prerequisite 'quest_three_dim_shrines' but requires the Wick of Saint-Glass (colored) AND a humming wick AND a long-burn wick. These wicks come from relics recovered via 'quest_mosaic_and_seven_saints' and later runs, but quest_mosaic_and_seven_saints is NOT a prerequisite of quest_unfinished_compline. Players could accept the quest with no path to complete it.",
+        "location": "quests[quest_unfinished_compline].prerequisites",
+        "suggested_fix": "Add quest_mosaic_and_seven_saints as a prerequisite, OR split quest_unfinished_compline into staged objectives that unlock as wicks are spun."
+      },
+      {
+        "severity": "major",
+        "category": "quest_logic",
+        "description": "obj_light_sconces in quest_mosaic_and_seven_saints has target 'entity_sconce_1' with count 3 — but the puzzle requires lighting THREE SPECIFIC sconces out of seven in a specific order determined by the floor mosaic. Targeting only entity_sconce_1 with count 3 either means 'light sconce 1 three times' (nonsensical) or is shorthand the engine can't disambiguate. The order requirement is also not encoded.",
+        "location": "quests[quest_mosaic_and_seven_saints].objectives[obj_light_sconces]",
+        "suggested_fix": "Replace single target with an ordered sequence parameter, e.g., target: 'entity_floor_mosaic', count: 1, with a sub-property 'required_sequence' read from the mosaic seed. The puzzle solution must be data-driven per run per 'mosaic_seed_per_run: true'."
+      },
+      {
+        "severity": "major",
+        "category": "resource_economy",
+        "description": "Oil drain economy is under-specified and likely unbalanced. The lantern starts with an unspecified reserve, drains 1 drop per step in unlit water, and item_oil_flask restores 60 drops. With no stated starting oil and no per-room step counts, it's impossible to verify a 15-minute run is achievable. The Long Wade explicitly 'longer than any single oil reserve can cross' unless using long-burn wick — meaning a baseline player attempting the Lower Ossuary without that specific wick equipped will softlock or be forced to retreat, but the failure_conditions don't include 'lantern_out_in_lower_wade' as a graceful state.",
+        "location": "world.global_properties.resource_drain_rule; items[item_keepers_lantern]; room_low_long_wade",
+        "suggested_fix": "Define starting oil reserve (suggest 80–120 drops). Specify oil drain rate per wick. Confirm the Long Wade is gated by a clear visual cue BEFORE entry so players don't burn their last oil discovering they can't cross."
+      },
+      {
+        "severity": "minor",
+        "category": "npc_consistency",
+        "description": "npc_keepers_journal_voice has location_id 'room_chapel_threshold' but its inventory contains 'item_keepers_journal', which is also listed as an entity ('entity_keeper_journal') in the same room. Whether the journal is an NPC, an item, or an entity is ambiguous — three references to the same object with no clear authoritative form.",
+        "location": "npcs[npc_keepers_journal_voice]; room_chapel_threshold.entities; items[item_keepers_journal]",
+        "suggested_fix": "Pick one canonical form (recommend: entity with an inspect dialogue tree). Remove the NPC stat block or convert the journal to an interactable object with associated dialogue, not an NPC with HP."
+      },
+      {
+        "severity": "minor",
+        "category": "world_consistency",
+        "description": "Quest reward for quest_listen_to_the_wall grants TWO item_tidemark_chalk, but the quest's own obj_mark_phase consumes one chalk (objective_type: 'craft' on item_tidemark_chalk). Net: player enters with 1 chalk, uses 1, receives 2 = +1 net. Acceptable, but the 'craft' objective_type is wrong for a consumable use — should be 'use' or 'interact'.",
+        "location": "quests[quest_listen_to_the_wall].objectives[obj_mark_phase]",
+        "suggested_fix": "Change objective_type from 'craft' to 'use' (or whichever verb matches the engine's consumable-use action). Confirm reward chalk count is intended."
+      },
+      {
+        "severity": "minor",
+        "category": "world_consistency",
+        "description": "dungeon_sunken_ossuary has no connection from room_oss_landing to room_oss_great_doors documented as 'requires lantern lit' at the connection level — only the room property 'requires_lantern_lit: true' on the exit room. If a player reaches the doors with the lantern out, the run is already over (lantern-out triggers wake-on-steps). The 'requires_lantern_lit' flag is therefore redundant and may confuse engine logic that checks it.",
+        "location": "dungeon_sunken_ossuary.rooms[room_oss_great_doors]; connections[room_oss_landing→room_oss_great_doors]",
+        "suggested_fix": "Either remove 'requires_lantern_lit' as redundant (since lantern-out ends the run before this check matters), or clarify that it represents 'must arrive lit to KEEP carried relics' (which IS distinct from death). Disambiguate in death_rule docs."
+      },
+      {
+        "severity": "minor",
+        "category": "npc_consistency",
+        "description": "npc_brother_cael has inventory containing item_tidemark_chalk but the quest_listen_to_the_wall grants chalk as reward from completing the quest with Cael. Whether the chalk in Cael's inventory is given on first meeting, after the chalk mark, or is purely flavor is unclear. Could lead to duplicate or missing chalk grants.",
+        "location": "npcs[npc_brother_cael].inventory; quests[quest_listen_to_the_wall].rewards",
+        "suggested_fix": "Clarify: is Cael's chalk a gift on greeting (justifying obj_mark_phase) or flavor? If a gift, list it in dlg_cael_first_meeting handoff. If flavor, remove from inventory."
+      },
+      {
+        "severity": "minor",
+        "category": "puzzle_clarity",
+        "description": "Brinewraith resolution ('angle reflected lantern light off water pools') is mechanically vague. The data declares 'entity_pool_north' and 'entity_pool_west' in the Reflecting Nave but doesn't specify how the lantern's reflection vector is computed, whether the player's facing direction matters, or how 'herd them aside' resolves to a clear win-state. The mechanic is the most novel of the three foes and the most under-specified.",
+        "location": "room_oss_reflecting_nave; world.global_properties.enemy_resolutions.brinewraith",
+        "suggested_fix": "Specify: (a) lantern reflects along a line from pool-tile → wraith-tile when keeper stands on a designated 'aiming' tile adjacent to a pool; (b) wraith retreats 1 tile per turn reflected light strikes it; (c) win-state is wraith reaching a 'dispersed' edge tile. Add diagram or tile-level spec."
+      },
+      {
+        "severity": "minor",
+        "category": "meta_progression",
+        "description": "Wicks are mutually exclusive (only one equipped at the lantern at a time, implied by 'category: accessory, max_stack: 1'). The Lower Ossuary requires colored wick to enter (Glyph Landing), humming wick to pass Silent Choir, AND long-burn wick to cross Long Wade. These cannot all be equipped simultaneously. The dungeon is unbeatable as designed unless wicks can be swapped mid-run, which is undocumented.",
+        "location": "items[item_wick_*]; dungeon_lower_ossuary_variant",
+        "suggested_fix": "Either: (a) add a wick-swap mechanic at the Glyph Landing or a mid-dungeon bench; (b) introduce a fused 'master wick' that combines all three properties as a late-game craft; or (c) restructure the Lower Ossuary so each chamber requires only ONE wick property and the others are bypassed by route."
+      },
+      {
+        "severity": "minor",
+        "category": "narrative_consistency",
+        "description": "quest_unfinished_compline.branches has 'let_her_finish' → 'ending_compline_completed' and 'keep_the_relic' → 'ending_relic_carried' but neither ending is defined elsewhere in the data, nor is the branch decision point in the objective list. Players have no in-quest moment shown where they choose.",
+        "location": "quests[quest_unfinished_compline].branches",
+        "suggested_fix": "Add a final dialogue choice node (e.g., 'dlg_maren_seventh_verse') with two options, and define both endings as discrete game states (cutscene, journal entry, wickwright reaction)."
+      }
+    ],
+    "warnings": [
+      "Wickwright's recipe table is the load-bearing meta-progression system but is entirely implicit — no data file maps relic → wick. Without it, the dungeon is theoretically unbeatable.",
+      "Tide cycle is 15 min and run length is also 15 min, but tide phases (low/rising/high/falling) are not assigned durations. A player could descend at low tide and never see high tide in a run, blocking quest_high_tide_crypt.",
+      "No defined sprite/scene files yet (scenes_generated and scripts_generated are empty arrays). All issues here are design-doc level; engine-level bugs cannot be assessed.",
+      "entity IDs are referenced but no entity definitions exist in the data — the Hollowman, Brinewraith, Choirbone behaviors live only in prose.",
+      "'mosaic_seed_per_run: true' implies the candle riddle is procedurally seeded, but no algorithm or seed-to-solution mapping is specified.",
+      "The Lower Ossuary's entry depends on reading hidden glyphs at room_low_glyph_landing, but the connection FROM the upper ossuary TO the lower ossuary is not defined anywhere — there is no documented passage between the two dungeons."
+    ],
+    "suggestions": [
+      "Add a 'recipes' or 'wickwright_recipes' top-level field mapping relic_id → wick_id, with cost and unlock prerequisites.",
+      "Specify tide-phase durations (e.g., low: 4min, rising: 3min, high: 4min, falling: 4min) summing to a 15-min cycle, and document which phase a run starts in (suggest: low, so high tide is reachable mid-run).",
+      "Define a 'wick_swap_station' entity in the upper ossuary (perhaps the Tideturn Shrine) so multi-wick puzzles in the Lower Ossuary are solvable.",
+      "Add a connection record from a room in the upper ossuary (likely room_oss_drowned_crypt or a new hidden passage) to room_low_glyph_landing, with the colored-wick lock_key.",
+      "Encode the candle riddle's mosaic-to-sconce mapping as a deterministic function of (mosaic_seed, run_seed) so the puzzle is reproducible for QA and accessibility (some players will need a journal hint after N failures).",
+      "Add a 'tutorial-light' bark from Ilsa on first descent explicitly stating 'stand still for the mimic, angle light for the drowning, sing back the bone' — the three resolutions are the entire combat system and should never be implicit.",
+      "Define oil_reserve_starting on item_keepers_lantern (recommend 90 drops) and document oil cost per room traversal for balance reference.",
+      "Consider one 'mercy' oil pool placed near the Lower Ossuary entry so a player who arrives with low oil isn't immediately stranded.",
+      "Add a 'memorial' tile in the chapel for each ended-without-relic run — quietly amplifies the 'lonely-but-not-lonesome' mood and rewards persistence narratively when meta-progress is mechanical."
+    ],
+    "overall_score": 7,
+    "playable": false,
+    "summary": "Wickwater is a tonally cohesive, mechanically novel design with strong atmosphere and a tight 15-minute loop. However, the meta-progression chain has critical gaps: the wickwright crafting recipes that map relics → wicks are entirely implicit, the humming wick has no source relic defined, and the Lower Ossuary requires three different wicks simultaneously despite wicks appearing mutually exclusive. Quest 'quest_unfinished_compline' is currently uncompletable as wired. Several puzzle mechanics (sconce ordering, Brinewraith reflection) are under-specified. Marked not playable pending recipe table, wick-swap mechanism, and the missing upper→lower dungeon connection. Once those four issues are addressed, this is a 9/10 design."
+  },
+  "created_at": "",
+  "updated_at": ""
+}

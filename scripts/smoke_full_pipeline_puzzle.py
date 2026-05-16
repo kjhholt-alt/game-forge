@@ -33,12 +33,10 @@ async def main() -> int:
     record: dict = {"started_at_iso": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "ok": False}
 
     try:
-        os.environ.setdefault("ANTHROPIC_API_KEY", "claudex-shim-no-key")
         from orchestrator.config import GameConfig, GameGenre
         from orchestrator.forge import GameForge
 
         config = GameConfig(
-            anthropic_api_key="claudex-shim-no-key",
             state_db_path=str(HERE / "smoke_full_pipeline_puzzle.state.db"),
             max_retries=1,
             enable_streaming=False,

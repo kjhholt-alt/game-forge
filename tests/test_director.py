@@ -1,6 +1,6 @@
 """Tests for the GameDirector orchestrator.
 
-All Claude API calls are mocked -- no real API keys needed.
+All Claude CLI calls are mocked -- no paid API transport needed.
 """
 
 from __future__ import annotations
@@ -33,7 +33,6 @@ from schemas import (
 @pytest.fixture
 def config() -> GameConfig:
     return GameConfig(
-        anthropic_api_key="test-key",
         director_model="claude-opus-4-7",
         worker_model="claude-sonnet-4-6",
         state_db_path=":memory:",
@@ -204,7 +203,7 @@ class TestDispatchWorker:
 
 class TestCreateGamePipeline:
     async def test_full_pipeline_flow(self, director: GameDirector) -> None:
-        """Mock all API calls and verify the full pipeline produces a GameProject.
+        """Mock all model calls and verify the full pipeline produces a GameProject.
 
         2026-05-14: All 5 stages migrated to claudex.ask_structured. The
         mock returns the right shape for each stage in order based on
@@ -275,7 +274,6 @@ class TestCallClaude:
         director._client.messages.create = AsyncMock(side_effect=[bad_response, good_response])
 
         director.config = GameConfig(
-            anthropic_api_key="test",
             max_retries=2,
         )
 

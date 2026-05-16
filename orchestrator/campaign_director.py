@@ -4,7 +4,7 @@ Orchestrates the intelligence campaign generation pipeline:
 CampaignArchitect (Opus) → IntelArchitect + TargetProfiler + NetworkDesigner
 (Sonnet, parallel) → QAValidator (Haiku) per operation.
 
-Follows the same patterns as GameDirector: structured Claude API calls,
+Follows the same patterns as GameDirector: structured Claude CLI calls,
 validated Pydantic responses, Rich progress output, retry on failure.
 """
 
@@ -17,7 +17,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
+import claudex_client as claude
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -57,7 +57,7 @@ class CampaignDirector:
 
     def __init__(self, config: GameConfig) -> None:
         self.config = config
-        self._client = anthropic.AsyncAnthropic(api_key=config.anthropic_api_key)
+        self._client = claude.AsyncClaudeClient()
         self._campaign: Campaign | None = None
 
     # ------------------------------------------------------------------
@@ -398,7 +398,7 @@ class CampaignDirector:
         system: str,
         user_message: str,
     ) -> dict[str, Any]:
-        """Make a Claude API call and parse the JSON response.
+        """Make a Claude CLI call and parse the JSON response.
 
         Retries up to ``config.max_retries`` on transient failures.
         """
@@ -435,7 +435,7 @@ class CampaignDirector:
                     attempt, self.config.max_retries, model, exc,
                 )
                 last_error = exc
-            except anthropic.APIError as exc:
+            except claude.ClaudeCliError as exc:
                 logger.warning(
                     "Attempt %d/%d: API error from %s -- %s",
                     attempt, self.config.max_retries, model, exc,

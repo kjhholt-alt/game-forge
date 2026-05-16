@@ -13,7 +13,7 @@ import logging
 import uuid
 from typing import Any
 
-import claudex_anthropic_shim as anthropic  # Max-sub via claudex; no API key
+import claudex_client as claude
 from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
@@ -64,13 +64,13 @@ class GameDirector:
     """Top-level game creation orchestrator.
 
     Uses Opus to coordinate WorldBuilder, NarrativeEngine, MechanicsEngine,
-    ArtDirector, and QATester -- each backed by a Claude API call with a
+    ArtDirector, and QATester -- each backed by a Claude CLI call with a
     role-specific system prompt.
     """
 
     def __init__(self, config: GameConfig) -> None:
         self.config = config
-        self._client = anthropic.AsyncAnthropic(api_key=config.anthropic_api_key)
+        self._client = claude.AsyncClaudeClient()
         self._project: GameProject | None = None
 
     # ------------------------------------------------------------------
@@ -359,7 +359,7 @@ class GameDirector:
         return project
 
     # ------------------------------------------------------------------
-    # Low-level Claude API helpers
+    # Low-level Claude CLI helpers
     # ------------------------------------------------------------------
 
     async def _dispatch_worker(
@@ -385,7 +385,7 @@ class GameDirector:
         Returns
         -------
         dict
-            Parsed JSON response from the Claude API.
+            Parsed JSON response from the Claude CLI.
         """
         model = (
             self.config.director_model
@@ -408,10 +408,8 @@ class GameDirector:
     ) -> Any:
         """Schema-validated call via claudex.ask_structured.
 
-        Bypasses the Anthropic-shape shim entirely. Uses the Claude CLI's
-        native ``--output-format json --json-schema`` mode which forces
-        the model to produce schema-matching JSON regardless of what the
-        loaded project context wants to talk about.
+        Uses the Claude CLI's structured JSON mode through claudex and then
+        validates the result with Pydantic.
         """
         import asyncio as _aio
         import claudex as _cx
@@ -433,7 +431,7 @@ class GameDirector:
         system: str,
         user_message: str,
     ) -> dict[str, Any]:
-        """Make a Claude API call and parse the JSON response.
+        """Make a Claude CLI call and parse the JSON response.
 
         Retries up to ``config.max_retries`` on transient failures.
 
@@ -482,9 +480,9 @@ class GameDirector:
                     attempt, self.config.max_retries, model, exc,
                 )
                 last_error = exc
-            except anthropic.APIError as exc:
+            except claude.ClaudeCliError as exc:
                 logger.warning(
-                    "Attempt %d/%d: API error from %s -- %s",
+                    "Attempt %d/%d: Claude CLI error from %s -- %s",
                     attempt, self.config.max_retries, model, exc,
                 )
                 last_error = exc
