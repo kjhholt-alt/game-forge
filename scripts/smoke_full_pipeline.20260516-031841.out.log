@@ -1,0 +1,61 @@
+┌─────────────────────────────── Game Concept ────────────────────────────────┐
+│ The Midnight Interchange                                                    │
+│ A single moonlit train station suspended between worlds, where the 12:00    │
+│ train never quite arrives and three puzzle spirits drift between five       │
+│ brass-and-glass rooms. Each night the clockmaker, Wren Tallow, must repair  │
+│ the station's failing mechanisms before the moon sets.                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Regions: The Midnight Interchange
+  Items: 11 created
+  Quests: 6  |  NPCs: 5
+  Style: Hand-pixeled 2D at a 64x64 sprite base for characters and key props, 
+with 32x32 tile units for floors/walls and 128x128 reserved for hero set-pieces
+(Arrival Clock, Workshop Ledger floor, Great Skylight). Target render 
+resolution: 384x216 internal canvas upscaled 5x to 1920x1080 with integer 
+scaling, no sub-pixel filtering. Sprites use a strict 24-color global palette 
+per scene with selective dithering (Bayer 4x4) only on glass and steam edges. 
+Character silhouettes read at 3 tiles tall (Wren ~40px), with brass-loupe and 
+apron-buckle as silhouette anchors. Animations: 8-frame idle breathing loops at
+8fps, 6-frame winding loops at 12fps, 4-frame pendulum sways at 6fps, 12-frame 
+steam puffs at 10fps for parallax layers, and 24-frame moon-meter sweep cycles 
+tied to the 12-minute timer. UI is ink-on-aged-paper: hand-drawn at 2x pixel 
+scale with 1px sepia outlines (#3a2a1c), drop-shadowed onto a paper texture 
+overlay set to multiply at 35% opacity. Lantern bloom is achieved with a 3-pass
+additive blur on amber light sources (radius 2px, 4px, 8px) clamped to a 50% 
+alpha ceiling so it never crushes the palette. Two parallax steam layers move 
+at 0.25x and 0.6x camera speed; foreground gear-shadows pass at 1.4x. No 
+anti-aliasing on sprite edges; all rotations are pre-baked at 8 cardinal angles
+to preserve the hand-pixeled feel.
+┌───────────────────────────────── QA Report ─────────────────────────────────┐
+│ Score: 7/10                                                                 │
+│ Strong, cohesive cozy roguelike design with a clear vision, rich            │
+│ worldbuilding, and well-aligned art/audio/mechanics — but the project is    │
+│ currently a design document only. No scenes or scripts have been generated, │
+│ so it is not yet playable. Once the Godot implementation is produced and    │
+│ the riddle mechanic + charge economy are specified, this is a 9/10          │
+│ candidate; as a design pass it is an 8, marked down to 7 because the        │
+│ unstated puzzle resolution for the Stationmaster and the unbalanced         │
+│ mainspring economy will block the first build.                              │
+│ Issues: 6  |  Playable: No                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+⠹ Done!
+Copied Godot template to 
+C:\Users\Kruz\Desktop\Projects\game-forge\scripts\smoke_full_pipeline.export
+Wrote project manifest to 
+C:\Users\Kruz\Desktop\Projects\game-forge\scripts\smoke_full_pipeline.export\ga
+me_project.json
+============================================================
+FULL PIPELINE SMOKE — OK
+============================================================
+  title:    The Midnight Interchange
+  setting:  A single moonlit train station suspended between worlds, where the 12:00 train never quite arrives a
+  world:    The Midnight Interchange
+  items:    11
+  quests:   6
+  npcs:     5
+  style:    OK
+  qa.playable: False
+  qa.issues:   6
+
+  elapsed: 380.71s
+  report:  C:\Users\Kruz\Desktop\Projects\game-forge\scripts\smoke_full_pipeline.report.json

@@ -56,3 +56,5 @@ scripts/*.report.json
 scripts/smoke_*.report.json
 scripts/smoke_*.state.json
 scripts/smoke_*.state.db
+scripts/smoke_full_pipeline.*.log
+scripts/smoke_full_pipeline.export.prev-*/

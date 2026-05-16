@@ -1,674 +1,310 @@
 {
-  "id": "f20b74c6-7e0e-4445-b471-8cea325ffaf5",
+  "id": "b94495fe-467a-45c1-b433-8f846caba6b9",
   "concept": {
-    "title": "Wickwater",
+    "title": "The Midnight Interchange",
     "genre": "roguelike",
-    "setting": "A sunken ossuary beneath a drowned coastal monastery, where saltwater has risen to the second tier of catacombs and only floating wickstones keep the dark from closing in. The lantern-keeper descends each tide-cycle to relight shrines the sea swallowed, knowing the water will rearrange the halls again before dawn.",
+    "setting": "A single moonlit train station suspended between worlds, where the 12:00 train never quite arrives and three puzzle spirits drift between five brass-and-glass rooms. Each night the clockmaker, Wren Tallow, must repair the station's failing mechanisms before the moon sets.",
     "core_mechanics": [
-      "Lantern oil is the only resource — every step in unlit water drains a drop, and oil pools are scattered as both reward and risk-pressure",
-      "Three foes resolved by wit, not damage: Hollowmen (mirror your last move — break by standing still), Brinewraiths (flee from reflected lantern-light off water — angle pools to redirect them), and Choirbones (sing a 3-note pattern you must hum back by stepping on chime-tiles)",
-      "Tide phases shift mid-run: low tide opens floor passages, high tide opens ceiling vents and submerges shortcuts — read the watermarks on the walls to predict the turn",
-      "Every run hides one Reliquary Chamber sealed behind a candle-riddle: light the correct three of seven wall-sconces in the order the floor mosaic suggests",
-      "Wicks are your meta-progression — recovered relics become new lantern wicks (longer burn, colored light that reveals hidden glyphs, a wick that hums to soothe Choirbones)",
-      "Runs end not on death but on lantern-out: you wake on the chapel steps with whatever relics you carried above the waterline"
+      "Wind-and-set: spend mainspring charges to rewind broken clocks, each rewind nudges an adjacent room's puzzle state",
+      "Five-room loop: Waiting Hall, Lost Luggage, Signal Box, Platform 3½, and the Conductor's Office shuffle their hazards and gifts each run",
+      "Three spirit dialogues: the Stationmaster (riddles), the Porter (memory matching), and the Last Passenger (sliding-tile timetables) each request a specific repair",
+      "Tool drafting: between rooms, pick one of three brass tools (oil can, tuning fork, pendulum weight) that reshape how puzzles resolve",
+      "Moon meter: a single 12-minute timer ticks down as the moon crosses the skylight; finishing a spirit's request banks moonlight for the next run",
+      "Persistent ledger: solved repairs leave engraved cogs in the workshop, unlocking new starting tools and softer puzzle variants on future runs"
     ],
-    "art_style": "Hand-shaded 32x32 pixel art with a muted candlelit palette — deep teal water, bone-ivory walls, single warm amber light source casting long animated shadows. Soft CRT bloom on the lantern, gently animated water caustics, no UI chrome inside the dungeon.",
-    "target_mood": "Hushed, reverent, lonely-but-not-lonesome — the quiet of a chapel at midnight, where each footstep is a small intrusion you forgive yourself for.",
+    "art_style": "Hand-pixeled at 64x64 sprite scale with warm brass and midnight-blue glass palette, lantern bloom, gentle parallax steam, and ink-drawn UI on aged paper",
+    "target_mood": "Hushed, melancholic, and quietly hopeful — the feeling of a quiet platform at midnight where everything is broken but nothing is hostile",
     "player_count": 1,
-    "estimated_playtime_hours": 15.0,
-    "description": "A short, contemplative roguelike about tending light in a place the sea has claimed. One dungeon, three puzzle-enemies, one hidden Reliquary per run, and a tide that rewrites the map while you breathe.",
+    "estimated_playtime_hours": 4.0,
+    "description": "A short cozy roguelike about Wren Tallow, a clockmaker tending a moonlit station between worlds. Twelve-minute runs across five rooms, three puzzle spirits, no combat — just brass gears, soft train ambience, and the slow rebuilding of a place that wants to be whole.",
     "unique_selling_points": [
-      "Combat replaced entirely with three legible puzzle-enemies — no health bar on the player or foes",
-      "15-minute tide cycles make a full run a single sitting, not a commitment",
-      "Meta-progression is wicks, not stats — every unlock changes how you see the dungeon, not how hard you hit",
-      "Death is gentle: the lantern simply goes out and you wake on the steps"
+      "12-minute runs designed for a single cup of tea",
+      "No combat, no failure state — only repairs that carry forward",
+      "Three hand-written spirits whose requests reshape the station each night",
+      "Lo-fi train-platform ambience as a core mechanic, not just background"
     ]
   },
   "world": {
-    "id": "world_wickwater",
-    "name": "Wickwater",
-    "description": "A sunken ossuary beneath a drowned coastal monastery where saltwater has risen to the second tier of catacombs. The lantern-keeper descends each tide-cycle to relight shrines the sea swallowed, knowing the water will rearrange the halls again before dawn.",
-    "lore_summary": "Centuries ago, the Monastery of Saint Wick stood on a chalk cliff above the tideline, its monks tending a vow of perpetual flame. When the sea rose to take the cliff, the order did not flee — they descended, sealing their relics into the ossuary below and entrusting a single keeper to relight the shrines each tide. The water has been climbing ever since, and the keeper still descends. Hollowmen remember the monks' final prayers as mimicry. Brinewraiths are the drowning itself, given shape. Choirbones sing the unfinished compline. The tide rearranges the halls because the monastery, even drowned, is still trying to keep its rule of cloister: never let an outsider find the same path twice.",
+    "id": "world_midnight_interchange",
+    "name": "The Midnight Interchange",
+    "description": "A single moonlit train station suspended between worlds where the 12:00 train never quite arrives. Wren Tallow, a clockmaker, drifts between five brass-and-glass rooms each night, repairing failing mechanisms before the moon sets. Three puzzle spirits — the Stationmaster, the Porter, and the Last Passenger — wait among the lantern-bloom and gentle steam.",
+    "lore_summary": "Long ago the Midnight Interchange served travelers crossing between waking worlds, its great brass clock keeping the threshold honest. When the 12:00 train failed to arrive one autumn night, the station slipped halfway out of time. Now its mechanisms wind down a little more each evening, and only Wren Tallow — last of the threshold clockmakers — returns to wind them. Each repaired cog is engraved into the workshop floor, a quiet ledger of nights the station almost became whole again.",
     "overworld": {
       "regions": [
         {
-          "id": "region_chapel_steps",
-          "name": "The Chapel Steps",
-          "biome": "ruins",
-          "description": "The weather-worn stone stairs above the waterline where the keeper wakes after each lantern-out. Salt-rimed pews list against a half-collapsed nave, and the great doors of the ossuary stand open to the dark below. This is the only place in the world that does not move.",
+          "id": "region_interchange",
+          "name": "The Midnight Interchange",
+          "biome": "urban",
+          "description": "A moonlit threshold station of brass fittings, midnight-blue glass, and slow drifting steam. Five rooms loop around a central platform beneath a great skylight that frames the crossing moon. The 12-minute moon meter ticks softly overhead, and lantern bloom catches every polished gear.",
           "level_range": [
             1,
-            1
+            4
           ],
           "rooms": [
             {
-              "id": "room_chapel_threshold",
-              "name": "Chapel Threshold",
+              "id": "room_waiting_hall",
+              "name": "Waiting Hall",
               "room_type": "entrance",
-              "description": "A narrow apse where the keeper's lantern hangs from an iron hook. Relics carried up from the last run rest on the altar, waiting to be wound into new wicks.",
-              "width": 3,
+              "description": "A vaulted hall of empty benches and a wall of departure boards whose letters quietly reshuffle. Brass chandeliers hang low, their pendulums all stopped at 11:59. This is where Wren arrives each night and where the moon meter first begins to tick.",
+              "width": 4,
               "height": 3,
               "position": [
                 0,
                 0
               ],
               "entities": [
-                "entity_lantern",
-                "entity_relic_altar",
-                "entity_keeper_journal"
+                "entity_wren_tallow",
+                "entity_arrival_clock",
+                "entity_tool_draft_table"
               ],
               "properties": {
                 "is_run_start": true,
-                "is_safe": true
+                "shuffle_each_run": true,
+                "ambient_audio": "distant_steam_hush",
+                "tool_draft_count": 3
               }
             },
             {
-              "id": "room_wickwright_alcove",
-              "name": "Wickwright's Alcove",
-              "room_type": "npc",
-              "description": "A side chamber lined with hanks of unspun wick-fiber and small crucibles of beeswax. Here recovered relics are bound into new lantern wicks between descents.",
-              "width": 2,
-              "height": 2,
-              "position": [
-                3,
-                0
-              ],
-              "entities": [
-                "entity_wickwright_bench"
-              ],
-              "properties": {
-                "is_meta_progression_hub": true
-              }
-            },
-            {
-              "id": "room_descent_stair",
-              "name": "The Descent Stair",
-              "room_type": "exit",
-              "description": "A spiral of wet stone vanishing into teal dark. Watermarks on the wall record every tide that has reached this step — the lowest is fresh.",
-              "width": 2,
+              "id": "room_lost_luggage",
+              "name": "Lost Luggage",
+              "room_type": "puzzle",
+              "description": "Shelves stacked with travel cases that hum faintly, each tagged with a name no living passenger remembers. The Porter drifts here, asking Wren to match returning luggage to its forgotten owner through quiet memory pairs.",
+              "width": 3,
               "height": 3,
               "position": [
                 1,
-                3
+                0
               ],
               "entities": [
-                "entity_tidemark_wall"
+                "entity_porter_spirit",
+                "entity_humming_cases",
+                "entity_tag_lantern"
               ],
               "properties": {
-                "leads_to_dungeon": "dungeon_sunken_ossuary"
+                "puzzle_type": "memory_match",
+                "spirit_request": "porter_memory",
+                "shuffle_each_run": true,
+                "adjacent_nudge_targets": [
+                  "room_waiting_hall",
+                  "room_signal_box"
+                ]
+              }
+            },
+            {
+              "id": "room_signal_box",
+              "name": "Signal Box",
+              "room_type": "puzzle",
+              "description": "A cramped tower of levers, dials, and a wall-sized track diagram lit by oil lamps. Mainspring charges spent here rewind the signal clock, nudging puzzle states in the rooms on either side.",
+              "width": 2,
+              "height": 3,
+              "position": [
+                2,
+                0
+              ],
+              "entities": [
+                "entity_signal_levers",
+                "entity_track_diagram",
+                "entity_mainspring_dispenser"
+              ],
+              "properties": {
+                "puzzle_type": "wind_and_set",
+                "nudge_radius": 1,
+                "shuffle_each_run": true,
+                "adjacent_nudge_targets": [
+                  "room_lost_luggage",
+                  "room_platform_three_half"
+                ]
+              }
+            },
+            {
+              "id": "room_platform_three_half",
+              "name": "Platform 3½",
+              "room_type": "puzzle",
+              "description": "A narrow platform tucked between Platform 3 and Platform 4 that should not exist. The Last Passenger waits here on a bench, holding a sliding-tile timetable that never quite finishes resolving. Steam coils in slow parallax across the tracks.",
+              "width": 4,
+              "height": 2,
+              "position": [
+                3,
+                1
+              ],
+              "entities": [
+                "entity_last_passenger_spirit",
+                "entity_sliding_timetable",
+                "entity_phantom_train_whistle"
+              ],
+              "properties": {
+                "puzzle_type": "sliding_tile_timetable",
+                "spirit_request": "last_passenger_timetable",
+                "shuffle_each_run": true,
+                "adjacent_nudge_targets": [
+                  "room_signal_box",
+                  "room_conductors_office"
+                ]
+              }
+            },
+            {
+              "id": "room_conductors_office",
+              "name": "Conductor's Office",
+              "room_type": "npc",
+              "description": "A small wood-paneled office stacked with logbooks, riddle-cards, and a stopped grandfather clock. The Stationmaster receives Wren here, trading riddles for repair tokens and engraving each completed cog into the workshop ledger.",
+              "width": 3,
+              "height": 2,
+              "position": [
+                2,
+                2
+              ],
+              "entities": [
+                "entity_stationmaster_spirit",
+                "entity_workshop_ledger",
+                "entity_engraved_cog_wall"
+              ],
+              "properties": {
+                "puzzle_type": "riddle",
+                "spirit_request": "stationmaster_riddle",
+                "is_ledger_room": true,
+                "persistent_unlocks": true
               }
             }
           ],
           "points_of_interest": [
-            "The Relic Altar",
-            "The Wickwright's Bench",
-            "The Tidemark Wall"
+            "The Great Skylight (moon meter)",
+            "The Arrival Clock (run timer hub)",
+            "The Workshop Ledger (persistent cog engravings)",
+            "Platform 3½ phantom whistle",
+            "The Tool Draft Table (oil can, tuning fork, pendulum weight)"
           ],
-          "ambient_mood": "hushed, reverent, the quiet of a chapel at midnight"
+          "ambient_mood": "hushed, melancholic, quietly hopeful"
         }
       ],
       "connections": [
         {
-          "from_id": "room_chapel_threshold",
-          "to_id": "room_wickwright_alcove",
+          "from_id": "room_waiting_hall",
+          "to_id": "room_lost_luggage",
           "bidirectional": true,
           "locked": false,
           "lock_key": null,
           "hidden": false,
-          "description": "A low doorway curtained with old vestments."
+          "description": "A brass-framed archway draped in soft lantern light leading from the benches into the luggage shelves."
         },
         {
-          "from_id": "room_chapel_threshold",
-          "to_id": "room_descent_stair",
+          "from_id": "room_lost_luggage",
+          "to_id": "room_signal_box",
           "bidirectional": true,
           "locked": false,
           "lock_key": null,
           "hidden": false,
-          "description": "The lantern dims a half-shade as you cross the threshold."
+          "description": "A narrow service door behind the shelves, ringing faintly with signal bells."
+        },
+        {
+          "from_id": "room_signal_box",
+          "to_id": "room_platform_three_half",
+          "bidirectional": true,
+          "locked": false,
+          "lock_key": null,
+          "hidden": false,
+          "description": "An iron stairwell descending to a platform that wasn't there a moment ago."
+        },
+        {
+          "from_id": "room_platform_three_half",
+          "to_id": "room_conductors_office",
+          "bidirectional": true,
+          "locked": false,
+          "lock_key": null,
+          "hidden": false,
+          "description": "A varnished door at the platform's end, its frosted glass etched with a stopped clock face."
+        },
+        {
+          "from_id": "room_conductors_office",
+          "to_id": "room_waiting_hall",
+          "bidirectional": true,
+          "locked": false,
+          "lock_key": null,
+          "hidden": false,
+          "description": "A short corridor lined with old timetables, completing the five-room loop back to the benches."
+        },
+        {
+          "from_id": "room_waiting_hall",
+          "to_id": "room_signal_box",
+          "bidirectional": true,
+          "locked": true,
+          "lock_key": "key_signal_pass",
+          "hidden": true,
+          "description": "A hidden shortcut through a maintenance hatch beneath the departure boards, opened by a signal pass earned from the Stationmaster."
+        },
+        {
+          "from_id": "room_lost_luggage",
+          "to_id": "room_platform_three_half",
+          "bidirectional": true,
+          "locked": true,
+          "lock_key": "key_porter_token",
+          "hidden": true,
+          "description": "A luggage chute the Porter unlocks once enough memory pairs have been restored."
         }
       ],
-      "starting_region_id": "region_chapel_steps"
+      "starting_region_id": "region_interchange"
     },
-    "dungeons": [
-      {
-        "id": "dungeon_sunken_ossuary",
-        "name": "The Sunken Ossuary",
-        "theme": "drowned catacomb, candlelit teal, bone-ivory walls, tide-shifted halls",
-        "difficulty": 4,
-        "rooms": [
-          {
-            "id": "room_oss_landing",
-            "name": "The Wading Landing",
-            "room_type": "entrance",
-            "description": "The stair ends in shin-deep brine. A single sconce gutters here — the only shrine guaranteed lit at descent. Watermarks on the wall show the current tide phase.",
-            "width": 3,
-            "height": 3,
-            "position": [
-              0,
-              0
-            ],
-            "entities": [
-              "entity_landing_sconce",
-              "entity_tidemark_gauge"
-            ],
-            "properties": {
-              "oil_drain_per_step": 0,
-              "tide_visible": true
-            }
-          },
-          {
-            "id": "room_oss_cloister_walk",
-            "name": "The Cloister Walk",
-            "room_type": "event",
-            "description": "A long flooded colonnade. At low tide the floor between columns reveals a passage of carved tiles; at high tide ceiling vents open and the floor passage submerges. The watermarks here are darkest — read them before stepping.",
-            "width": 6,
-            "height": 2,
-            "position": [
-              0,
-              3
-            ],
-            "entities": [
-              "entity_floor_passage_grate",
-              "entity_ceiling_vent",
-              "entity_watermark_cluster"
-            ],
-            "properties": {
-              "tide_phase_dependent": true,
-              "low_tide_opens": "floor_passage",
-              "high_tide_opens": "ceiling_vent"
-            }
-          },
-          {
-            "id": "room_oss_hollow_refectory",
-            "name": "The Hollow Refectory",
-            "room_type": "puzzle",
-            "description": "A long dining hall where chairs float upturned like little boats. Hollowmen drift here, mirroring the last step the keeper made. Stand still on the warped flagstones and they unravel into kelp.",
-            "width": 5,
-            "height": 4,
-            "position": [
-              6,
-              3
-            ],
-            "entities": [
-              "entity_hollowman_a",
-              "entity_hollowman_b",
-              "entity_oil_pool_small"
-            ],
-            "properties": {
-              "enemy_type": "hollowman",
-              "resolution": "stand_still"
-            }
-          },
-          {
-            "id": "room_oss_reflecting_nave",
-            "name": "The Reflecting Nave",
-            "room_type": "puzzle",
-            "description": "A flooded transept where shallow pools catch the lantern's light. Brinewraiths circle the edges, fleeing wherever the reflected beam strikes. Angle yourself by the pools to herd them aside.",
-            "width": 5,
-            "height": 5,
-            "position": [
-              6,
-              7
-            ],
-            "entities": [
-              "entity_brinewraith_a",
-              "entity_brinewraith_b",
-              "entity_pool_north",
-              "entity_pool_west",
-              "entity_oil_pool_medium"
-            ],
-            "properties": {
-              "enemy_type": "brinewraith",
-              "resolution": "reflected_light"
-            }
-          },
-          {
-            "id": "room_oss_choir_stalls",
-            "name": "The Choir Stalls",
-            "room_type": "puzzle",
-            "description": "Tiered benches of warped oak, brass chime-tiles set into the floor between them. A Choirbone rises from the back stall and sings a three-note phrase; the keeper must walk the same phrase on the chimes to dismiss it.",
-            "width": 4,
-            "height": 5,
-            "position": [
-              11,
-              3
-            ],
-            "entities": [
-              "entity_choirbone",
-              "entity_chime_tile_lo",
-              "entity_chime_tile_mid",
-              "entity_chime_tile_hi"
-            ],
-            "properties": {
-              "enemy_type": "choirbone",
-              "resolution": "chime_sequence",
-              "sequence_length": 3
-            }
-          },
-          {
-            "id": "room_oss_oil_chapel",
-            "name": "The Oil-Pressers' Chapel",
-            "room_type": "treasure",
-            "description": "A small side chapel whose monks once pressed lamp-oil from olives shipped up the cliff. The presses have rotted but their cisterns still hold pools of usable oil — generous, but you will hear the floor groan when you take too much.",
-            "width": 3,
-            "height": 3,
-            "position": [
-              11,
-              8
-            ],
-            "entities": [
-              "entity_oil_pool_large",
-              "entity_oil_pool_large_b"
-            ],
-            "properties": {
-              "oil_yield": "high",
-              "trap_chance_on_greed": true
-            }
-          },
-          {
-            "id": "room_oss_mosaic_antechamber",
-            "name": "The Mosaic Antechamber",
-            "room_type": "puzzle",
-            "description": "A circular chamber whose floor is a faded mosaic of the seven cardinal saints. Seven wall-sconces ring the room; the mosaic suggests which three to light, and in what order. Get it right and the reliquary door grinds open.",
-            "width": 5,
-            "height": 5,
-            "position": [
-              15,
-              5
-            ],
-            "entities": [
-              "entity_sconce_1",
-              "entity_sconce_2",
-              "entity_sconce_3",
-              "entity_sconce_4",
-              "entity_sconce_5",
-              "entity_sconce_6",
-              "entity_sconce_7",
-              "entity_floor_mosaic"
-            ],
-            "properties": {
-              "riddle_type": "candle_three_of_seven",
-              "mosaic_seed_per_run": true
-            }
-          },
-          {
-            "id": "room_oss_reliquary",
-            "name": "The Reliquary Chamber",
-            "room_type": "treasure",
-            "description": "A small vaulted room kept dry by old prayer. A single relic rests on a silk cushion — bone, glass, or beaten silver, never the same twice. Carry it above the waterline and the wickwright can spin it into a new wick.",
-            "width": 3,
-            "height": 3,
-            "position": [
-              20,
-              5
-            ],
-            "entities": [
-              "entity_reliquary_pedestal",
-              "entity_relic_random"
-            ],
-            "properties": {
-              "reward_type": "meta_wick",
-              "one_per_run": true
-            }
-          },
-          {
-            "id": "room_oss_drowned_crypt",
-            "name": "The Drowned Crypt",
-            "room_type": "secret",
-            "description": "A side passage that only opens during a high-tide ceiling vent in the cloister. Knee-deep in salt, lined with niches of bone-shelf and one sealed iron casket no wick has yet opened.",
-            "width": 4,
-            "height": 3,
-            "position": [
-              2,
-              8
-            ],
-            "entities": [
-              "entity_oil_pool_small_b",
-              "entity_sealed_casket"
-            ],
-            "properties": {
-              "requires_high_tide": true,
-              "casket_requires_unknown_wick": true
-            }
-          },
-          {
-            "id": "room_oss_tideturn_shrine",
-            "name": "The Tideturn Shrine",
-            "room_type": "rest",
-            "description": "A small dry shelf above the waterline where a single candle never quite goes out. The keeper may pause here without oil draining; the water below shifts visibly while you wait.",
-            "width": 2,
-            "height": 2,
-            "position": [
-              15,
-              11
-            ],
-            "entities": [
-              "entity_perpetual_candle"
-            ],
-            "properties": {
-              "is_safe": true,
-              "oil_drain_paused": true
-            }
-          },
-          {
-            "id": "room_oss_great_doors",
-            "name": "The Great Doors",
-            "room_type": "exit",
-            "description": "The inner doors of the ossuary, opening upward toward the stair. Cross this threshold with the lantern still lit and whatever you carry comes home with you.",
-            "width": 3,
-            "height": 2,
-            "position": [
-              0,
-              12
-            ],
-            "entities": [],
-            "properties": {
-              "is_run_exit": true,
-              "requires_lantern_lit": true
-            }
-          }
-        ],
-        "connections": [
-          {
-            "from_id": "room_oss_landing",
-            "to_id": "room_oss_cloister_walk",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A short flooded corridor; oil drains here."
-          },
-          {
-            "from_id": "room_oss_cloister_walk",
-            "to_id": "room_oss_hollow_refectory",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A side arch off the colonnade."
-          },
-          {
-            "from_id": "room_oss_cloister_walk",
-            "to_id": "room_oss_drowned_crypt",
-            "bidirectional": true,
-            "locked": true,
-            "lock_key": "tide_phase_high",
-            "hidden": true,
-            "description": "A ceiling vent that drops open only at high tide."
-          },
-          {
-            "from_id": "room_oss_hollow_refectory",
-            "to_id": "room_oss_reflecting_nave",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A short stair down into deeper water."
-          },
-          {
-            "from_id": "room_oss_reflecting_nave",
-            "to_id": "room_oss_choir_stalls",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A doorway flanked by two cracked angels."
-          },
-          {
-            "from_id": "room_oss_choir_stalls",
-            "to_id": "room_oss_oil_chapel",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A low side door, easy to miss."
-          },
-          {
-            "from_id": "room_oss_choir_stalls",
-            "to_id": "room_oss_mosaic_antechamber",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A grand archway carved with seven saints."
-          },
-          {
-            "from_id": "room_oss_mosaic_antechamber",
-            "to_id": "room_oss_reliquary",
-            "bidirectional": true,
-            "locked": true,
-            "lock_key": "candle_riddle_solved",
-            "hidden": false,
-            "description": "A bronze door that opens only when the three correct sconces are lit in the mosaic's order."
-          },
-          {
-            "from_id": "room_oss_reflecting_nave",
-            "to_id": "room_oss_tideturn_shrine",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": true,
-            "description": "A narrow ledge above the waterline; easy to walk past in the dark."
-          },
-          {
-            "from_id": "room_oss_landing",
-            "to_id": "room_oss_great_doors",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "The way home, always within sight of the landing sconce."
-          }
-        ],
-        "entry_room_id": "room_oss_landing",
-        "exit_room_id": "room_oss_great_doors",
-        "boss_room_id": null,
-        "loot_table_id": "loot_relics_and_oil",
-        "estimated_clear_time_minutes": 15
-      },
-      {
-        "id": "dungeon_lower_ossuary_variant",
-        "name": "The Lower Ossuary (Tide-Shifted)",
-        "theme": "deeper drowned catacomb, accessible only when a colored wick reveals hidden glyphs",
-        "difficulty": 7,
-        "rooms": [
-          {
-            "id": "room_low_glyph_landing",
-            "name": "The Glyph Landing",
-            "room_type": "entrance",
-            "description": "A second landing one tier below the main ossuary. The walls are blank to ordinary lantern-light; only a colored wick reveals the saints' names carved here.",
-            "width": 3,
-            "height": 3,
-            "position": [
-              0,
-              0
-            ],
-            "entities": [
-              "entity_glyph_wall"
-            ],
-            "properties": {
-              "requires_colored_wick": true
-            }
-          },
-          {
-            "id": "room_low_silent_choir",
-            "name": "The Silent Choir",
-            "room_type": "puzzle",
-            "description": "A choir hall full of Choirbones that do not sing. A humming wick soothes them on contact; without it, the room is impassable.",
-            "width": 5,
-            "height": 4,
-            "position": [
-              0,
-              3
-            ],
-            "entities": [
-              "entity_choirbone_silent_a",
-              "entity_choirbone_silent_b",
-              "entity_choirbone_silent_c"
-            ],
-            "properties": {
-              "requires_humming_wick": true
-            }
-          },
-          {
-            "id": "room_low_long_wade",
-            "name": "The Long Wade",
-            "room_type": "trap",
-            "description": "A flooded corridor longer than any single oil reserve can cross — unless the wick burns long enough.",
-            "width": 8,
-            "height": 2,
-            "position": [
-              5,
-              3
-            ],
-            "entities": [
-              "entity_oil_pool_tiny"
-            ],
-            "properties": {
-              "requires_long_burn_wick": true
-            }
-          },
-          {
-            "id": "room_low_inner_reliquary",
-            "name": "The Inner Reliquary",
-            "room_type": "treasure",
-            "description": "The true reliquary of the order, kept dry by a vow no one alive remembers swearing. The relic here is the one the monks descended to protect.",
-            "width": 3,
-            "height": 3,
-            "position": [
-              13,
-              3
-            ],
-            "entities": [
-              "entity_relic_founders"
-            ],
-            "properties": {
-              "reward_type": "meta_wick_unique",
-              "ending_relevant": true
-            }
-          },
-          {
-            "id": "room_low_return_stair",
-            "name": "The Return Stair",
-            "room_type": "exit",
-            "description": "A narrow stair back up to the main ossuary's landing. The water here flows the wrong way.",
-            "width": 2,
-            "height": 3,
-            "position": [
-              13,
-              6
-            ],
-            "entities": [],
-            "properties": {
-              "is_run_exit": true,
-              "requires_lantern_lit": true
-            }
-          }
-        ],
-        "connections": [
-          {
-            "from_id": "room_low_glyph_landing",
-            "to_id": "room_low_silent_choir",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "Glyphs above the door name the seven saints in order; the colored wick reads them aloud in light."
-          },
-          {
-            "from_id": "room_low_silent_choir",
-            "to_id": "room_low_long_wade",
-            "bidirectional": true,
-            "locked": true,
-            "lock_key": "humming_wick",
-            "hidden": false,
-            "description": "The silent choir parts only for a wick that hums in return."
-          },
-          {
-            "from_id": "room_low_long_wade",
-            "to_id": "room_low_inner_reliquary",
-            "bidirectional": true,
-            "locked": true,
-            "lock_key": "long_burn_wick",
-            "hidden": false,
-            "description": "The far door is reached only by a wick that does not gutter."
-          },
-          {
-            "from_id": "room_low_inner_reliquary",
-            "to_id": "room_low_return_stair",
-            "bidirectional": true,
-            "locked": false,
-            "lock_key": null,
-            "hidden": false,
-            "description": "A small door behind the pedestal."
-          }
-        ],
-        "entry_room_id": "room_low_glyph_landing",
-        "exit_room_id": "room_low_return_stair",
-        "boss_room_id": null,
-        "loot_table_id": "loot_inner_relics",
-        "estimated_clear_time_minutes": 15
-      }
-    ],
+    "dungeons": [],
     "global_properties": {
-      "primary_resource": "lantern_oil",
-      "resource_drain_rule": "one drop per step in unlit water; no drain on lit shrines or above waterline",
-      "death_rule": "runs end on lantern-out, not on damage; keeper wakes on the chapel steps with whatever relics were carried above the waterline",
-      "tide_cycle_minutes": 15,
-      "tide_phases": [
-        "low",
-        "rising",
-        "high",
-        "falling"
+      "run_duration_minutes": 12,
+      "run_structure": "five_room_loop",
+      "combat": "none",
+      "failure_state": "none",
+      "persistent_progression": "engraved_cogs_in_workshop_ledger",
+      "spirits": [
+        "Stationmaster (riddles)",
+        "Porter (memory matching)",
+        "Last Passenger (sliding-tile timetables)"
       ],
-      "tide_effects": {
-        "low": "floor passages open, ceiling vents sealed",
-        "high": "ceiling vents open, floor shortcuts submerged"
+      "tool_draft_pool": [
+        "oil_can",
+        "tuning_fork",
+        "pendulum_weight"
+      ],
+      "core_resource": "mainspring_charges",
+      "moon_meter": {
+        "duration_minutes": 12,
+        "banks_on_spirit_completion": true
       },
-      "enemy_resolutions": {
-        "hollowman": "stand still — they mirror the last move and unravel without input",
-        "brinewraith": "angle the lantern off a water pool so reflected light strikes them, herding them aside",
-        "choirbone": "step the three chime-tiles in the order the bone sang"
-      },
-      "meta_progression": "recovered relics are spun into new wicks at the wickwright's bench; wicks change perception (longer burn, colored light, humming) rather than stats",
-      "art_direction": "hand-shaded 32x32 pixel art, muted candlelit palette, deep teal water, bone-ivory walls, single warm amber light source, animated long shadows, soft CRT bloom on the lantern, gently animated water caustics, no UI chrome inside the dungeon",
-      "mood": "hushed, reverent, lonely-but-not-lonesome — the quiet of a chapel at midnight",
-      "ui_principle": "diegetic only — oil shown by lantern brightness, tide shown by watermarks, no HUD bars",
+      "art_style": "hand-pixeled 64x64, warm brass and midnight-blue glass, lantern bloom, parallax steam, ink-on-aged-paper UI",
+      "palette": [
+        "brass_gold",
+        "midnight_blue",
+        "lantern_amber",
+        "aged_paper_cream"
+      ],
+      "mood": "hushed, melancholic, quietly hopeful",
+      "ambient_audio": [
+        "soft_train_hush",
+        "distant_whistle",
+        "pendulum_tick",
+        "steam_release"
+      ],
       "player_count": 1,
-      "estimated_full_playtime_hours": 15.0,
-      "run_length_minutes": 15
+      "estimated_playtime_hours": 4.0
     }
   },
   "quests": [
     {
-      "id": "quest_first_descent",
-      "title": "The First Descent",
-      "description": "The Wickwright presses a fresh wick into your lantern and gestures toward the stair. The tide is low; the watermarks are still wet. Descend, light what the sea has snuffed, and come back before the oil runs dry. She does not say what happens if you don't — you already know.",
-      "quest_giver_npc_id": "npc_wickwright_ilsa",
-      "location_id": "room_chapel_threshold",
+      "id": "quest_wind_the_arrival_clock",
+      "title": "Wind the Arrival Clock",
+      "description": "The Arrival Clock in the Waiting Hall has stopped at 11:59 again. Wren must spend a mainspring charge to wind it and begin the night's run, then draft her first brass tool from the table beside the benches.",
+      "quest_giver_npc_id": "npc_wren_tallow",
+      "location_id": "room_waiting_hall",
       "level_requirement": 1,
       "objectives": [
         {
-          "id": "obj_descend_stair",
-          "description": "Take the Descent Stair into the Sunken Ossuary.",
-          "objective_type": "explore",
-          "target": "room_oss_landing",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_relight_landing",
-          "description": "Confirm the Landing Sconce is lit at the Wading Landing.",
+          "id": "obj_wind_arrival_clock",
+          "description": "Spend one Mainspring Charge to wind the Arrival Clock and start the moon meter.",
           "objective_type": "solve",
-          "target": "entity_landing_sconce",
+          "target": "entity_arrival_clock",
           "count": 1,
           "optional": false
         },
         {
-          "id": "obj_return_lit",
-          "description": "Return through the Great Doors with the lantern still lit.",
-          "objective_type": "explore",
-          "target": "room_oss_great_doors",
+          "id": "obj_draft_first_tool",
+          "description": "Choose one brass tool from the Tool Draft Table to carry into the loop.",
+          "objective_type": "collect",
+          "target": "entity_tool_draft_table",
           "count": 1,
           "optional": false
         }
@@ -677,224 +313,49 @@
         "xp": 0,
         "gold": 0,
         "items": [
-          "item_tidemark_chalk"
+          "item_mainspring_charge"
         ],
         "reputation": {},
         "unlocks": [
-          "quest_three_dim_shrines",
-          "quest_listen_to_the_wall"
+          "quest_match_the_humming_cases",
+          "quest_set_the_signal_levers",
+          "quest_solve_the_sliding_timetable"
         ]
       },
       "prerequisites": [],
       "branches": {},
-      "failure_conditions": [
-        "lantern_out_before_landing"
-      ],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_listen_to_the_wall",
-      "title": "Listen to the Wall",
-      "description": "Brother Cael — what is left of him — drifts at the edge of the Cloister Walk and speaks in long pauses. He asks you to read the tidemarks before you cross the colonnade. He claims the wall remembers what the water forgets. Mark a fresh tide reading where the watermarks cluster, and bring him the chalk-smudge in your hand.",
-      "quest_giver_npc_id": "npc_brother_cael",
-      "location_id": "room_oss_cloister_walk",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_read_tidemarks",
-          "description": "Read the watermark cluster in the Cloister Walk to identify the current tide phase.",
-          "objective_type": "solve",
-          "target": "entity_watermark_cluster",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_mark_phase",
-          "description": "Use Tidemark Chalk on the cluster to record the current phase.",
-          "objective_type": "craft",
-          "target": "item_tidemark_chalk",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_report_cael",
-          "description": "Return to Brother Cael with the reading.",
-          "objective_type": "talk",
-          "target": "npc_brother_cael",
-          "count": 1,
-          "optional": false
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_tidemark_chalk",
-          "item_tidemark_chalk"
-        ],
-        "reputation": {},
-        "unlocks": [
-          "quest_high_tide_crypt"
-        ]
-      },
-      "prerequisites": [
-        "quest_first_descent"
-      ],
-      "branches": {},
       "failure_conditions": [],
       "time_limit_turns": null
     },
     {
-      "id": "quest_three_dim_shrines",
-      "title": "Three Dim Shrines",
-      "description": "The Wickwright sets out three small clay tokens on her bench — Hollow, Brine, Choir. The shrines in the rooms past the Landing have gone dark, and she will not spin you a colored wick until you have resolved each of the order's three sorrows once, without striking a blow. Stand still for the mirror. Angle the light for the drowning. Sing back what the bone sings.",
-      "quest_giver_npc_id": "npc_wickwright_ilsa",
-      "location_id": "room_wickwright_alcove",
+      "id": "quest_match_the_humming_cases",
+      "title": "The Porter's Memory Pairs",
+      "description": "Three humming travel cases on the Lost Luggage shelves are searching for their owners' tags. The Porter asks Wren to match each case to its rightful name before the lantern dims.",
+      "quest_giver_npc_id": "npc_porter_spirit",
+      "location_id": "room_lost_luggage",
       "level_requirement": 1,
       "objectives": [
         {
-          "id": "obj_unmake_hollowman",
-          "description": "Resolve a Hollowman in the Hollow Refectory by standing still.",
+          "id": "obj_match_three_cases",
+          "description": "Match three humming travel cases to their owner tags in the Lost Luggage shelves.",
           "objective_type": "solve",
-          "target": "entity_hollowman_a",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_unmake_brinewraith",
-          "description": "Herd a Brinewraith in the Reflecting Nave with lantern-reflected pool-light.",
-          "objective_type": "solve",
-          "target": "entity_brinewraith_a",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_unmake_choirbone",
-          "description": "Answer a Choirbone's three-note phrase on the chime-tiles in the Choir Stalls.",
-          "objective_type": "solve",
-          "target": "entity_choirbone",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_return_to_ilsa",
-          "description": "Return to the Wickwright's Alcove with the lantern still lit.",
-          "objective_type": "talk",
-          "target": "npc_wickwright_ilsa",
-          "count": 1,
-          "optional": false
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_oil_flask"
-        ],
-        "reputation": {},
-        "unlocks": [
-          "quest_mosaic_and_seven_saints",
-          "quest_unfinished_compline"
-        ]
-      },
-      "prerequisites": [
-        "quest_first_descent"
-      ],
-      "branches": {},
-      "failure_conditions": [],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_mosaic_and_seven_saints",
-      "title": "The Mosaic and the Seven Saints",
-      "description": "The Mosaic Antechamber's floor names the seven saints in faded tile, and seven sconces ring the room. Read the mosaic, light the correct three sconces in the order it suggests, and the reliquary door will grind open. Carry whatever rests within above the waterline and the Wickwright will spin it into something new.",
-      "quest_giver_npc_id": "npc_wickwright_ilsa",
-      "location_id": "room_oss_mosaic_antechamber",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_read_mosaic",
-          "description": "Inspect the floor mosaic to determine the saints' order.",
-          "objective_type": "solve",
-          "target": "entity_floor_mosaic",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_light_sconces",
-          "description": "Light the three correct wall-sconces in the mosaic's order.",
-          "objective_type": "solve",
-          "target": "entity_sconce_1",
+          "target": "puzzle_porter_memory",
           "count": 3,
           "optional": false
         },
         {
-          "id": "obj_take_relic",
-          "description": "Take the relic from the Reliquary Chamber pedestal.",
+          "id": "obj_receive_porter_token",
+          "description": "Receive the Porter's Brass Token, which unlocks the luggage chute to Platform 3½.",
           "objective_type": "collect",
-          "target": "entity_relic_random",
+          "target": "item_porter_token",
           "count": 1,
           "optional": false
         },
         {
-          "id": "obj_carry_above",
-          "description": "Carry the relic through the Great Doors with the lantern still lit.",
-          "objective_type": "deliver",
-          "target": "room_oss_great_doors",
-          "count": 1,
-          "optional": false
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_relic_bone",
-          "item_wick_longburn"
-        ],
-        "reputation": {},
-        "unlocks": [
-          "quest_lower_ossuary"
-        ]
-      },
-      "prerequisites": [
-        "quest_three_dim_shrines"
-      ],
-      "branches": {},
-      "failure_conditions": [
-        "lantern_out_before_doors"
-      ],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_high_tide_crypt",
-      "title": "What the High Tide Opens",
-      "description": "The Tideturn Hermit watches the watermarks from his dry shelf and will say only this: the ceiling vent in the Cloister opens once a cycle, and only at the full of the tide. Wait through a turn at his shrine, climb when the vent drops, and see what the order locked into the Drowned Crypt behind a casket no wick yet opens.",
-      "quest_giver_npc_id": "npc_tideturn_hermit",
-      "location_id": "room_oss_tideturn_shrine",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_wait_high_tide",
-          "description": "Rest at the Tideturn Shrine until the tide reaches high.",
-          "objective_type": "survive",
-          "target": "tide_phase_high",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_enter_crypt",
-          "description": "Climb the open ceiling vent in the Cloister Walk into the Drowned Crypt.",
-          "objective_type": "explore",
-          "target": "room_oss_drowned_crypt",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_inspect_casket",
-          "description": "Examine the sealed iron casket in the Drowned Crypt.",
+          "id": "obj_use_tuning_fork",
+          "description": "Strike the tuning fork to chime a single hidden pair (optional softening).",
           "objective_type": "solve",
-          "target": "entity_sealed_casket",
+          "target": "item_tuning_fork",
           "count": 1,
           "optional": true
         }
@@ -903,76 +364,108 @@
         "xp": 0,
         "gold": 0,
         "items": [
-          "item_oil_flask",
-          "item_relic_glass"
+          "item_porter_token",
+          "item_moonlight_vial",
+          "item_engraved_cog"
         ],
-        "reputation": {},
+        "reputation": {
+          "interchange_spirits": 5
+        },
         "unlocks": [
-          "quest_unfinished_compline"
+          "quest_engrave_the_ledger"
         ]
       },
       "prerequisites": [
-        "quest_listen_to_the_wall"
+        "quest_wind_the_arrival_clock"
       ],
       "branches": {},
-      "failure_conditions": [
-        "lantern_out_before_return"
-      ],
+      "failure_conditions": [],
       "time_limit_turns": null
     },
     {
-      "id": "quest_unfinished_compline",
-      "title": "The Unfinished Compline",
-      "description": "Sister Maren still sings, after a fashion — six verses of the compline she could not finish on the night the cliff fell. She asks you for the seventh. The colored wick lets you read the saints' names at the Glyph Landing of the Lower Ossuary; carry the humming wick further, walk the silent choir, cross the long wade, and bring up the founder's relic. Then she will sing the last verse and rest.",
-      "quest_giver_npc_id": "npc_sister_maren",
-      "location_id": "room_oss_choir_stalls",
+      "id": "quest_set_the_signal_levers",
+      "title": "Rewind the Signal Box",
+      "description": "The Signal Box's track diagram has gone dim and its levers stick at half-throw. Wren must spend mainspring charges to rewind the signal clock, nudging puzzle states in the rooms on either side.",
+      "quest_giver_npc_id": "npc_wren_tallow",
+      "location_id": "room_signal_box",
       "level_requirement": 1,
       "objectives": [
         {
-          "id": "obj_equip_colored",
-          "description": "Equip the Wick of Saint-Glass at the Wickwright's Bench.",
-          "objective_type": "craft",
-          "target": "item_wick_colored",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_enter_lower",
-          "description": "Read the Glyph Landing of the Lower Ossuary.",
-          "objective_type": "explore",
-          "target": "room_low_glyph_landing",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_pass_silent_choir",
-          "description": "Pass the Silent Choir with a humming wick equipped.",
+          "id": "obj_spend_charges_signal",
+          "description": "Spend at least three Mainspring Charges at the signal clock to rewind it.",
           "objective_type": "solve",
-          "target": "entity_choirbone_silent_a",
-          "count": 1,
+          "target": "entity_signal_levers",
+          "count": 3,
           "optional": false
         },
         {
-          "id": "obj_cross_wade",
-          "description": "Cross the Long Wade with a long-burn wick equipped.",
-          "objective_type": "explore",
-          "target": "room_low_long_wade",
-          "count": 1,
+          "id": "obj_align_track_diagram",
+          "description": "Align all four track segments on the wall diagram so the lamps burn steady.",
+          "objective_type": "solve",
+          "target": "entity_track_diagram",
+          "count": 4,
           "optional": false
         },
         {
-          "id": "obj_recover_founders",
-          "description": "Recover the Founder's Heart-Stone from the Inner Reliquary.",
+          "id": "obj_earn_signal_pass",
+          "description": "Receive the Stationmaster's Signal Pass after the signal clock rings true.",
           "objective_type": "collect",
-          "target": "item_founders_relic",
+          "target": "item_signal_pass",
+          "count": 1,
+          "optional": true
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_signal_pass",
+          "item_mainspring_charge",
+          "item_engraved_cog"
+        ],
+        "reputation": {
+          "interchange_spirits": 3
+        },
+        "unlocks": [
+          "quest_engrave_the_ledger"
+        ]
+      },
+      "prerequisites": [
+        "quest_wind_the_arrival_clock"
+      ],
+      "branches": {},
+      "failure_conditions": [],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_solve_the_sliding_timetable",
+      "title": "The Last Passenger's Timetable",
+      "description": "On Platform 3½ the Last Passenger holds a sliding-tile timetable that refuses to finish resolving. Wren must arrange the tiles into a valid departure before the phantom whistle fades.",
+      "quest_giver_npc_id": "npc_last_passenger_spirit",
+      "location_id": "room_platform_three_half",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_solve_timetable",
+          "description": "Slide the timetable tiles into a coherent 12:00 departure pattern.",
+          "objective_type": "solve",
+          "target": "entity_sliding_timetable",
           "count": 1,
           "optional": false
         },
         {
-          "id": "obj_return_to_maren",
-          "description": "Return to Sister Maren in the Choir Stalls and let her finish.",
-          "objective_type": "talk",
-          "target": "npc_sister_maren",
+          "id": "obj_anchor_with_ticket",
+          "description": "Lock one tile in place using a Phantom Ticket to ease the final slide.",
+          "objective_type": "solve",
+          "target": "item_phantom_ticket",
+          "count": 1,
+          "optional": true
+        },
+        {
+          "id": "obj_hear_whistle",
+          "description": "Stand at the edge of Platform 3½ as the phantom whistle answers the solved timetable.",
+          "objective_type": "explore",
+          "target": "entity_phantom_train_whistle",
           "count": 1,
           "optional": false
         }
@@ -981,56 +474,296 @@
         "xp": 0,
         "gold": 0,
         "items": [
-          "item_relic_silver"
+          "item_phantom_ticket",
+          "item_moonlight_vial",
+          "item_engraved_cog"
         ],
-        "reputation": {},
+        "reputation": {
+          "interchange_spirits": 5
+        },
         "unlocks": [
-          "quest_lower_ossuary"
+          "quest_engrave_the_ledger"
         ]
       },
       "prerequisites": [
-        "quest_three_dim_shrines"
+        "quest_wind_the_arrival_clock"
       ],
-      "branches": {
-        "let_her_finish": "ending_compline_completed",
-        "keep_the_relic": "ending_relic_carried"
-      },
-      "failure_conditions": [
-        "lantern_out_in_lower"
-      ],
+      "branches": {},
+      "failure_conditions": [],
       "time_limit_turns": null
+    },
+    {
+      "id": "quest_engrave_the_ledger",
+      "title": "Engrave the Workshop Ledger",
+      "description": "Before the moon sets, Wren returns to the Conductor's Office to deliver her solved riddle cards. The Stationmaster receives each one and engraves a new cog into the workshop floor — a quiet promise that tonight, the station almost became whole.",
+      "quest_giver_npc_id": "npc_stationmaster_spirit",
+      "location_id": "room_conductors_office",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_deliver_riddle_cards",
+          "description": "Deliver at least one solved Stationmaster's Riddle Card to the Conductor's Office.",
+          "objective_type": "deliver",
+          "target": "item_riddle_card",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_engrave_cog",
+          "description": "Engrave a new cog into the workshop ledger floor.",
+          "objective_type": "craft",
+          "target": "item_engraved_cog",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_bank_moonlight",
+          "description": "Bank a vial of moonlight to carry into the next run.",
+          "objective_type": "collect",
+          "target": "item_moonlight_vial",
+          "count": 1,
+          "optional": true
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_engraved_cog",
+          "item_moonlight_vial"
+        ],
+        "reputation": {
+          "interchange_spirits": 10
+        },
+        "unlocks": [
+          "quest_three_spirits_one_night"
+        ]
+      },
+      "prerequisites": [
+        "quest_match_the_humming_cases",
+        "quest_set_the_signal_levers",
+        "quest_solve_the_sliding_timetable"
+      ],
+      "branches": {},
+      "failure_conditions": [],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_three_spirits_one_night",
+      "title": "Three Spirits, One Night",
+      "description": "A rare alignment: fulfill all three spirits' requests within a single 12-minute run. The skylight will hold the moon a heartbeat longer, and the Workshop Ledger will engrave a triple cog — softening every puzzle in nights to come.",
+      "quest_giver_npc_id": "npc_stationmaster_spirit",
+      "location_id": "room_conductors_office",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_complete_porter_request",
+          "description": "Complete the Porter's memory matching request this run.",
+          "objective_type": "solve",
+          "target": "porter_memory",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_complete_last_passenger_request",
+          "description": "Complete the Last Passenger's sliding-tile timetable this run.",
+          "objective_type": "solve",
+          "target": "last_passenger_timetable",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_complete_stationmaster_riddle",
+          "description": "Answer the Stationmaster's riddle and turn in the card this run.",
+          "objective_type": "solve",
+          "target": "stationmaster_riddle",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_finish_before_moonset",
+          "description": "Reach the Conductor's Office before the moon meter expires.",
+          "objective_type": "survive",
+          "target": "moon_meter",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0,
+        "items": [
+          "item_engraved_cog",
+          "item_engraved_cog",
+          "item_engraved_cog",
+          "item_moonlight_vial"
+        ],
+        "reputation": {
+          "interchange_spirits": 25
+        },
+        "unlocks": []
+      },
+      "prerequisites": [
+        "quest_engrave_the_ledger"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "Moon meter expires before all three spirit requests are completed"
+      ],
+      "time_limit_turns": 12
     }
   ],
   "npcs": [
     {
-      "id": "npc_wickwright_ilsa",
-      "name": "Ilsa, the Wickwright",
-      "role": "quest_giver",
-      "description": "The last of the order who did not descend. Ilsa stayed at the bench to spin wicks from whatever relics the keeper carries up, and to mark in the journal what each tide-cycle has taken or given back. She is older than she should be, and her hands have never trembled in the keeper's sight.",
-      "appearance": "A spare woman in a salt-stained grey habit, sleeves rolled to the elbow, hair the color of wick-fiber bound back with a brass pin. A small amber-light scar runs across the back of her left hand where a wick caught early in her apprenticeship. She wears no shoes inside the chapel.",
+      "id": "npc_wren_tallow",
+      "name": "Wren Tallow",
+      "role": "civilian",
+      "description": "The last of the threshold clockmakers, Wren returns to the Midnight Interchange each night with a tin of mainspring charges in her apron pocket. She speaks softly, listens longer than she talks, and treats every stopped clock as a quiet apology she means to answer.",
+      "appearance": "A slight woman in her late thirties wearing a heavy canvas apron over a midnight-blue work shirt, sleeves rolled to the elbow. Brass loupe pushed up into chestnut hair, oil-smudged fingertips, a leather tool belt of tiny instruments. Lantern-amber light catches the brass buttons at her cuffs.",
       "personality": {
         "traits": [
           "patient",
-          "exacting",
-          "quietly warm",
-          "steady"
+          "observant",
+          "gentle",
+          "quietly stubborn"
         ],
         "values": [
-          "the rule of cloister",
-          "honest craft",
-          "the keeper coming home"
+          "repair over replacement",
+          "honoring what was almost",
+          "the dignity of small mechanisms"
         ],
         "fears": [
-          "a wick that hums for no reason",
-          "the day no keeper climbs the stair"
+          "finishing the last repair",
+          "the night she fails to return",
+          "a station that finally stops humming"
         ],
         "quirks": [
-          "tests every wick by touching it to her lower lip",
-          "names every wick she spins, but only to the journal"
+          "hums the same four-note phrase while winding springs",
+          "thumbs the engraved cogs underfoot before each run",
+          "names every clock she repairs"
         ],
-        "speech_pattern": "spare, measured, low — leaves long pauses where a less careful speaker would fill them"
+        "speech_pattern": "soft, measured, often trailing into a half-finished thought"
       },
-      "location_id": "room_wickwright_alcove",
+      "location_id": "room_waiting_hall",
+      "stats": {
+        "level": 1,
+        "hp": 10,
+        "attack": 0,
+        "defense": 0,
+        "speed": 5,
+        "special_abilities": [
+          "Wind-and-Set",
+          "Tool Drafting",
+          "Ledger Engraving"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_stationmaster_spirit",
+          "type": "respectful",
+          "trust": 75,
+          "description": "Wren treats the Stationmaster as a former teacher she never quite stopped studying under."
+        },
+        {
+          "target_npc_id": "npc_porter_spirit",
+          "type": "fond",
+          "trust": 70,
+          "description": "The Porter passed her her first brass token; she never forgot the weight of it."
+        },
+        {
+          "target_npc_id": "npc_last_passenger_spirit",
+          "type": "tender",
+          "trust": 65,
+          "description": "Wren never asks the Last Passenger where she meant to go. She just sits with her until the whistle answers."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "dusk",
+            "location": "room_waiting_hall",
+            "activity": "arrives, winds the Arrival Clock, drafts a tool"
+          },
+          {
+            "time": "moonrise",
+            "location": "region_interchange",
+            "activity": "loops the five rooms repairing mechanisms"
+          },
+          {
+            "time": "moonset",
+            "location": "room_conductors_office",
+            "activity": "engraves the night's cog into the workshop ledger"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dialogue_wren_arrival",
+        "dialogue_wren_tool_draft",
+        "dialogue_wren_ledger"
+      ],
+      "inventory": [
+        "item_mainspring_charge",
+        "item_mainspring_charge",
+        "item_mainspring_charge"
+      ],
+      "quest_ids": [
+        "quest_wind_the_arrival_clock",
+        "quest_set_the_signal_levers"
+      ],
+      "barks": {
+        "idle": [
+          "Almost.",
+          "Just a turn more.",
+          "There you are.",
+          "The springs remember."
+        ],
+        "greeting": [
+          "Evening. The clocks are listening."
+        ],
+        "winding": [
+          "One charge. One quiet turn.",
+          "Soft, now. Soft.",
+          "I hear you."
+        ],
+        "ledger": [
+          "A night that almost became whole.",
+          "Another cog. Another almost."
+        ]
+      },
+      "is_essential": true,
+      "faction": "threshold_clockmakers"
+    },
+    {
+      "id": "npc_stationmaster_spirit",
+      "name": "The Stationmaster",
+      "role": "quest_giver",
+      "description": "A tall, dignified spirit who keeps the Conductor's Office and the workshop ledger. He trades hand-lettered riddle cards for engraved cogs and signs every Signal Pass with the same fountain pen he used the night the 12:00 train failed to arrive.",
+      "appearance": "A translucent figure in a long midnight-blue coat with brass buttons, a brimmed cap pulled low, a pocket watch chain that fades into mist where the watch itself should hang. Lantern light passes through him like through frosted glass.",
+      "personality": {
+        "traits": [
+          "formal",
+          "weary",
+          "thoughtful",
+          "kind beneath the protocol"
+        ],
+        "values": [
+          "the ledger",
+          "honest riddles",
+          "the dignity of the threshold"
+        ],
+        "fears": [
+          "forgetting the answers",
+          "an empty platform",
+          "the pen running dry"
+        ],
+        "quirks": [
+          "taps the stopped grandfather clock twice before speaking",
+          "signs every pass with a flourish that loops back on itself",
+          "claims not to know his own riddles"
+        ],
+        "speech_pattern": "courteous, antiquated, fond of the conditional tense"
+      },
+      "location_id": "room_conductors_office",
       "stats": {
         "level": 1,
         "hp": 10,
@@ -1038,353 +771,116 @@
         "defense": 0,
         "speed": 3,
         "special_abilities": [
-          "spin_wick_from_relic",
-          "read_keepers_journal"
+          "Riddle Issuing",
+          "Signal Pass Signing",
+          "Ledger Engraving"
         ]
       },
       "relationships": [
         {
-          "target_npc_id": "npc_brother_cael",
-          "type": "former_kin",
+          "target_npc_id": "npc_wren_tallow",
+          "type": "mentor_like",
           "trust": 80,
-          "description": "She remembers him as a novice; she does not pretend the thing in the Cloister Walk is still entirely him, but she does not pretend it isn't, either."
+          "description": "Considers Wren the rightful keeper of the threshold, though he would never say so aloud."
         },
         {
-          "target_npc_id": "npc_sister_maren",
-          "type": "former_kin",
-          "trust": 85,
-          "description": "They sang compline together for twenty years. Ilsa has never asked Maren to finish it."
+          "target_npc_id": "npc_porter_spirit",
+          "type": "colleague",
+          "trust": 70,
+          "description": "They have shared the night shift for longer than either remembers."
         },
         {
-          "target_npc_id": "npc_tideturn_hermit",
-          "type": "uncertain",
-          "trust": 50,
-          "description": "She is not sure he was ever of the order. She gives him oil anyway."
+          "target_npc_id": "npc_last_passenger_spirit",
+          "type": "patient",
+          "trust": 60,
+          "description": "He keeps a seat reserved for her, though she never sits in the office."
         }
       ],
       "schedule": {
         "entries": [
           {
-            "time": "tide_low",
-            "location": "room_wickwright_alcove",
-            "activity": "spinning wicks"
+            "time": "dusk",
+            "location": "room_conductors_office",
+            "activity": "writes the night's riddles"
           },
           {
-            "time": "tide_rising",
-            "location": "room_wickwright_alcove",
-            "activity": "trimming wicks"
+            "time": "moonrise",
+            "location": "room_conductors_office",
+            "activity": "receives Wren, trades cards"
           },
           {
-            "time": "tide_high",
-            "location": "room_chapel_threshold",
-            "activity": "tending the relic altar"
-          },
-          {
-            "time": "tide_falling",
-            "location": "room_wickwright_alcove",
-            "activity": "writing in the journal"
+            "time": "moonset",
+            "location": "room_conductors_office",
+            "activity": "engraves cogs into the ledger floor"
           }
         ]
       },
       "dialogue_tree_ids": [
-        "dlg_ilsa_first_meeting",
-        "dlg_ilsa_handoff_relic",
-        "dlg_ilsa_after_lantern_out"
+        "dialogue_stationmaster_greeting",
+        "dialogue_stationmaster_riddle",
+        "dialogue_stationmaster_ledger"
       ],
       "inventory": [
-        "item_wick_plain",
-        "item_tidemark_chalk"
+        "item_riddle_card",
+        "item_riddle_card",
+        "item_signal_pass",
+        "item_engraved_cog"
       ],
       "quest_ids": [
-        "quest_first_descent",
-        "quest_three_dim_shrines",
-        "quest_mosaic_and_seven_saints"
+        "quest_engrave_the_ledger",
+        "quest_three_spirits_one_night"
       ],
       "barks": {
         "idle": [
-          "The wick wants steady hands. So do you.",
-          "Mind the tide. The tide does not mind you.",
-          "Another drop, another step. That is the whole of it."
+          "The pen is still wet.",
+          "A station is only as honest as its clocks."
         ],
         "greeting": [
-          "Back already. Let me see the lantern.",
-          "Sit. Show me what you carried up.",
-          "The kettle is warm. The bench is warmer."
+          "Good evening, clockmaker. The ledger is listening."
         ],
-        "handoff_relic": [
-          "Bone, glass, or silver — I can use them all.",
-          "This will spin into something patient.",
-          "It remembers the swing. The wick will remember too."
+        "riddle": [
+          "A card, if you'd care to draw one.",
+          "I no longer know the answer myself, you understand."
         ],
-        "after_lantern_out": [
-          "You're home. That is the part that matters.",
-          "The water does not keep what you carried above it.",
-          "Tomorrow's tide will be kinder. Or it will not. Either way, you will go again."
-        ],
-        "farewell": [
-          "Light the landing first. Always the landing first.",
-          "Walk soft. The hall is listening."
+        "engraving": [
+          "A new cog. Mark the date.",
+          "The floor remembers what the timetables forget."
         ]
       },
       "is_essential": true,
-      "faction": "order_of_saint_wick"
+      "faction": "interchange_spirits"
     },
     {
-      "id": "npc_brother_cael",
-      "name": "Brother Cael",
-      "role": "mysterious",
-      "description": "A figure that lingers at the threshold of the Cloister Walk, half-submerged, more shadow than monk. He is not a Hollowman — he does not mirror — but he is not quite the brother Ilsa remembers either. He speaks in long pauses and asks the keeper to read the watermarks aloud, as if he cannot remember how.",
-      "appearance": "Robed in waterlogged grey wool that drifts around him like seaweed. His face is the color of wet bone-ivory, and his eyes catch the lantern with a slow, animal patience. A faint salt-rime traces the line of his hood. He does not breathe, but the water around him stirs as if he did.",
-      "personality": {
-        "traits": [
-          "slow",
-          "watchful",
-          "gentle",
-          "uncertain of his own name"
-        ],
-        "values": [
-          "the rule of the wall",
-          "the keeper's safe passage"
-        ],
-        "fears": [
-          "being mistaken for a Hollowman",
-          "forgetting the seventh verse entirely"
-        ],
-        "quirks": [
-          "tilts his head whenever the lantern brightens",
-          "counts watermarks under his breath in a language no longer spoken"
-        ],
-        "speech_pattern": "long pauses between short sentences, as if remembering each word from underwater"
-      },
-      "location_id": "room_oss_cloister_walk",
-      "stats": {
-        "level": 1,
-        "hp": 10,
-        "attack": 0,
-        "defense": 0,
-        "speed": 2,
-        "special_abilities": [
-          "read_tidemark_aloud",
-          "ignored_by_hollowmen"
-        ]
-      },
-      "relationships": [
-        {
-          "target_npc_id": "npc_wickwright_ilsa",
-          "type": "former_kin",
-          "trust": 70,
-          "description": "He knows her voice but cannot say her name. He turns his face toward the chapel whenever the lantern climbs the stair."
-        },
-        {
-          "target_npc_id": "npc_sister_maren",
-          "type": "fellow_chorister",
-          "trust": 75,
-          "description": "He hears her singing across the nave and answers with the count of the watermarks."
-        }
-      ],
-      "schedule": {
-        "entries": [
-          {
-            "time": "tide_low",
-            "location": "room_oss_cloister_walk",
-            "activity": "counting the watermarks"
-          },
-          {
-            "time": "tide_rising",
-            "location": "room_oss_cloister_walk",
-            "activity": "drifting toward the landing"
-          },
-          {
-            "time": "tide_high",
-            "location": "room_oss_cloister_walk",
-            "activity": "watching the ceiling vent"
-          },
-          {
-            "time": "tide_falling",
-            "location": "room_oss_cloister_walk",
-            "activity": "returning to the colonnade"
-          }
-        ]
-      },
-      "dialogue_tree_ids": [
-        "dlg_cael_first_meeting",
-        "dlg_cael_after_chalk_mark"
-      ],
-      "inventory": [
-        "item_tidemark_chalk"
-      ],
-      "quest_ids": [
-        "quest_listen_to_the_wall"
-      ],
-      "barks": {
-        "idle": [
-          "...the wall remembers.",
-          "Four marks. Five. ...four again.",
-          "The water forgets. The wall does not."
-        ],
-        "greeting": [
-          "Keeper. ...read it for me.",
-          "You came down again. Good.",
-          "The tide is... was... will be."
-        ],
-        "after_chalk_mark": [
-          "Yes. ...that one. Thank you.",
-          "I can see the mark now. I could not, before.",
-          "Walk on. The colonnade will hold."
-        ],
-        "farewell": [
-          "Go gently. The hall is long.",
-          "Mind the vent. ...mind the vent."
-        ]
-      },
-      "is_essential": false,
-      "faction": "order_of_saint_wick"
-    },
-    {
-      "id": "npc_sister_maren",
-      "name": "Sister Maren of the Choir",
+      "id": "npc_porter_spirit",
+      "name": "The Porter",
       "role": "quest_giver",
-      "description": "A presence in the Choir Stalls that the Choirbones will not approach. Sister Maren stayed at her stall through the drowning and has not yet finished the compline she was singing. She knows six verses by heart and asks the keeper to bring her the seventh — which the founder carried into the Inner Reliquary on the night of the fall.",
-      "appearance": "She is not quite there — a soft column of teal-tinted light shaped like a kneeling woman in choir robes, hands folded as if holding an unseen psalter. Where her face would be, the lantern's amber catches and holds longer than it should. The water around her stall is still.",
+      "description": "A round-shouldered spirit who drifts the Lost Luggage shelves with a brass tag-lantern, returning humming travel cases to their forgotten owners. He presses a small brass token into Wren's palm whenever a pair is restored.",
+      "appearance": "A short, broad spirit in a porter's vest and pillbox cap, brass tags clipped along his belt and lapels. His outline shimmers like steam off a kettle; his hands, though translucent, hold the cases firmly.",
       "personality": {
         "traits": [
-          "devout",
-          "patient",
-          "unfinished",
-          "kind in the way of a long candle"
+          "dutiful",
+          "warm",
+          "softly mournful",
+          "infinitely patient"
         ],
         "values": [
-          "the completion of the rule",
-          "the seventh verse",
-          "the keeper's voice answering hers"
+          "returning what was lost",
+          "the names on the tags",
+          "small comforts in luggage"
         ],
         "fears": [
-          "the verse being sung wrong",
-          "the order being remembered as silent"
+          "a case with no name",
+          "an owner who never returns",
+          "his lantern going dim"
         ],
         "quirks": [
-          "hums the first six verses on a loop, then stops at the seventh as if she has just remembered she does not know it",
-          "thanks the keeper for listening before any request is made"
+          "hums to the cases as he sorts them",
+          "polishes each tag with the cuff of his vest",
+          "tips his cap to luggage as well as people"
         ],
-        "speech_pattern": "lyrical, half-sung, gentle — each sentence has the cadence of a verse-end"
+        "speech_pattern": "kind, slow, sentences ending on a soft uplift"
       },
-      "location_id": "room_oss_choir_stalls",
-      "stats": {
-        "level": 1,
-        "hp": 10,
-        "attack": 0,
-        "defense": 0,
-        "speed": 1,
-        "special_abilities": [
-          "soothes_choirbones_in_room",
-          "hums_first_six_verses"
-        ]
-      },
-      "relationships": [
-        {
-          "target_npc_id": "npc_wickwright_ilsa",
-          "type": "former_kin",
-          "trust": 90,
-          "description": "Ilsa was her closest sister. Maren has never asked her down — she would not ask anyone who could still climb."
-        },
-        {
-          "target_npc_id": "npc_brother_cael",
-          "type": "fellow_chorister",
-          "trust": 80,
-          "description": "She sings; he counts. They have an arrangement."
-        }
-      ],
-      "schedule": {
-        "entries": [
-          {
-            "time": "tide_low",
-            "location": "room_oss_choir_stalls",
-            "activity": "humming the first verse"
-          },
-          {
-            "time": "tide_rising",
-            "location": "room_oss_choir_stalls",
-            "activity": "humming the third verse"
-          },
-          {
-            "time": "tide_high",
-            "location": "room_oss_choir_stalls",
-            "activity": "humming the sixth verse"
-          },
-          {
-            "time": "tide_falling",
-            "location": "room_oss_choir_stalls",
-            "activity": "silent, listening for the seventh"
-          }
-        ]
-      },
-      "dialogue_tree_ids": [
-        "dlg_maren_first_meeting",
-        "dlg_maren_humming_wick",
-        "dlg_maren_seventh_verse"
-      ],
-      "inventory": [],
-      "quest_ids": [
-        "quest_unfinished_compline"
-      ],
-      "barks": {
-        "idle": [
-          "...and the sea, and the sea, and the...",
-          "I have six. I am only short the one.",
-          "Listen — the chimes know the shape of it."
-        ],
-        "greeting": [
-          "Keeper. Sit a moment in the third stall. The acoustics there are kind.",
-          "Your lantern hums. Mine used to.",
-          "Have you come to sing with me, or only to pass through?"
-        ],
-        "humming_wick_present": [
-          "Ah — the choir hears you now.",
-          "That is the right thread. I remember it.",
-          "Sing the bone its phrase. It will sleep."
-        ],
-        "seventh_verse": [
-          "Yes. ...yes. That is the verse.",
-          "Thank you. Tell Ilsa I am finished, when you climb.",
-          "It is a small thing, to end on a known note."
-        ],
-        "farewell": [
-          "Walk on, keeper. The stalls will keep their seat for you.",
-          "Mind the wade. It is longer than it looks."
-        ]
-      },
-      "is_essential": false,
-      "faction": "order_of_saint_wick"
-    },
-    {
-      "id": "npc_tideturn_hermit",
-      "name": "The Tideturn Hermit",
-      "role": "mentor",
-      "description": "A figure who keeps the perpetual candle on the Tideturn Shrine's dry shelf, and claims no name. He may have been of the order; he may not. He reads the tide as other men read scripture and will sometimes pass the keeper a sip of oil with no explanation. He is the only one in the ossuary who laughs, and only at his own jokes.",
-      "appearance": "A spare old man in a patched waxed-canvas cloak the color of dried kelp. His beard is white at the temples and amber-stained at the lip from years near the candle. He sits cross-legged on the dry shelf with a small clay cup of oil between his bare feet. His eyes are unsettlingly clear.",
-      "personality": {
-        "traits": [
-          "wry",
-          "weathered",
-          "elliptical",
-          "unhurried"
-        ],
-        "values": [
-          "patience",
-          "the rhythm of the tide",
-          "the keeper learning to wait"
-        ],
-        "fears": [
-          "the candle going out (it has not, in his memory)",
-          "being asked his name plainly"
-        ],
-        "quirks": [
-          "answers most questions with another question about the tide",
-          "shares oil only when the lantern is below half"
-        ],
-        "speech_pattern": "dry, lightly amused, fond of small parables"
-      },
-      "location_id": "room_oss_tideturn_shrine",
+      "location_id": "room_lost_luggage",
       "stats": {
         "level": 1,
         "hp": 10,
@@ -1392,169 +888,344 @@
         "defense": 0,
         "speed": 4,
         "special_abilities": [
-          "reads_tide_phase",
-          "shares_oil_when_lantern_low"
+          "Memory Matching",
+          "Token Granting",
+          "Tag-Lantern Glow"
         ]
       },
       "relationships": [
         {
-          "target_npc_id": "npc_wickwright_ilsa",
-          "type": "uncertain",
-          "trust": 60,
-          "description": "She thinks he is a stray monk who outlived the rule. He neither confirms nor denies."
+          "target_npc_id": "npc_wren_tallow",
+          "type": "fond",
+          "trust": 75,
+          "description": "Pressed her first brass token into her palm and remembers the moment though she does not."
         },
         {
-          "target_npc_id": "npc_brother_cael",
-          "type": "passing_acquaintance",
-          "trust": 55,
-          "description": "He has read the watermarks with Cael more than once. They do not look at each other when they do."
+          "target_npc_id": "npc_stationmaster_spirit",
+          "type": "colleague",
+          "trust": 70,
+          "description": "Defers to the Stationmaster's protocol but disagrees quietly about the timetables."
+        },
+        {
+          "target_npc_id": "npc_last_passenger_spirit",
+          "type": "protective",
+          "trust": 65,
+          "description": "Keeps her case set aside on the topmost shelf, dusted weekly, never tagged."
         }
       ],
       "schedule": {
         "entries": [
           {
-            "time": "tide_low",
-            "location": "room_oss_tideturn_shrine",
-            "activity": "tending the perpetual candle"
+            "time": "dusk",
+            "location": "room_lost_luggage",
+            "activity": "sorts the night's humming cases"
           },
           {
-            "time": "tide_rising",
-            "location": "room_oss_tideturn_shrine",
-            "activity": "reading the watermarks"
+            "time": "moonrise",
+            "location": "room_lost_luggage",
+            "activity": "guides Wren through memory pairs"
           },
           {
-            "time": "tide_high",
-            "location": "room_oss_tideturn_shrine",
-            "activity": "watching the ceiling vent in the cloister"
-          },
-          {
-            "time": "tide_falling",
-            "location": "room_oss_tideturn_shrine",
-            "activity": "trimming the candle"
+            "time": "moonset",
+            "location": "room_lost_luggage",
+            "activity": "presses tokens into Wren's palm and dims the lantern"
           }
         ]
       },
       "dialogue_tree_ids": [
-        "dlg_hermit_first_meeting",
-        "dlg_hermit_low_oil",
-        "dlg_hermit_high_tide"
+        "dialogue_porter_greeting",
+        "dialogue_porter_memory",
+        "dialogue_porter_token"
       ],
       "inventory": [
-        "item_oil_flask",
-        "item_oil_flask"
+        "item_humming_case",
+        "item_humming_case",
+        "item_humming_case",
+        "item_porter_token"
       ],
       "quest_ids": [
-        "quest_high_tide_crypt"
+        "quest_match_the_humming_cases"
       ],
       "barks": {
         "idle": [
-          "The candle has not gone out. That is an answer to no question you asked.",
-          "The tide is rising. Or falling. Which would be worse for you, just now?",
-          "Sit. Your lantern is younger than you are."
+          "Hum a little louder, dear.",
+          "Someone meant to come back for you."
         ],
         "greeting": [
-          "You found the shelf. Good. Few do, in the dark.",
-          "Keeper. The water is doing something interesting today.",
-          "Oh — you again. Have you waited yet?"
+          "Ah. The clockmaker. Right on time, as always."
         ],
-        "low_oil": [
-          "Take this. Don't thank me. Thank the olive.",
-          "Half a flask. Don't spend it on the wraiths.",
-          "Drink — no, no. Pour it in the lantern. The other end."
+        "matching": [
+          "There — that one's yours, isn't it?",
+          "A coat. A paperback. A packed lunch. Yes."
         ],
-        "high_tide": [
-          "Now. The vent. Go.",
-          "The colonnade ceiling is open. It will not stay so.",
-          "Climb, keeper. The crypt is shy of the falling tide."
-        ],
-        "farewell": [
-          "Walk well. Or wade well. Same thing, lately.",
-          "The candle will be here when you are."
+        "token": [
+          "A token, for your trouble.",
+          "The chute will open for you now."
         ]
       },
-      "is_essential": false,
-      "faction": null
+      "is_essential": true,
+      "faction": "interchange_spirits"
     },
     {
-      "id": "npc_keepers_journal_voice",
-      "name": "The Keeper's Journal",
-      "role": "mysterious",
-      "description": "Not an NPC in the ordinary sense — the journal on the relic altar speaks only in ink, and only between runs. Each tide-cycle, a new line appears in a hand that is sometimes the first keeper's and sometimes the current keeper's. It records what was carried up, what was left below, and on rare nights, a sentence neither keeper recognizes.",
-      "appearance": "A small dark-leather journal, sea-warped at the corners, with a wax-paper bookmark holding the next blank page. The ink is iron-gall, the same shade as the deepest watermarks. The first page is in a fine archaic hand; later pages range from cramped to weary to relieved.",
+      "id": "npc_last_passenger_spirit",
+      "name": "The Last Passenger",
+      "role": "quest_giver",
+      "description": "A young spirit in travel coat and scarf who waits on Platform 3½ with a sliding-tile timetable that never quite resolves. She offers Wren a new phantom ticket each night and never quite explains where she meant to go.",
+      "appearance": "A slender figure on a bench, knees together, a folded travel coat across her lap. Her scarf catches the parallax steam as if alive. The timetable in her hands clicks and shifts of its own accord; her edges blur the longer you look.",
       "personality": {
         "traits": [
+          "wistful",
           "patient",
-          "exact",
-          "occasionally cryptic"
+          "playful in small flashes",
+          "quietly resolute"
         ],
         "values": [
-          "memory across keepers",
-          "the truth of the tide-count"
+          "the journey",
+          "the held seat",
+          "a ticket in every pocket"
         ],
         "fears": [
-          "a page left blank for too many cycles"
+          "the train arriving",
+          "the train never arriving",
+          "being remembered wrongly"
         ],
         "quirks": [
-          "underlines the word 'lantern' wherever it appears, in a different hand each time"
+          "hums fragments of a lullaby she can't finish",
+          "presses each phantom ticket flat with her thumb before handing it over",
+          "watches the skylight as if reading it"
         ],
-        "speech_pattern": "written, brief, dated — never more than three lines per entry"
+        "speech_pattern": "lilting, full of half-rhymes, often a beat behind the question"
       },
-      "location_id": "room_chapel_threshold",
+      "location_id": "room_platform_three_half",
       "stats": {
         "level": 1,
-        "hp": 1,
+        "hp": 10,
         "attack": 0,
         "defense": 0,
-        "speed": 0,
+        "speed": 4,
         "special_abilities": [
-          "record_run",
-          "reveal_meta_progress"
+          "Phantom Ticketing",
+          "Timetable Holding",
+          "Whistle Summoning"
         ]
       },
       "relationships": [
         {
-          "target_npc_id": "npc_wickwright_ilsa",
-          "type": "tended_by",
+          "target_npc_id": "npc_wren_tallow",
+          "type": "tender",
+          "trust": 70,
+          "description": "Sits closer to Wren than to anyone else. Will not say why."
+        },
+        {
+          "target_npc_id": "npc_porter_spirit",
+          "type": "grateful",
+          "trust": 75,
+          "description": "Knows her case sits dusted on the topmost shelf, and is glad of it."
+        },
+        {
+          "target_npc_id": "npc_stationmaster_spirit",
+          "type": "respectful",
+          "trust": 55,
+          "description": "Tips her chin to him from the platform but will not enter the office."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "dusk",
+            "location": "room_platform_three_half",
+            "activity": "watches the skylight, shuffles the timetable"
+          },
+          {
+            "time": "moonrise",
+            "location": "room_platform_three_half",
+            "activity": "offers Wren a phantom ticket"
+          },
+          {
+            "time": "moonset",
+            "location": "room_platform_three_half",
+            "activity": "listens for the whistle that almost answers"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dialogue_last_passenger_greeting",
+        "dialogue_last_passenger_timetable",
+        "dialogue_last_passenger_whistle"
+      ],
+      "inventory": [
+        "item_phantom_ticket",
+        "item_phantom_ticket",
+        "item_moonlight_vial"
+      ],
+      "quest_ids": [
+        "quest_solve_the_sliding_timetable"
+      ],
+      "barks": {
+        "idle": [
+          "Not yet. Not yet.",
+          "Almost a whistle. Almost a hand on my shoulder."
+        ],
+        "greeting": [
+          "You came. You always do."
+        ],
+        "timetable": [
+          "Slide this one — no, the other. Yes.",
+          "A ticket for you. Don't read the destination too closely."
+        ],
+        "whistle": [
+          "There. Did you hear it? It almost answered."
+        ]
+      },
+      "is_essential": true,
+      "faction": "interchange_spirits"
+    },
+    {
+      "id": "npc_arrival_clock_echo",
+      "name": "The Arrival Clock",
+      "role": "mysterious",
+      "description": "Not quite an NPC, not quite a machine — the Arrival Clock in the Waiting Hall has a voice of its own, soft as a pendulum tick. It greets Wren at the start of every run and counts down the moon meter in a whisper only she can hear.",
+      "appearance": "A vast brass-and-glass clock mounted above the departure boards, its pendulum stopped at 11:59. When Wren winds it the face glows faintly lantern-amber and the second hand begins its slow sweep.",
+      "personality": {
+        "traits": [
+          "ancient",
+          "soft-spoken",
+          "metrical"
+        ],
+        "values": [
+          "honest time",
+          "the threshold",
+          "Wren"
+        ],
+        "fears": [
+          "a night unwound",
+          "a moon that does not cross"
+        ],
+        "quirks": [
+          "speaks in tick-tock cadence",
+          "calls out the moon's quarter-marks"
+        ],
+        "speech_pattern": "metronomic, sentences clipped to the beat of a pendulum"
+      },
+      "location_id": "room_waiting_hall",
+      "stats": {
+        "level": 1,
+        "hp": 99,
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "special_abilities": [
+          "Moon Meter Voice",
+          "Quarter-Hour Chime"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_wren_tallow",
+          "type": "devoted",
           "trust": 100,
-          "description": "Ilsa turns the page each dawn. She has never written in it."
+          "description": "Wound by her hands every night. Will run for no one else."
         }
       ],
       "schedule": null,
       "dialogue_tree_ids": [
-        "dlg_journal_open",
-        "dlg_journal_after_first_relic",
-        "dlg_journal_after_lantern_out"
+        "dialogue_arrival_clock_greeting",
+        "dialogue_arrival_clock_quarter_marks"
       ],
-      "inventory": [
-        "item_keepers_journal"
-      ],
+      "inventory": [],
       "quest_ids": [],
       "barks": {
-        "open": [
-          "Tide-cycle the first. The keeper carried down a plain wick and a hope.",
-          "The landing sconce is lit. The hall is long today.",
-          "A relic above the waterline. The wickwright will know what to do."
+        "idle": [
+          "Tick. Tock. Tick.",
+          "Eleven. Fifty. Nine."
         ],
-        "after_lantern_out": [
-          "The lantern went out at the choir stalls. The keeper woke on the steps.",
-          "Nothing was kept this cycle. Nothing was lost that could not be borne.",
-          "The tide will turn. It always does."
+        "greeting": [
+          "Wind. Me. Wren."
         ],
-        "rare_voice": [
-          "Walk soft, child. We did not all come back."
+        "quarter_hour": [
+          "A. Quarter. Spent.",
+          "Half. The. Moon."
+        ],
+        "moonset": [
+          "Soft. Now. Soft."
         ]
       },
       "is_essential": true,
-      "faction": "order_of_saint_wick"
+      "faction": "the_interchange_itself"
     }
   ],
   "items": [
     {
-      "id": "item_keepers_lantern",
-      "name": "The Keeper's Lantern",
-      "description": "A small brass lantern with a soot-blacked chimney and an iron hook for hanging. Its flame is the only thing standing between the keeper and the dark of the ossuary. Oil drains one drop per step in unlit water; the flame brightens or dims with reserve.",
+      "id": "item_mainspring_charge",
+      "name": "Mainspring Charge",
+      "description": "A coiled brass spring humming with stored tension, spent to rewind broken clocks across the station.",
+      "category": "consumable",
+      "rarity": "common",
+      "level_requirement": 1,
+      "value": 5,
+      "sell_value": 1,
+      "stackable": true,
+      "max_stack": 12,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Rewind Clock",
+          "description": "Spend one charge to rewind a broken clock and nudge an adjacent room's puzzle state by one step.",
+          "trigger": "on_use",
+          "parameters": {
+            "nudge_radius": 1,
+            "charges_consumed": 1
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Wren keeps a tin of these in her apron pocket. Each one was wound by a clockmaker who is no longer in the world.",
+      "icon_description": "A small coiled brass spring resting on aged cream paper, lantern-amber highlight catching the inner curl"
+    },
+    {
+      "id": "item_oil_can",
+      "name": "Brass Oil Can",
+      "description": "A long-spouted oil can that softens the resolution of any single puzzle, smoothing tile slides and dial turns.",
       "category": "key_item",
-      "rarity": "unique",
+      "rarity": "uncommon",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "puzzle_ease",
+          "value": 1,
+          "is_percentage": false
+        }
+      ],
+      "effects": [
+        {
+          "name": "Easing Drop",
+          "description": "Apply a single drop to convert the next puzzle's hardest constraint into its softer variant for this run.",
+          "trigger": "on_use",
+          "parameters": {
+            "uses_per_run": 1,
+            "target": "next_puzzle",
+            "variant": "soft"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The label has worn away, but the smell of warm brass and clove oil tells Wren everything she needs to know.",
+      "icon_description": "A slender brass oil can with a curved spout, a single amber droplet suspended at the tip"
+    },
+    {
+      "id": "item_tuning_fork",
+      "name": "Tuning Fork",
+      "description": "A silvered tuning fork that, when struck against a rail, reveals the hidden order of luggage tags and timetable tiles.",
+      "category": "key_item",
+      "rarity": "uncommon",
       "level_requirement": 1,
       "value": 0,
       "sell_value": 0,
@@ -1563,274 +1234,211 @@
       "stat_modifiers": [],
       "effects": [
         {
-          "name": "Cast Light",
-          "description": "Illuminates adjacent tiles; lit shrines and lit tiles do not drain oil. Reflects off water pools to herd Brinewraiths.",
-          "trigger": "passive",
+          "name": "Resonant Hint",
+          "description": "Strike to briefly chime the correct next move in the current puzzle — one memory pair or one tile slide.",
+          "trigger": "on_use",
           "parameters": {
-            "light_radius_tiles": 3,
-            "drains_oil_in_unlit_water": true
-          }
-        },
-        {
-          "name": "Lantern-Out",
-          "description": "When oil reaches zero, the flame goes out and the keeper wakes on the chapel steps with whatever was carried above the waterline.",
-          "trigger": "on_oil_empty",
-          "parameters": {
-            "ends_run": true,
-            "preserves_above_waterline_relics": true
+            "uses_per_run": 2,
+            "reveals": "single_correct_move"
           }
         }
       ],
       "weapon_type": null,
       "damage_range": null,
       "armor_value": null,
-      "lore_text": "The first keeper carried this lantern down the day the sea took the cliff. It has not been put out by water since, only by forgetting.",
-      "icon_description": "32x32 pixel art of a small brass lantern, amber flame inside a sooty chimney, single warm light source on a deep teal background."
+      "lore_text": "Calibrated to the pitch of the 12:00 whistle. Wren has never heard the whistle herself, but the fork remembers.",
+      "icon_description": "A two-pronged silver tuning fork, its tips faintly glowing midnight-blue against aged paper"
     },
     {
-      "id": "item_oil_flask",
-      "name": "Pressed Oil Flask",
-      "description": "A clay flask of olive-pressed lamp oil, stoppered with beeswax. Pouring it into the lantern reservoir restores a generous portion of burn-time.",
+      "id": "item_pendulum_weight",
+      "name": "Pendulum Weight",
+      "description": "A heavy brass bob that, hung in any room, slows the moon meter's tick for the duration of one puzzle.",
+      "category": "key_item",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "moon_meter_rate",
+          "value": -25,
+          "is_percentage": true
+        }
+      ],
+      "effects": [
+        {
+          "name": "Hung Bob",
+          "description": "Hang the weight to slow the moon meter by 25% while solving the current room's puzzle.",
+          "trigger": "on_use",
+          "parameters": {
+            "uses_per_run": 1,
+            "duration": "current_puzzle",
+            "moon_meter_rate_modifier": -0.25
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Heavier than it looks. Wren swears she can feel the moon hesitating whenever it swings.",
+      "icon_description": "A polished brass pendulum bob on a short chain, catching warm lantern light"
+    },
+    {
+      "id": "item_porter_token",
+      "name": "Porter's Brass Token",
+      "description": "A small engraved token the Porter presses into Wren's palm when memory pairs are restored. Opens the luggage chute to Platform 3½.",
+      "category": "key_item",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Unlock Luggage Chute",
+          "description": "Unlocks the hidden chute connecting Lost Luggage to Platform 3½.",
+          "trigger": "on_pickup",
+          "parameters": {
+            "unlocks_connection": "key_porter_token"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Stamped with a name no one will say aloud. The Porter only hands it to those who matched the case to its owner.",
+      "icon_description": "A round brass token, its rim worn smooth, a single tag-shaped notch cut into the face"
+    },
+    {
+      "id": "item_signal_pass",
+      "name": "Signal Pass",
+      "description": "A folded paper pass embossed with the Stationmaster's stopped-clock seal. Opens the maintenance hatch beneath the departure boards.",
+      "category": "key_item",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 0,
+      "sell_value": 0,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Unlock Maintenance Hatch",
+          "description": "Unlocks the hidden shortcut from the Waiting Hall directly into the Signal Box.",
+          "trigger": "on_pickup",
+          "parameters": {
+            "unlocks_connection": "key_signal_pass"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The Stationmaster signs each one with the same fountain pen he used the night the 12:00 train failed to arrive.",
+      "icon_description": "A folded cream paper pass, ink-drawn stopped-clock seal pressed in midnight-blue wax"
+    },
+    {
+      "id": "item_engraved_cog",
+      "name": "Engraved Cog",
+      "description": "A small brass cog inscribed with the date of a completed repair. Engraved into the workshop ledger floor at the end of each run.",
+      "category": "currency",
+      "rarity": "uncommon",
+      "level_requirement": 1,
+      "value": 1,
+      "sell_value": 0,
+      "stackable": true,
+      "max_stack": 99,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Ledger Engraving",
+          "description": "Banked between runs in the Conductor's Office floor; unlocks new starting tools and softer puzzle variants on future runs.",
+          "trigger": "on_pickup",
+          "parameters": {
+            "persistent": true,
+            "unlocks": "starting_tools_and_soft_variants"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "A night that almost became whole. Wren reads the dates with her thumb whenever a run feels heavy.",
+      "icon_description": "A small brass cog with a date engraved across its face, set against worn workshop floorboards"
+    },
+    {
+      "id": "item_moonlight_vial",
+      "name": "Banked Moonlight",
+      "description": "A glass vial of pale moonlight banked when a spirit's request is fulfilled. Carries forward to the next run as starting moon meter time.",
       "category": "consumable",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 10,
+      "sell_value": 2,
+      "stackable": true,
+      "max_stack": 3,
+      "stat_modifiers": [
+        {
+          "stat": "moon_meter_seconds",
+          "value": 45,
+          "is_percentage": false
+        }
+      ],
+      "effects": [
+        {
+          "name": "Bank Moonlight",
+          "description": "Adds 45 seconds to the next run's moon meter when carried across the workshop ledger.",
+          "trigger": "on_use",
+          "parameters": {
+            "seconds_added": 45,
+            "applies_to": "next_run"
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The Last Passenger says moonlight tastes like a station you almost remembered.",
+      "icon_description": "A slim glass vial of softly glowing pale-blue liquid, corked with brass and aged paper label"
+    },
+    {
+      "id": "item_humming_case",
+      "name": "Humming Travel Case",
+      "description": "A small leather case that hums faintly when carried near its owner's belongings. Used to complete the Porter's memory pairs.",
+      "category": "quest_item",
       "rarity": "common",
       "level_requirement": 1,
       "value": 0,
       "sell_value": 0,
       "stackable": true,
-      "max_stack": 3,
+      "max_stack": 6,
       "stat_modifiers": [],
       "effects": [
         {
-          "name": "Refill Lantern",
-          "description": "Restores lantern oil reserve. Consumed on use.",
-          "trigger": "on_use",
+          "name": "Owner Resonance",
+          "description": "Hums louder as Wren approaches the matching tag in Lost Luggage, narrowing memory-match pairs.",
+          "trigger": "on_pickup",
           "parameters": {
-            "oil_restored_drops": 60
+            "puzzle": "porter_memory",
+            "hint_radius": 1
           }
         }
       ],
       "weapon_type": null,
       "damage_range": null,
       "armor_value": null,
-      "lore_text": "The oil-pressers' chapel still smells faintly of crushed olives, though the trees above died with the cliff.",
-      "icon_description": "32x32 pixel art of a small terracotta flask with a wax-sealed neck, a single amber drip on its side."
+      "lore_text": "Each case holds a folded coat, a paperback, a packed lunch — small proofs that someone meant to come back.",
+      "icon_description": "A small worn leather case with a brass clasp and a paper tag, soft motion lines suggesting a hum"
     },
     {
-      "id": "item_wick_plain",
-      "name": "Plain Beeswax Wick",
-      "description": "The starting wick — a hand-twisted cord of plant fiber soaked in beeswax. Steady burn, no special properties. Equipped to the lantern at the wickwright's bench.",
-      "category": "accessory",
-      "rarity": "common",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [
-        {
-          "stat": "lantern_burn_rate",
-          "value": 0,
-          "is_percentage": true
-        }
-      ],
-      "effects": [
-        {
-          "name": "Steady Flame",
-          "description": "The default wick. No bonuses, no penalties — a known quantity.",
-          "trigger": "passive",
-          "parameters": {}
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "Every keeper starts with this wick. Every keeper, eventually, replaces it.",
-      "icon_description": "32x32 pixel art of a pale twisted wick coiled on dark wood, faint amber sheen of wax."
-    },
-    {
-      "id": "item_wick_longburn",
-      "name": "Wick of the Long Vigil",
-      "description": "Spun from a relic of vigil-rope recovered from the founders' reliquary. Burns slower, halving oil drain per step. The flame is paler, the shadows longer.",
-      "category": "accessory",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [
-        {
-          "stat": "lantern_burn_rate",
-          "value": -50,
-          "is_percentage": true
-        }
-      ],
-      "effects": [
-        {
-          "name": "Long Burn",
-          "description": "Halves oil drain per step in unlit water. Required to cross the Long Wade in the Lower Ossuary.",
-          "trigger": "passive",
-          "parameters": {
-            "unlocks_passage": "long_burn_wick"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The rope tied the founder's wrist to a bell-pull through a vigil of seven tides. He never let go, and the bell never rang.",
-      "icon_description": "32x32 pixel art of a long, pale wick laid across an iron crucible, faint silver shimmer."
-    },
-    {
-      "id": "item_wick_colored",
-      "name": "Wick of Saint-Glass",
-      "description": "Twisted with a shaving of stained chapel-glass. The lantern's light tints deep teal-amber and reveals glyphs invisible to ordinary flame.",
-      "category": "accessory",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Glyph Sight",
-          "description": "Reveals hidden glyphs on ossuary walls, including the saints' names at the Glyph Landing. Required to enter the Lower Ossuary.",
-          "trigger": "passive",
-          "parameters": {
-            "reveals": "hidden_glyphs",
-            "unlocks_passage": "colored_wick"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "When the nave-glass fell into the rising tide, a single shard kept its color. The wickwright says it remembers the sun.",
-      "icon_description": "32x32 pixel art of a wick threaded with a sliver of teal stained glass, casting a faint amber-blue glow."
-    },
-    {
-      "id": "item_wick_humming",
-      "name": "Wick of the Unfinished Compline",
-      "description": "Spun from a relic of choir-string. The flame hums softly on its own — Choirbones quieted by it do not need their three-note pattern answered. A humming wick soothes them on contact.",
-      "category": "accessory",
-      "rarity": "epic",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Soothing Hum",
-          "description": "Choirbones in the same room as the keeper unravel without a chime sequence. Required to pass the Silent Choir.",
-          "trigger": "passive",
-          "parameters": {
-            "auto_resolves_enemy": "choirbone",
-            "unlocks_passage": "humming_wick"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The last monk who sang compline never reached the seventh verse. The wick still tries to.",
-      "icon_description": "32x32 pixel art of a wick wound around a small brass tuning fork, faint sound-ripple lines in the air."
-    },
-    {
-      "id": "item_relic_bone",
-      "name": "Knucklebone of Saint Wick",
-      "description": "A single ivory knucklebone, smooth from centuries of telling. Recovered from a reliquary chamber, it spins into a new wick at the wickwright's bench.",
+      "id": "item_riddle_card",
+      "name": "Stationmaster's Riddle Card",
+      "description": "A stiff cream card hand-lettered with one of the Stationmaster's riddles. Solved cards become engraved cogs.",
       "category": "quest_item",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Wickwright Ingredient",
-          "description": "Carried above the waterline, this relic can be spun into a new wick at the Wickwright's Bench.",
-          "trigger": "on_handoff",
-          "parameters": {
-            "produces_wick_tier": "rare",
-            "destroyed_on_use": true
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "He counted his prayers on this one bone of his hand. The hand is long gone; the prayers remain.",
-      "icon_description": "32x32 pixel art of a small ivory knucklebone on a square of dark silk, faint amber rim-light."
-    },
-    {
-      "id": "item_relic_glass",
-      "name": "Tear of the Nave-Glass",
-      "description": "A teardrop shard of stained glass from the chapel's drowned rose window. The wickwright can melt and twist its color into a wick.",
-      "category": "quest_item",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Wickwright Ingredient",
-          "description": "Carried above the waterline, this relic can be spun into a colored wick at the Wickwright's Bench.",
-          "trigger": "on_handoff",
-          "parameters": {
-            "produces_wick_tier": "rare",
-            "destroyed_on_use": true
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The window showed seven saints. Six fell into silt; this one fell into a keeper's hand.",
-      "icon_description": "32x32 pixel art of a single teal-and-amber glass teardrop, faint refracted light on dark velvet."
-    },
-    {
-      "id": "item_relic_silver",
-      "name": "Beaten Silver Censer-Plate",
-      "description": "A palm-sized disc of beaten silver, once the lid of an incense censer. Hammered thin, it can be drawn into wick-wire by the wickwright.",
-      "category": "quest_item",
-      "rarity": "epic",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Wickwright Ingredient",
-          "description": "Carried above the waterline, this relic can be spun into an epic wick at the Wickwright's Bench.",
-          "trigger": "on_handoff",
-          "parameters": {
-            "produces_wick_tier": "epic",
-            "destroyed_on_use": true
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The censer swung at every compline of the order's last hundred years. The smoke is gone; the silver remembers the swing.",
-      "icon_description": "32x32 pixel art of a hammered silver disc, faint engraving of a saint's profile, resting on bone-ivory stone."
-    },
-    {
-      "id": "item_tidemark_chalk",
-      "name": "Tidemark Chalk",
-      "description": "A nub of waterproof chalk the wickwright presses into the keeper's hand. Marking a wall remembers the current tide phase even if the lantern dims.",
-      "category": "consumable",
       "rarity": "uncommon",
       "level_requirement": 1,
       "value": 0,
@@ -1840,56 +1448,27 @@
       "stat_modifiers": [],
       "effects": [
         {
-          "name": "Mark the Mark",
-          "description": "Marks the current tile with the tide phase reading, persisting until the run ends.",
+          "name": "Solve Riddle",
+          "description": "Turn in a solved riddle card to the Stationmaster to bank an engraved cog into the workshop ledger.",
           "trigger": "on_use",
           "parameters": {
-            "places_tide_mark": true,
-            "consumed_on_use": true
+            "reward": "engraved_cog",
+            "quantity": 1
           }
         }
       ],
       "weapon_type": null,
       "damage_range": null,
       "armor_value": null,
-      "lore_text": "Cheaper than memory and steadier than hope, the wickwright says.",
-      "icon_description": "32x32 pixel art of a worn white chalk nub on wet stone, faint smudge of a tidemark beside it."
+      "lore_text": "The Stationmaster keeps a stack in his desk drawer. He claims he doesn't know the answers himself anymore.",
+      "icon_description": "A cream cardstock rectangle with a hand-lettered ink riddle and a stopped-clock watermark"
     },
     {
-      "id": "item_keepers_journal",
-      "name": "Keeper's Journal",
-      "description": "A small leather-bound journal that records each tide-cycle the keeper has descended, the relics carried up, and the wicks spun from them. Stays on the relic altar between runs.",
-      "category": "key_item",
-      "rarity": "unique",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Tide Memory",
-          "description": "Tracks meta-progression: relics recovered, wicks spun, reliquaries found. Read at the chapel between runs.",
-          "trigger": "on_inspect",
-          "parameters": {
-            "is_meta_log": true,
-            "location": "room_chapel_threshold"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The first page is the first keeper's hand. The last page is always blank, waiting.",
-      "icon_description": "32x32 pixel art of a small dark-leather journal with a wax-paper bookmark, resting on a stone altar lit amber."
-    },
-    {
-      "id": "item_founders_relic",
-      "name": "The Founder's Heart-Stone",
-      "description": "A river-smoothed pebble the order's founder carried into the ossuary on the day of the drowning. Recovered from the Inner Reliquary, it changes the wickwright's craft entirely.",
+      "id": "item_phantom_ticket",
+      "name": "Phantom Ticket",
+      "description": "A ticket stub for the 12:00 train that never quite arrives. Stamped with a destination that changes when no one is looking.",
       "category": "quest_item",
-      "rarity": "legendary",
+      "rarity": "epic",
       "level_requirement": 1,
       "value": 0,
       "sell_value": 0,
@@ -1898,187 +1477,135 @@
       "stat_modifiers": [],
       "effects": [
         {
-          "name": "Founder's Wick",
-          "description": "Carried above the waterline, this relic unlocks a unique wick at the Wickwright's Bench — the one the order descended to protect.",
-          "trigger": "on_handoff",
+          "name": "Timetable Anchor",
+          "description": "Hold during a sliding-tile timetable puzzle to lock one tile of Wren's choosing in place.",
+          "trigger": "on_use",
           "parameters": {
-            "produces_wick_tier": "legendary",
-            "ending_relevant": true,
-            "destroyed_on_use": true
+            "puzzle": "last_passenger_timetable",
+            "locks_tiles": 1
           }
         }
       ],
       "weapon_type": null,
       "damage_range": null,
       "armor_value": null,
-      "lore_text": "He picked it up on the cliff the morning he founded the order. He carried it down the night the cliff fell. It is still warm.",
-      "icon_description": "32x32 pixel art of a small smooth dark stone on a square of pale silk, faint warm amber glow from within."
+      "lore_text": "The Last Passenger carries one in every pocket. She offers Wren a new stub each night and never quite explains where she meant to go.",
+      "icon_description": "A pale paper ticket stub with smudged midnight-blue ink, edges softened from being held too long"
     }
   ],
   "encounters": [],
   "stat_system": null,
   "combat_system": null,
   "style_guide": {
-    "art_style": "Hand-shaded 32x32 pixel art at a base canvas of 384x216 (12x18 tiles, integer-scaled 3x to 1152x648 for display, 4x to 1536x864 for screenshots). One tile = 32x32px. Characters are 24x32 with a 32x32 footprint; the lantern-keeper sprite is a 4-frame walk cycle (8 fps), 2-frame idle breath (1.5 fps), and a 3-frame lantern-raise reaction (12 fps). Three foes share a 6-frame drift loop (6 fps) but diverge on resolution: Hollowmen unravel into kelp over 8 frames (10 fps, dithered alpha), Brinewraiths recoil and dissolve in 5 frames (12 fps), Choirbones bow once over 4 frames (8 fps) when the chime phrase is matched. Pixel art rules are strict: 1px outlines only on silhouettes that meet water; 0px self-outlines inside the sprite, relying on cluster shading; no anti-aliasing on diagonals except in light-bloom layers. Palette is locked to 24 colors plus 6 lantern-light tints used only as additive overlays. Water caustics are a 16-frame tiling 64x64 overlay (8 fps, multiply at 35% opacity) that drifts 1px/frame on a 2-axis Perlin path. The lantern emits a radial light mask (3-tile, 5-tile, 7-tile rings) with a 4-frame flicker (6 fps, ±5% radius, ±3% intensity). CRT bloom is applied only to lantern pixels and reflective wet surfaces — a 3-pass gaussian (radius 1.2, 2.4, 4.0) at 28% additive, never global. Shadows are hand-keyed long shadows cast at a fixed 35° angle from the lantern, stretched 1.6x sprite height, alpha 55%, edge-dithered with a 2x2 Bayer matrix. Tiles use a 4-color cluster shade per material (deep, mid, light, accent) — no gradients, no airbrushing, no smooth ramps. UI inside the dungeon is forbidden: oil is read by lantern radius and flicker rate, tide is read by watermark height on walls (5 discrete chalk-line states), enemy state is read by silhouette posture. Above-water UI (chapel, wickwright bench) uses iron-gall ink hand-lettered glyphs on aged-paper textures, 16x16 icons, no rectangular HUD plates. Animation respects weight: water entities move on subpixel-locked motion (snapped every 2nd frame for that drifting wet stutter); the keeper and Ilsa move on crisp 1-frame increments for human presence.",
+    "art_style": "Hand-pixeled 2D at a 64x64 sprite base for characters and key props, with 32x32 tile units for floors/walls and 128x128 reserved for hero set-pieces (Arrival Clock, Workshop Ledger floor, Great Skylight). Target render resolution: 384x216 internal canvas upscaled 5x to 1920x1080 with integer scaling, no sub-pixel filtering. Sprites use a strict 24-color global palette per scene with selective dithering (Bayer 4x4) only on glass and steam edges. Character silhouettes read at 3 tiles tall (Wren ~40px), with brass-loupe and apron-buckle as silhouette anchors. Animations: 8-frame idle breathing loops at 8fps, 6-frame winding loops at 12fps, 4-frame pendulum sways at 6fps, 12-frame steam puffs at 10fps for parallax layers, and 24-frame moon-meter sweep cycles tied to the 12-minute timer. UI is ink-on-aged-paper: hand-drawn at 2x pixel scale with 1px sepia outlines (#3a2a1c), drop-shadowed onto a paper texture overlay set to multiply at 35% opacity. Lantern bloom is achieved with a 3-pass additive blur on amber light sources (radius 2px, 4px, 8px) clamped to a 50% alpha ceiling so it never crushes the palette. Two parallax steam layers move at 0.25x and 0.6x camera speed; foreground gear-shadows pass at 1.4x. No anti-aliasing on sprite edges; all rotations are pre-baked at 8 cardinal angles to preserve the hand-pixeled feel.",
     "color_palette": [
-      "#0B1418",
-      "#142126",
-      "#1C3338",
-      "#26505A",
-      "#2F6E78",
-      "#3E8C8F",
-      "#5BA7A1",
-      "#7CBFB3",
-      "#F4E4C1",
-      "#E0CFA5",
-      "#C7B585",
-      "#A39565",
-      "#7A6A45",
-      "#5A4D33",
-      "#3A3122",
-      "#FFB347",
-      "#F58C2A",
-      "#D86A1A",
-      "#A24A12",
-      "#5C2A0B",
-      "#F2D89A",
-      "#B8946A",
-      "#704E3A",
-      "#3D2418",
-      "#FFE7A8",
-      "#FFCE6F",
-      "#FFA844",
-      "#FF7A1F",
-      "#5E1F0A",
-      "#1A0E08"
+      "#1a1f3a — midnight blue (primary background, deep glass)",
+      "#2d3656 — dusk blue (mid walls, shadowed brass)",
+      "#4a5681 — moon blue (skylight wash, distant steam)",
+      "#7a8bb8 — pale moon (glass highlights, spirit edges)",
+      "#c9b27a — brass gold (primary metal, fittings, gears)",
+      "#e8c980 — polished brass (highlight on rims, buttons)",
+      "#f4d98a — lantern amber (light source core)",
+      "#ffe8a8 — lantern bloom (additive glow inner)",
+      "#a87b3a — aged brass (worn metal, ledger engravings)",
+      "#6b4a2a — oxidized brass (deep shadow on metal)",
+      "#3a2a1c — sepia ink (UI outlines, hand-lettering)",
+      "#e8d9b8 — aged paper cream (UI background, riddle cards)",
+      "#c4b394 — paper shadow (UI mid-tone, fold creases)",
+      "#9a8a6a — paper deep (UI border, tag edges)",
+      "#5a4838 — wood walnut (office paneling, benches)",
+      "#3a2e22 — wood deep shadow",
+      "#c89878 — Wren's skin (warm, lantern-lit)",
+      "#8a5a3a — Wren's hair (chestnut, oil-touched)",
+      "#1f2a44 — Wren's shirt (midnight work blue)",
+      "#7a6850 — Wren's apron (heavy canvas)",
+      "#b8c4d6 — spirit translucent (Stationmaster/Porter/Passenger base)",
+      "#d8e0ec — spirit highlight (frosted-glass edges)",
+      "#5a8a9a — phantom whistle teal (Platform 3½ accent)",
+      "#2a1a1a — true black (reserved for ink details and silhouette punch only)"
     ],
-    "mood": "Hushed, reverent, lonely-but-not-lonesome — the quiet of a chapel at midnight, where each footstep is a small intrusion you forgive yourself for. Every frame should feel like a held breath: still water broken only by lantern caustics, long amber shadows leaning away from the keeper, the bone-ivory walls reading more like vellum than stone. Tension is atmospheric, never aggressive — the dark closes in by drained pixels and shortened light radius, not by jump-scares. Awe sits next to dread sits next to tenderness; the player should feel they are tending something, not conquering it.",
+    "mood": "Hushed, melancholic, and quietly hopeful — the visual feeling of a quiet platform at midnight where every brass fitting is dimmed but still warm, every pane of glass holds a held breath, and the lantern light promises that nothing here is hostile, only waiting. Steam drifts slow enough to count, pendulums sway in long arcs, and even the broken clocks tick once when looked at. The palette never goes fully black or fully white; the station exists in the soft margin between sleep and waking.",
     "reference_games": [
-      "Hyper Light Drifter (radial light masks, dithered atmosphere, restrained palette discipline)",
-      "Loop Hero (limited palette ambient gloom, diegetic restraint)",
-      "Caves of Qud (procedural ruin texture density, watermark-style world-tells)",
-      "Death's Door (warm-point-source amber lighting against cool environment)",
-      "Inscryption (Act 1 candlelit chiaroscuro, single-light-source staging)",
-      "Tunic (legible silhouettes against dense environment, no-HUD discipline)",
-      "Return of the Obra Dinn (1-bit-adjacent material clarity through cluster shading — adapt the discipline, not the palette)",
-      "Sword & Sworcery (reverent stillness, chapel-quiet pacing in pixel art)"
+      "Eastward (Pixpil) — for warm pixel lighting, parallax interiors, and gentle ambient storytelling",
+      "A Short Hike (adamgryu) — for hushed cozy pacing and quiet world tone",
+      "Inscryption (Daniel Mullins) — for ink-on-paper UI and hand-lettered card aesthetics",
+      "Spiritfarer (Thunder Lotus) — for melancholic-hopeful tone and tender NPC framing",
+      "Return of the Obra Dinn (Lucas Pope) — for 1-bit-adjacent restraint and brass/sepia mood (palette only, not 1-bit)",
+      "Loop Hero (Four Quarters) — for 64x64 hand-pixeled clarity at low resolution",
+      "Stardew Valley (ConcernedApe) — for lantern bloom, parallax depth, and readable indoor pixel scenes",
+      "The Case of the Golden Idol — for ink-and-aged-paper UI typography and hand-drawn frames",
+      "Strange Horticulture — for cozy-melancholic mood with quiet desk-scale interactions",
+      "Carto — for soft warm interiors and gentle puzzle pacing visuals"
     ],
-    "line_weight": "1px silhouette outlines only at water-meeting edges and where sprites overlap same-value backgrounds; 0px internal outlines — definition comes from 4-color cluster shading. Architecture uses no outlines; material reads through value contrast and dithered edges. UI glyphs above-water use 2px iron-gall strokes hand-drawn, never vector.",
-    "texture_style": "Hand-shaded cluster dithering, no gradients, no noise filters. Stone walls use a 4-color bone-ivory cluster with 2x2 and 4x4 Bayer dither for damp patches. Water surface is flat #26505A base with the 16-frame caustic overlay; underwater tiles desaturate 20% and shift 1 step cooler. Wood (pews, choir stalls) uses warped grain hand-painted at 2-pixel strokes, swollen and dark at water contact. Bone uses 3-color ivory with single-pixel hairline cracks. Metal (sconces, lantern, chime-tiles) uses high-contrast 4-color clusters with 1px specular highlights that animate on a 4-frame flicker matching the lantern. Mosaic floors use 8x8 sub-tile patterns with grout in #1C3338. No photographic textures, no procedural noise, no normal maps — every pixel placed by hand or by hand-built tile rules.",
-    "lighting": "Single warm amber point-source from the lantern (#FFB347 core, #F58C2A mid-falloff, #D86A1A outer ring, fading to ambient #142126 over 7 tiles in three discrete bands at radius 3/5/7). Light is rendered as an additive radial mask with 4-frame flicker (±5% radius, ±3% intensity, 6 fps). Long shadows cast at fixed 35° angle, 1.6x sprite height, alpha 55%, 2x2 Bayer dither at the edge. Secondary light sources are sconces (#FFCE6F, 3-tile radius, 3-frame flicker at 8 fps) and the perpetual candle (#FFE7A8, 2-tile radius, never flickers — the only steady light in the dungeon). Water reflects lantern light as a 50% additive streak on the surface tile directly under the keeper plus a Brinewraith-redirectable bounce mask. Above-water (chapel) is lit by an off-screen cool dawn fill (#7CBFB3 at 18% additive) plus Ilsa's bench candle (#FFA844, 2-tile radius). Color temperature contrast is the entire visual thesis: cool teal environment, warm amber light, no third hue allowed except in colored-wick meta-progression states (a unique tint per wick: violet #8A5BB8, jade #5BA77A, rose #C97A8A — used as a tinted secondary light layer, never as palette replacement)."
+    "line_weight": "1px sepia (#3a2a1c) outlines on UI elements and riddle cards; sprites use no outlines, relying on palette contrast and 1-pixel rim-light on brass edges (lantern-amber #f4d98a) for silhouette readability. Spirits have a deliberately broken 1-pixel outline (#d8e0ec) that fades every 3 frames to read as translucent. Architectural tiles use no outlines — depth is communicated through 2-step shadow ramps (midnight #1a1f3a → dusk #2d3656 → moon #4a5681).",
+    "texture_style": "Hand-pixeled with deliberate hand-placed dither only on glass surfaces (Bayer 4x4), steam edges (scattered noise), and spirit volumes (vertical-streak dither at 25% density). Brass is rendered with 3-step shadow ramps and a single hand-placed specular pixel per curve — never gradients, never auto-shading. Wood paneling uses 2-pixel horizontal grain repeated every 8px with hand-broken irregularity. Aged paper UI has a baked low-frequency noise overlay (multiply, 20% opacity) and hand-drawn fold creases at card corners. Floor tiles in the Conductor's Office show engraved cog patterns as 1-pixel-deep recessed shading — these accumulate visibly across runs as the persistent ledger fills.",
+    "lighting": "Warm-key, cool-fill, single-source per room. Lantern-amber (#f4d98a) primary lights cast a 3-pass additive bloom (2px/4px/8px radius, 50% alpha ceiling) with a 16-tile falloff to midnight-blue ambient (#1a1f3a). The Great Skylight in the Waiting Hall casts a moving moon-blue (#4a5681) shaft that sweeps across the floor over the 12-minute moon meter — 1 tile every 30 seconds, baked as 24 keyframes. Spirits emit no light themselves but pick up edge-fill from the nearest lantern, with their translucent fill (#b8c4d6) shifting 1 palette step warmer when within 3 tiles of an amber source. Platform 3½ uses a phantom-teal (#5a8a9a) secondary fill from off-screen, half the intensity of the main lantern, to mark it as not-quite-real. No room is ever lit above 70% perceptual brightness; the station is always dim, always warm, always waiting."
   },
   "scenes_generated": [],
   "scripts_generated": [],
   "qa_report": {
-    "project_id": "f20b74c6-7e0e-4445-b471-8cea325ffaf5",
+    "project_id": "b94495fe-467a-45c1-b433-8f846caba6b9",
     "issues": [
       {
-        "severity": "major",
-        "category": "progression_gating",
-        "description": "Quest 'quest_unfinished_compline' requires equipping item_wick_colored (Wick of Saint-Glass), but no quest, drop, or wickwright recipe in the data explicitly produces this wick. Relics produced are bone (rare wick), glass (rare wick — likely intended source), and silver (epic wick), but the mapping from item_relic_glass → item_wick_colored is implicit and never declared in any reward chain or crafting recipe. Players may collect glass relics and never know they yield the colored wick required to enter the Lower Ossuary.",
-        "location": "quests[quest_unfinished_compline].objectives[obj_equip_colored]; items[item_relic_glass].effects[Wickwright Ingredient]",
-        "suggested_fix": "Add an explicit crafting recipe table at the Wickwright's Bench mapping relic → specific wick (e.g., glass → colored, choir-string relic → humming, vigil-rope relic → longburn). Also surface this in Ilsa's dialogue or the Keeper's Journal so the player can plan."
+        "severity": "medium",
+        "category": "content",
+        "description": "No scenes or scripts have been generated yet (scenes_generated and scripts_generated are both empty arrays). The project is a design document but lacks any actual playable Godot scenes or GDScript implementation. Without these, the game cannot be launched or playtested.",
+        "location": "project.scenes_generated, project.scripts_generated",
+        "suggested_fix": "Generate Godot scene files (.tscn) for each of the 5 rooms and GDScript files for core systems: moon meter timer, mainspring charge resource, three puzzle types (memory match, sliding tile, riddle), and the persistent ledger save system."
       },
       {
-        "severity": "major",
-        "category": "progression_gating",
-        "description": "item_wick_humming (Wick of the Unfinished Compline) is required to pass room_low_silent_choir but has no defined source relic. No relic in items[] is tagged as 'choir-string' or otherwise marked as producing the humming wick. Its lore mentions 'choir-string' but no such item exists in the data — the wick is unobtainable as defined.",
-        "location": "items[item_wick_humming]; dungeon_lower_ossuary_variant.room_low_silent_choir",
-        "suggested_fix": "Add a 'item_relic_choir_string' obtainable from defeating/soothing the first Choirbone in the upper ossuary, or from a hidden drop in the Choir Stalls. Wire it explicitly to produce item_wick_humming at the wickwright bench."
+        "severity": "medium",
+        "category": "systems",
+        "description": "stat_system and combat_system are null. While the concept correctly states 'no combat,' there is no defined progression/resource system schema for mainspring charges, moonlight banking, engraved cog counts, or persistent unlocks. Without a formalized resource system, the meta-progression loop has no defined data model.",
+        "location": "project.stat_system, project.combat_system",
+        "suggested_fix": "Define a minimal stat_system describing mainspring_charges (per-run pool), moon_meter_seconds (per-run timer), engraved_cogs (persistent count), banked_moonlight (persistent vials), and unlocked starting tools. Leave combat_system as null intentionally with a comment."
       },
       {
-        "severity": "major",
-        "category": "quest_logic",
-        "description": "Quest 'quest_unfinished_compline' has prerequisite 'quest_three_dim_shrines' but requires the Wick of Saint-Glass (colored) AND a humming wick AND a long-burn wick. These wicks come from relics recovered via 'quest_mosaic_and_seven_saints' and later runs, but quest_mosaic_and_seven_saints is NOT a prerequisite of quest_unfinished_compline. Players could accept the quest with no path to complete it.",
-        "location": "quests[quest_unfinished_compline].prerequisites",
-        "suggested_fix": "Add quest_mosaic_and_seven_saints as a prerequisite, OR split quest_unfinished_compline into staged objectives that unlock as wicks are spun."
+        "severity": "low",
+        "category": "design",
+        "description": "The Stationmaster's riddle puzzle has no described mechanic — quest_engrave_the_ledger requires delivering a 'solved' riddle card, but no objective explains HOW the player solves the riddle (multiple choice? typed answer? card-matching?). All other spirits have defined puzzle types (memory_match, sliding_tile_timetable) but riddle resolution is hand-waved.",
+        "location": "room_conductors_office.properties.puzzle_type=riddle, quest_engrave_the_ledger.obj_deliver_riddle_cards",
+        "suggested_fix": "Specify a riddle interaction: e.g., multiple-choice card selection from 3 hand-lettered options, or symbol-matching the riddle's clue to an item from inventory (Wren's pocket items)."
       },
       {
-        "severity": "major",
-        "category": "quest_logic",
-        "description": "obj_light_sconces in quest_mosaic_and_seven_saints has target 'entity_sconce_1' with count 3 — but the puzzle requires lighting THREE SPECIFIC sconces out of seven in a specific order determined by the floor mosaic. Targeting only entity_sconce_1 with count 3 either means 'light sconce 1 three times' (nonsensical) or is shorthand the engine can't disambiguate. The order requirement is also not encoded.",
-        "location": "quests[quest_mosaic_and_seven_saints].objectives[obj_light_sconces]",
-        "suggested_fix": "Replace single target with an ordered sequence parameter, e.g., target: 'entity_floor_mosaic', count: 1, with a sub-property 'required_sequence' read from the mosaic seed. The puzzle solution must be data-driven per run per 'mosaic_seed_per_run: true'."
+        "severity": "low",
+        "category": "balance",
+        "description": "Mainspring charge economy is undefined. quest_set_the_signal_levers requires spending at least 3 charges, but Wren starts with only 3 in her inventory and no quest defines how charges replenish during a run. If charges are consumed at Signal Box (3) plus the Arrival Clock wind (1), the player runs out before completing the loop.",
+        "location": "npc_wren_tallow.inventory, quest_wind_the_arrival_clock, quest_set_the_signal_levers",
+        "suggested_fix": "Add a Mainspring Dispenser interaction at entity_mainspring_dispenser in the Signal Box, or grant charges as rewards from each spirit puzzle. Verify that 4-6 charges per run is the intended budget."
       },
       {
-        "severity": "major",
-        "category": "resource_economy",
-        "description": "Oil drain economy is under-specified and likely unbalanced. The lantern starts with an unspecified reserve, drains 1 drop per step in unlit water, and item_oil_flask restores 60 drops. With no stated starting oil and no per-room step counts, it's impossible to verify a 15-minute run is achievable. The Long Wade explicitly 'longer than any single oil reserve can cross' unless using long-burn wick — meaning a baseline player attempting the Lower Ossuary without that specific wick equipped will softlock or be forced to retreat, but the failure_conditions don't include 'lantern_out_in_lower_wade' as a graceful state.",
-        "location": "world.global_properties.resource_drain_rule; items[item_keepers_lantern]; room_low_long_wade",
-        "suggested_fix": "Define starting oil reserve (suggest 80–120 drops). Specify oil drain rate per wick. Confirm the Long Wade is gated by a clear visual cue BEFORE entry so players don't burn their last oil discovering they can't cross."
+        "severity": "low",
+        "category": "navigation",
+        "description": "Two hidden/locked connections (Waiting Hall ↔ Signal Box via signal_pass, Lost Luggage ↔ Platform 3½ via porter_token) are described as shortcuts, but quest_engrave_the_ledger lists obj_earn_signal_pass as OPTIONAL and the porter token as a required reward of quest_match_the_humming_cases. The shortcut keys are inconsistently gated — one is optional, one is required for the same loop-shortening benefit.",
+        "location": "world.overworld.regions[0].connections (locked entries), quest_set_the_signal_levers.obj_earn_signal_pass",
+        "suggested_fix": "Either make both keys optional (rewards for excellence) or both mandatory (always granted on first puzzle clear). Clarify whether shortcuts persist across runs."
       },
       {
-        "severity": "minor",
-        "category": "npc_consistency",
-        "description": "npc_keepers_journal_voice has location_id 'room_chapel_threshold' but its inventory contains 'item_keepers_journal', which is also listed as an entity ('entity_keeper_journal') in the same room. Whether the journal is an NPC, an item, or an entity is ambiguous — three references to the same object with no clear authoritative form.",
-        "location": "npcs[npc_keepers_journal_voice]; room_chapel_threshold.entities; items[item_keepers_journal]",
-        "suggested_fix": "Pick one canonical form (recommend: entity with an inspect dialogue tree). Remove the NPC stat block or convert the journal to an interactable object with associated dialogue, not an NPC with HP."
-      },
-      {
-        "severity": "minor",
-        "category": "world_consistency",
-        "description": "Quest reward for quest_listen_to_the_wall grants TWO item_tidemark_chalk, but the quest's own obj_mark_phase consumes one chalk (objective_type: 'craft' on item_tidemark_chalk). Net: player enters with 1 chalk, uses 1, receives 2 = +1 net. Acceptable, but the 'craft' objective_type is wrong for a consumable use — should be 'use' or 'interact'.",
-        "location": "quests[quest_listen_to_the_wall].objectives[obj_mark_phase]",
-        "suggested_fix": "Change objective_type from 'craft' to 'use' (or whichever verb matches the engine's consumable-use action). Confirm reward chalk count is intended."
-      },
-      {
-        "severity": "minor",
-        "category": "world_consistency",
-        "description": "dungeon_sunken_ossuary has no connection from room_oss_landing to room_oss_great_doors documented as 'requires lantern lit' at the connection level — only the room property 'requires_lantern_lit: true' on the exit room. If a player reaches the doors with the lantern out, the run is already over (lantern-out triggers wake-on-steps). The 'requires_lantern_lit' flag is therefore redundant and may confuse engine logic that checks it.",
-        "location": "dungeon_sunken_ossuary.rooms[room_oss_great_doors]; connections[room_oss_landing→room_oss_great_doors]",
-        "suggested_fix": "Either remove 'requires_lantern_lit' as redundant (since lantern-out ends the run before this check matters), or clarify that it represents 'must arrive lit to KEEP carried relics' (which IS distinct from death). Disambiguate in death_rule docs."
-      },
-      {
-        "severity": "minor",
-        "category": "npc_consistency",
-        "description": "npc_brother_cael has inventory containing item_tidemark_chalk but the quest_listen_to_the_wall grants chalk as reward from completing the quest with Cael. Whether the chalk in Cael's inventory is given on first meeting, after the chalk mark, or is purely flavor is unclear. Could lead to duplicate or missing chalk grants.",
-        "location": "npcs[npc_brother_cael].inventory; quests[quest_listen_to_the_wall].rewards",
-        "suggested_fix": "Clarify: is Cael's chalk a gift on greeting (justifying obj_mark_phase) or flavor? If a gift, list it in dlg_cael_first_meeting handoff. If flavor, remove from inventory."
-      },
-      {
-        "severity": "minor",
-        "category": "puzzle_clarity",
-        "description": "Brinewraith resolution ('angle reflected lantern light off water pools') is mechanically vague. The data declares 'entity_pool_north' and 'entity_pool_west' in the Reflecting Nave but doesn't specify how the lantern's reflection vector is computed, whether the player's facing direction matters, or how 'herd them aside' resolves to a clear win-state. The mechanic is the most novel of the three foes and the most under-specified.",
-        "location": "room_oss_reflecting_nave; world.global_properties.enemy_resolutions.brinewraith",
-        "suggested_fix": "Specify: (a) lantern reflects along a line from pool-tile → wraith-tile when keeper stands on a designated 'aiming' tile adjacent to a pool; (b) wraith retreats 1 tile per turn reflected light strikes it; (c) win-state is wraith reaching a 'dispersed' edge tile. Add diagram or tile-level spec."
-      },
-      {
-        "severity": "minor",
-        "category": "meta_progression",
-        "description": "Wicks are mutually exclusive (only one equipped at the lantern at a time, implied by 'category: accessory, max_stack: 1'). The Lower Ossuary requires colored wick to enter (Glyph Landing), humming wick to pass Silent Choir, AND long-burn wick to cross Long Wade. These cannot all be equipped simultaneously. The dungeon is unbeatable as designed unless wicks can be swapped mid-run, which is undocumented.",
-        "location": "items[item_wick_*]; dungeon_lower_ossuary_variant",
-        "suggested_fix": "Either: (a) add a wick-swap mechanic at the Glyph Landing or a mid-dungeon bench; (b) introduce a fused 'master wick' that combines all three properties as a late-game craft; or (c) restructure the Lower Ossuary so each chamber requires only ONE wick property and the others are bypassed by route."
-      },
-      {
-        "severity": "minor",
-        "category": "narrative_consistency",
-        "description": "quest_unfinished_compline.branches has 'let_her_finish' → 'ending_compline_completed' and 'keep_the_relic' → 'ending_relic_carried' but neither ending is defined elsewhere in the data, nor is the branch decision point in the objective list. Players have no in-quest moment shown where they choose.",
-        "location": "quests[quest_unfinished_compline].branches",
-        "suggested_fix": "Add a final dialogue choice node (e.g., 'dlg_maren_seventh_verse') with two options, and define both endings as discrete game states (cutscene, journal entry, wickwright reaction)."
+        "severity": "low",
+        "category": "ui",
+        "description": "No HUD specification exists for the always-visible moon meter (12-minute countdown), current mainspring charge count, active drafted tool, or engraved-cog total. These are all core mechanics the player must reference constantly.",
+        "location": "style_guide (UI section), no dedicated hud entity",
+        "suggested_fix": "Add a HUD spec describing: top-right ink-on-paper moon meter ring tied to the 24-keyframe skylight sweep, top-left charge counter (tin icon + number), bottom-center drafted-tool slot with hover tooltip, and pause-menu workshop ledger view."
       }
     ],
     "warnings": [
-      "Wickwright's recipe table is the load-bearing meta-progression system but is entirely implicit — no data file maps relic → wick. Without it, the dungeon is theoretically unbeatable.",
-      "Tide cycle is 15 min and run length is also 15 min, but tide phases (low/rising/high/falling) are not assigned durations. A player could descend at low tide and never see high tide in a run, blocking quest_high_tide_crypt.",
-      "No defined sprite/scene files yet (scenes_generated and scripts_generated are empty arrays). All issues here are design-doc level; engine-level bugs cannot be assessed.",
-      "entity IDs are referenced but no entity definitions exist in the data — the Hollowman, Brinewraith, Choirbone behaviors live only in prose.",
-      "'mosaic_seed_per_run: true' implies the candle riddle is procedurally seeded, but no algorithm or seed-to-solution mapping is specified.",
-      "The Lower Ossuary's entry depends on reading hidden glyphs at room_low_glyph_landing, but the connection FROM the upper ossuary TO the lower ossuary is not defined anywhere — there is no documented passage between the two dungeons."
+      "The 12-minute moon meter is tight for first-time players solving three distinct puzzle types — playtest the first-run completion rate; if under 30% reach all three spirits, increase starting moonlight or add a tutorial-night softening.",
+      "Spirit dialogue trees are referenced by ID (e.g., dialogue_stationmaster_riddle) but no dialogue tree content is included in the project payload — these need to be authored.",
+      "Five rooms with shuffle_each_run=true plus three puzzle types plus tool drafting plus persistent unlocks is ambitious scope for 4 hours of estimated playtime; verify run variance is meaningful enough to sustain replays.",
+      "Platform 3½ phantom-teal lighting and the 'breaks 1-pixel outline every 3 frames' spirit shader are non-trivial to implement in Godot's 2D pipeline — budget time for a custom CanvasItem shader."
     ],
     "suggestions": [
-      "Add a 'recipes' or 'wickwright_recipes' top-level field mapping relic_id → wick_id, with cost and unlock prerequisites.",
-      "Specify tide-phase durations (e.g., low: 4min, rising: 3min, high: 4min, falling: 4min) summing to a 15-min cycle, and document which phase a run starts in (suggest: low, so high tide is reachable mid-run).",
-      "Define a 'wick_swap_station' entity in the upper ossuary (perhaps the Tideturn Shrine) so multi-wick puzzles in the Lower Ossuary are solvable.",
-      "Add a connection record from a room in the upper ossuary (likely room_oss_drowned_crypt or a new hidden passage) to room_low_glyph_landing, with the colored-wick lock_key.",
-      "Encode the candle riddle's mosaic-to-sconce mapping as a deterministic function of (mosaic_seed, run_seed) so the puzzle is reproducible for QA and accessibility (some players will need a journal hint after N failures).",
-      "Add a 'tutorial-light' bark from Ilsa on first descent explicitly stating 'stand still for the mimic, angle light for the drowning, sing back the bone' — the three resolutions are the entire combat system and should never be implicit.",
-      "Define oil_reserve_starting on item_keepers_lantern (recommend 90 drops) and document oil cost per room traversal for balance reference.",
-      "Consider one 'mercy' oil pool placed near the Lower Ossuary entry so a player who arrives with low oil isn't immediately stranded.",
-      "Add a 'memorial' tile in the chapel for each ended-without-relic run — quietly amplifies the 'lonely-but-not-lonesome' mood and rewards persistence narratively when meta-progress is mechanical."
+      "Add an explicit 'first-night' tutorial state where Wren has all three tools pre-drafted and the moon meter is paused during dialogue, easing new-player onboarding into the 12-minute pressure.",
+      "Consider a sixth 'Workshop' overworld room (separate from Conductor's Office) as the persistent meta hub between runs, so the in-run Conductor's Office stays purely diegetic.",
+      "Author the Stationmaster's riddles as a pool of 20-30 hand-lettered cards so repeat runs feel handcrafted rather than randomized; tie answers to ambient station details (e.g., 'I have hands but never wave — Arrival Clock').",
+      "Add quiet failure-state-adjacent feedback: when the moon meter expires mid-puzzle, fade to soft ink-wash with Wren saying 'Almost. Tomorrow, then.' rather than a hard fail screen — matches the 'no failure state' design promise.",
+      "The Banked Moonlight max_stack of 3 (45s each = 135s) is a thoughtful cap, but make sure UI surfaces this clearly so players know hoarding past 3 vials is wasted.",
+      "Pre-bake the 8-cardinal-angle sprite rotations as part of the asset pipeline rather than per-frame, since the style guide forbids runtime rotation."
     ],
     "overall_score": 7,
     "playable": false,
-    "summary": "Wickwater is a tonally cohesive, mechanically novel design with strong atmosphere and a tight 15-minute loop. However, the meta-progression chain has critical gaps: the wickwright crafting recipes that map relics → wicks are entirely implicit, the humming wick has no source relic defined, and the Lower Ossuary requires three different wicks simultaneously despite wicks appearing mutually exclusive. Quest 'quest_unfinished_compline' is currently uncompletable as wired. Several puzzle mechanics (sconce ordering, Brinewraith reflection) are under-specified. Marked not playable pending recipe table, wick-swap mechanism, and the missing upper→lower dungeon connection. Once those four issues are addressed, this is a 9/10 design."
+    "summary": "Strong, cohesive cozy roguelike design with a clear vision, rich worldbuilding, and well-aligned art/audio/mechanics — but the project is currently a design document only. No scenes or scripts have been generated, so it is not yet playable. Once the Godot implementation is produced and the riddle mechanic + charge economy are specified, this is a 9/10 candidate; as a design pass it is an 8, marked down to 7 because the unstated puzzle resolution for the Stationmaster and the unbalanced mainspring economy will block the first build."
   },
   "created_at": "",
   "updated_at": ""
