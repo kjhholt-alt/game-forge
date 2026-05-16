@@ -95,9 +95,14 @@ def ask(
         return Response(text=cache_file.read_text(encoding="utf-8"), cached=True, prompt_hash=h)
 
     bin_path = _resolve_claude_bin()
+    # Pass prompt via stdin instead of argv. On Windows, multi-line argv
+    # strings get mangled by CreateProcess argument parsing -- the model
+    # ends up seeing only the first line. stdin is safe for any length /
+    # content (newlines, backticks, quotes).
     try:
         proc = subprocess.run(
-            [bin_path, "-p", prompt],
+            [bin_path, "-p"],
+            input=prompt,
             capture_output=True,
             text=True,
             encoding="utf-8",
