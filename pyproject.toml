@@ -61,6 +61,11 @@ py-modules = ["claudex", "claudex_anthropic_shim"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "e2e: requires a running Godot MCP server on localhost:6100 (excluded by default)",
+]
+# Exclude e2e by default; opt in with `pytest -m e2e` locally.
+addopts = "-m 'not e2e'"
 
 [tool.ruff]
 target-version = "py311"

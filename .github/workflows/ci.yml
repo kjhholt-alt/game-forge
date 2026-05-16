@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    name: lint + tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint with ruff
+        run: |
+          ruff check orchestrator tests scripts || true
+          ruff format --check orchestrator tests scripts || true
+        continue-on-error: true
+
+      - name: Model-ID guard (Opus 4.7 migration must hold)
+        run: |
+          # Fail CI if anyone reintroduces old Opus IDs in source.
+          # 4.7 is the current Opus generation. Older opus IDs are blocked.
+          set -e
+          if grep -rEn 'claude-opus-(3|4-[0-6])' \
+              --include="*.py" --include="*.md" --include="*.toml" \
+              --include="*.yml" --include="*.yaml" \
+              --exclude-dir=".venv" --exclude-dir="__pycache__" \
+              --exclude-dir=".operator" --exclude-dir=".github" \
+              .; then
+            echo "::error::Old Opus model ID found in source. Migrate to claude-opus-4-7."
+            exit 1
+          fi
+          echo "::notice::Opus 4.7 migration intact."
+
+      - name: Run pytest
+        env:
+          ANTHROPIC_API_KEY: "ci-no-real-key"
+          GAMEFORGE_OFFLINE: "1"
+        run: |
+          pytest -q --tb=short tests/

@@ -39,6 +39,10 @@ skip_no_godot = pytest.mark.skipif(
     reason="Godot not found — install via `winget install GodotEngine.GodotEngine`",
 )
 
+# All tests in this module need a live Godot MCP server. Mark the whole
+# module e2e so CI skips by default; run locally with `pytest -m e2e`.
+pytestmark = pytest.mark.e2e
+
 PROJECT_DIR = Path(__file__).parent.parent / "godot_template"
 
 
