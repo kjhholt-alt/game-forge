@@ -148,6 +148,7 @@ class GameDirector:
             # 7.5 -- Optional independent Hermes review (codex audits the
             # whole project from outside Claude). Off by default; flip the
             # `hermes_review_enabled` flag in GameConfig to turn on.
+            hermes_high_findings: list[dict] = []
             if self.config.hermes_review_enabled:
                 progress.update(tid, description="Running Hermes review...")
                 try:
@@ -163,6 +164,9 @@ class GameDirector:
                         title="Hermes Review (independent)",
                         border_style="magenta",
                     ))
+                    hermes_high_findings = [
+                        f for f in findings if f.get("severity") == "high"
+                    ]
 
             score_colour = "green" if qa_report.playable else "red"
             console.print(Panel(
@@ -178,6 +182,28 @@ class GameDirector:
             if not qa_report.playable:
                 progress.update(tid, description="Iterating on QA feedback...")
                 project = await self._iterate_on_qa(project, qa_report)
+
+            # 8.5 -- If Hermes's independent reviewer flagged high-severity
+            # issues that QA missed, run one extra iteration on them.
+            # Behind the same hermes_review_enabled flag.
+            if hermes_high_findings:
+                console.print(
+                    f"  [magenta]Hermes flagged {len(hermes_high_findings)} "
+                    f"high-severity finding(s) -- iterating[/magenta]"
+                )
+                feedback = (
+                    "An independent reviewer (Codex) audited the project and "
+                    "flagged these high-severity issues not caught by the "
+                    "in-pipeline QA. Address each:\n"
+                    + "\n".join(
+                        f"- {f['title']}: {f.get('detail', '')}"
+                        for f in hermes_high_findings
+                    )
+                )
+                try:
+                    project = await self.iterate(feedback)
+                except Exception as exc:
+                    logger.warning("hermes_iteration_skipped %s", exc)
 
             progress.update(tid, description="[bold green]Done!")
 
