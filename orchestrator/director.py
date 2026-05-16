@@ -145,6 +145,25 @@ class GameDirector:
             qa_report = await self._run_qa(project)
             project.qa_report = qa_report
 
+            # 7.5 -- Optional independent Hermes review (codex audits the
+            # whole project from outside Claude). Off by default; flip the
+            # `hermes_review_enabled` flag in GameConfig to turn on.
+            if self.config.hermes_review_enabled:
+                progress.update(tid, description="Running Hermes review...")
+                try:
+                    findings = self._hermes_review(project)
+                except Exception as exc:  # never let review fail the build
+                    logger.warning("hermes_review_skipped %s", exc)
+                    findings = []
+                if findings:
+                    console.print(Panel(
+                        "\n".join(
+                            f"[{f['severity']}] {f['title']}" for f in findings
+                        ),
+                        title="Hermes Review (independent)",
+                        border_style="magenta",
+                    ))
+
             score_colour = "green" if qa_report.playable else "red"
             console.print(Panel(
                 f"Score: [{score_colour}]{qa_report.overall_score}/10[/{score_colour}]\n"
@@ -321,6 +340,50 @@ class GameDirector:
                 f"issues exist."
             ),
         )
+
+    def _hermes_review(self, project: GameProject) -> list[dict]:
+        """Submit the project to Hermes for an independent codex audit.
+
+        Synchronous: Hermes manages its own subprocesses + FSM. Returns a
+        list of findings (severity / title / detail) -- caller decides
+        what to do with them.
+
+        Off by default; gated on config.hermes_review_enabled. Designed to
+        be append-only -- never mutates the project, never raises out of
+        this function (caller wraps in try/except too as belt+suspenders).
+        """
+        from hermes import store as hermes_store, agents as hermes_agents
+        from hermes.router import pump as hermes_pump
+
+        hermes_store.init_schema()
+        hermes_agents.seed_defaults(force=False)
+
+        work_order = (
+            "Audit this game project concept against typical design red "
+            "flags (vague mechanics, unbalanced loops, scope explosions, "
+            "missing failure states). Be terse: only flag REAL issues, "
+            "max 5 findings.\n\n"
+            f"Project JSON:\n{project.model_dump_json(indent=2)[:6000]}"
+        )
+        job_id = hermes_store.create_job(
+            kind="audit",
+            title=f"gameforge audit: {project.concept.title[:60]}",
+            body=work_order,
+            repo="game-forge",
+            route="review_only",
+            max_iter=1,
+            metadata={"prefer_review": "codex-reviewer"},
+        )
+        logger.info("hermes_review job_id=%d", job_id)
+        hermes_pump(max_ticks=4, sleep_s=0.0)
+        return [
+            {
+                "severity": f["severity"],
+                "title": f["title"],
+                "detail": f["detail"] or "",
+            }
+            for f in hermes_store.list_findings(job_id)
+        ]
 
     async def _iterate_on_qa(
         self,

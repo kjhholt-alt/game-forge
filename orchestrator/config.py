@@ -111,3 +111,13 @@ class GameConfig(BaseSettings):
         default="INFO",
         description="Logging verbosity (DEBUG, INFO, WARNING, ERROR).",
     )
+
+    # --- Hermes integration ---
+    hermes_review_enabled: bool = Field(
+        default=False,
+        description=(
+            "After QA, submit the assembled GameProject to Hermes for an "
+            "independent codex-based audit. Off by default; requires "
+            "hermes installed + codex CLI on PATH."
+        ),
+    )
