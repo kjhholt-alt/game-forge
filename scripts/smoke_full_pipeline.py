@@ -103,6 +103,8 @@ async def main() -> int:
             "qa_issue_count": (
                 len(project.qa_report.issues) if project.qa_report else None
             ),
+            "scenes_generated": len(project.scenes_generated),
+            "scripts_generated": len(project.scripts_generated),
             "export_dir": str(export_dir),
             "export_manifest_kb": (
                 round(manifest.stat().st_size / 1024, 1) if manifest_ok else None

@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[node name="The_Midnight_Interchange" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 900.0
+offset_bottom = 68.0
+text = "The Midnight Interchange"
+
+[node name="Kind" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 420.0
+offset_bottom = 106.0
+text = "Region"
+
+[node name="Description" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = 122.0
+offset_right = 980.0
+offset_bottom = 420.0
+fit_content = true
+text = "A moonlit threshold station of brass fittings, midnight-blue glass, and slow drifting steam. Five rooms loop around a central platform beneath a great skylight that frames the crossing moon. The 12-minute moon meter ticks softly overhead, and lantern bloom catches every polished gear."

@@ -15,6 +15,7 @@ from rich.console import Console
 
 from orchestrator.config import GameConfig
 from orchestrator.director import GameDirector
+from orchestrator.godot_exporter import generate_godot_content
 from schemas import GameGenre, GameProject
 
 logger = logging.getLogger(__name__)
@@ -112,6 +113,11 @@ class GameForge:
         else:
             output_dir.mkdir(parents=True, exist_ok=True)
             console.print(f"[yellow]Template not found at {template_dir} -- created empty dir")
+
+        scenes, scripts = generate_godot_content(self._project, output_dir)
+        console.print(
+            f"[green]Generated {len(scenes)} scene(s) and {len(scripts)} script(s) from manifest"
+        )
 
         # Write the project manifest
         manifest_path = output_dir / "game_project.json"

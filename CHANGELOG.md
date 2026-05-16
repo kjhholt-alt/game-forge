@@ -14,6 +14,13 @@ and the project adheres to [Semantic Versioning](https://semver.org).
 - Added `claudex_client.py` as the neutral internal messages-style client.
   The old `claudex_anthropic_shim.py` file remains only as a deprecated
   compatibility wrapper for older scripts.
+- Added deterministic Godot export generation. Exports now produce a
+  game-specific main scene, generated room/space scenes, runtime scripts,
+  quest/item interaction UI, and an in-game unfinished-work panel from QA.
+- Added `scripts/export_existing_games.py` to rebuild saved games without
+  model calls, plus `docs/EXISTING_GAMES_BUILD_GAP_REVIEW.md` to track the
+  current feel and missing mechanics for Midnight, Steeped, Saltwind, and
+  Wickwater.
 
 ## [0.1.1] — 2026-05-14
 

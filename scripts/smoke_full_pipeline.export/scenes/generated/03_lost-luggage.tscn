@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[node name="Lost_Luggage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 900.0
+offset_bottom = 68.0
+text = "Lost Luggage"
+
+[node name="Kind" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 420.0
+offset_bottom = 106.0
+text = "Puzzle"
+
+[node name="Description" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = 122.0
+offset_right = 980.0
+offset_bottom = 420.0
+fit_content = true
+text = "Shelves stacked with travel cases that hum faintly, each tagged with a name no living passenger remembers. The Porter drifts here, asking Wren to match returning luggage to its forgotten owner through quiet memory pairs."

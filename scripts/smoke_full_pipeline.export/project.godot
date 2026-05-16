@@ -5,7 +5,7 @@
 [application]
 
 config/name="GameForge Generated Game"
-run/main_scene="res://scenes/main/main.tscn"
+run/main_scene="res://scenes/generated/generated_game.tscn"
 config/features=PackedStringArray("4.6")
 
 [autoload]

@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[node name="Platform_3" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 900.0
+offset_bottom = 68.0
+text = "Platform 3½"
+
+[node name="Kind" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 420.0
+offset_bottom = 106.0
+text = "Puzzle"
+
+[node name="Description" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = 122.0
+offset_right = 980.0
+offset_bottom = 420.0
+fit_content = true
+text = "A narrow platform tucked between Platform 3 and Platform 4 that should not exist. The Last Passenger waits here on a bench, holding a sliding-tile timetable that never quite finishes resolving. Steam coils in slow parallax across the tracks."

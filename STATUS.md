@@ -67,7 +67,28 @@ tests migrated to mock `claudex.ask_structured`.
 Cost per call: $0.26 first time (cache-creation overhead), $0.05-0.10
 warm. Full 5-stage generation should land $0.50-1.50 per game.
 
-## Current State: v0.1.1 — First generation working, 4 stages to migrate
+## 2026-05-16 exporter pass — existing games now open as game-specific builds
+
+The export gap is no longer blank-template only. `forge.export(...)` now writes
+manifest-derived Godot scenes/scripts:
+
+- `res://scenes/generated/generated_game.tscn` becomes the main scene.
+- One generated scene is written for each manifest play space.
+- `scripts/generated/game_project_data.gd`, `gameplay_loop.gd`, and
+  `quest_runtime.gd` load the manifest, show rooms/quests/items/NPCs, and expose
+  a visible "Still Unfinished" QA panel.
+
+Rebuilt existing games with no model calls:
+
+- The Midnight Interchange — 7 scenes, 3 scripts
+- Steeped — 7 scenes, 3 scripts
+- The Saltwind Steepers — 13 scenes, 3 scripts
+- Wickwater — 13 scenes, 3 scripts
+
+Godot 4.6.2 opened the generated Midnight export headlessly without script parse
+errors. Python verification is 160 passed / 5 bridge E2E deselected.
+
+## Current State: v0.1.2 — design-to-Godot vertical slice exporter working
 
 ### Working
 
