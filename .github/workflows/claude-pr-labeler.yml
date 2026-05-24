@@ -1,0 +1,51 @@
+name: Claude PR Labeler
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Label this PR via:
+              gh pr edit ${{ github.event.pull_request.number }} --add-label "<label>"
+
+            Pick one PRIMARY from:
+              feat, fix, chore, docs, refactor, test, perf, style
+
+            Optional secondaries:
+              breaking — public API contract or env var rename
+              security — auth, secrets, headers, validation, RLS
+              dependencies — package.json / pyproject.toml / requirements.txt versions change
+
+            Rules:
+            * Inspect the diff. Don't trust the PR title alone.
+            * If title says "feat:" but it's all in tests/, label `test`.
+            * Touching .env.production or secret-shaped values = also tag `security`.
+            * Create missing labels (idempotent):
+              gh label create <name> --color <hex> --description "<desc>" --force
+            * Colors:
+              feat=#00ff7f, fix=#ff4444, chore=#888888, docs=#0099ff,
+              refactor=#aaaaaa, test=#ffcc00, perf=#ff8800, style=#dddddd,
+              breaking=#ff0000, security=#cc00cc, dependencies=#666666
+            * Max 3 labels.
+
+            Output: single line — "labeled: feat, security" — no preamble.
+
+          claude_args: |
+            --max-turns 4
+            --model claude-sonnet-4-6

@@ -1,0 +1,48 @@
+name: Claude PR Summary
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Write a clean PR description and update the body via
+              gh pr edit ${{ github.event.pull_request.number }} --body-file <path>
+
+            Structure:
+
+            ## Summary
+            1-3 bullets, WHY not WHAT. Each under 100 chars. No "this PR" prefixes.
+
+            ## What changed
+            Bullet list of actual file/feature changes. Group by area if >5. Backticks for paths.
+
+            ## Test plan
+            Bulleted markdown checklist of verifiable steps.
+
+            ## Notes (optional)
+            Only if there's a real follow-up, known limitation, or surprise.
+
+            Rules:
+            * Read commits + diff first. Quote real identifiers.
+            * No marketing language. No "🤖 Generated with Claude" footer.
+            * If the PR body is already non-empty AND looks human-written, exit without editing.
+            * If the only changes are auto-commits, say so in one line and don't try to summarize.
+
+          claude_args: |
+            --max-turns 5
+            --model claude-sonnet-4-6

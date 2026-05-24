@@ -1,0 +1,52 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_sticky_comment: true
+          classify_inline_comments: true
+          prompt: |
+            Review this PR diff for correctness bugs and shipping risk.
+
+            Focus on:
+            * Correctness — off-by-one, null-handling, race conditions, wrong assumptions about data shape
+            * Security — secrets in code, SQL/command injection, auth bypass, missing input validation at system boundaries
+            * Production safety — deploy hazards, missing env vars, breaking changes to public APIs, untested edge cases
+            * Performance only when it's a regression or obvious O(N) -> O(N^2)
+
+            Explicitly DO NOT flag:
+            * Style nits (formatting, naming preferences, "could be more concise")
+            * Premature abstraction concerns ("this could be a hook" / "extract to util") unless the duplication is already painful
+            * Backwards-compat or migration shims for hypothetical future use
+            * Comments suggesting more comments
+            * Approval-padding ("LGTM, just a few thoughts" — say nothing if nothing's wrong)
+
+            Constructive style:
+            * Each finding gets a SINGLE inline comment with file:line specificity
+            * Quote the problematic line, name the failure mode in one sentence, suggest the fix in one sentence
+            * Skip the summary preamble — go straight to findings or "No correctness issues found."
+            * If the PR looks good, leave one sticky comment saying so. Do not invent things to nitpick.
+
+            Universal context:
+            * Solo developer (kjhholt-alt). Auto-commits in history are intentional drift snapshots, not PR-worthy.
+            * Memory rules: no live billing/payments until full E2E + sign-off; no real Anthropic API on public demo routes.
+
+          claude_args: |
+            --max-turns 8
+            --model claude-sonnet-4-6
