@@ -260,6 +260,38 @@ class TestIterate:
         with pytest.raises(DirectorError, match="No active project"):
             await director.iterate("Make it harder")
 
+    async def test_iterate_returns_updated_validated_project(self, director: GameDirector) -> None:
+        """2026-06-11: iterate() migrated off the Anthropic shim onto
+        claudex.ask_structured — the same structured path as the 5 create
+        stages. The shim path replied conversationally and failed silently
+        (docs/FIRST_GENERATION_FINDINGS.md); the QA-fix loop and the Hermes
+        auto-iteration both ride iterate(), so it must be pinned."""
+        responses_by_call = [
+            _mock_concept(),
+            _mock_world(),
+            _mock_items(),
+            _mock_narrative(),
+            _mock_style_guide(),
+            _mock_qa(True),
+        ]
+        with patch("claudex.ask_structured", side_effect=responses_by_call):
+            project = await director.create_game("A fantasy RPG", GameGenre.RPG)
+
+        updated = json.loads(project.model_dump_json())
+        updated["concept"]["title"] = "Test Game: Harder Edition"
+
+        with patch("claudex.ask_structured", return_value=updated) as mocked:
+            result = await director.iterate("Make it harder")
+
+        assert isinstance(result, GameProject)
+        assert result.concept.title == "Test Game: Harder Edition"
+        assert director._project is result
+        # The structured prompt must carry the feedback AND the full current
+        # project (verbatim-carry-through contract).
+        prompt = mocked.call_args[0][0]
+        assert "Make it harder" in prompt
+        assert "Test Game" in prompt
+
 
 class TestCallClaude:
     async def test_retries_on_json_error(self, director: GameDirector) -> None:

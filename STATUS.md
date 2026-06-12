@@ -1,6 +1,29 @@
 # GameForge — Status
 
-**Last updated:** 2026-05-14
+**Last updated:** 2026-06-11
+
+## 2026-06-11 — iterate() off the shim: the LAST silent-failure path is closed
+
+`GameDirector.iterate()` (and with it the QA-fix loop `_iterate_on_qa` AND the
+2026-05-16 Hermes auto-iteration, both of which ride it) was still on the old
+Anthropic-shape `_call_claude` shim — the exact path FIRST_GENERATION_FINDINGS
+proved replies conversationally inside a CLAUDE.md project and fails silently.
+Now routed through `_call_structured(GameProject, ...)` like the 5 create
+stages, with a verbatim-carry-through contract in the prompt and a 480s
+timeout (whole-project regeneration is the heaviest call). New regression test
+pins it (mocked `claudex.ask_structured`, asserts feedback + full project in
+the prompt and validated swap of `_project`).
+
+**Test invocation note:** with `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` (the global
+pytest-django-hang guard) this repo needs `-p asyncio` or every async test
+false-fails:
+
+```powershell
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; py -m pytest -p asyncio -q
+```
+
+Verified 2026-06-11: **161 passed, 5 deselected** (bridge E2E needs a running
+Godot, as before) + `scripts/smoke_first_generation.py` OK.
 
 ## What Is This
 

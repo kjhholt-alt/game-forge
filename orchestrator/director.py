@@ -233,18 +233,25 @@ class GameDirector:
 
         console.print(f"[cyan]Applying feedback:[/cyan] {feedback}")
 
-        result = await self._dispatch_worker(
-            role=AgentRole.DIRECTOR,
-            task={
-                "action": "iterate",
-                "feedback": feedback,
-                "current_project": self._project.model_dump(mode="json"),
-            },
-            response_schema="GameProject",
+        # 2026-06-11: migrated off the Anthropic-shape shim onto the same
+        # claudex.ask_structured path as the 5 create stages. The shim path
+        # replied conversationally inside a CLAUDE.md project and failed
+        # silently (docs/FIRST_GENERATION_FINDINGS.md) — and BOTH the QA-fix
+        # loop and the Hermes auto-iteration ride iterate(), so this was the
+        # last silent-failure path in the pipeline.
+        self._project = await self._call_structured(
+            GameProject,
+            system=ROLE_PROMPTS["director"],
+            user_message=(
+                "You are iterating on an existing, complete game project. "
+                "Apply the feedback below and return the FULL updated project "
+                "as schema-matching JSON. Carry every unchanged field through "
+                "verbatim — never drop or stub existing content.\n\n"
+                f"Feedback:\n{feedback}\n\n"
+                f"Current project:\n{self._project.model_dump_json(indent=2)}"
+            ),
+            timeout_s=480,  # whole-project regeneration is the heaviest call
         )
-
-        # Re-parse full project from the response
-        self._project = GameProject.model_validate(result)
         return self._project
 
     # ------------------------------------------------------------------
