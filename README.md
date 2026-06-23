@@ -4,8 +4,9 @@
 
 GameForge is an AI-powered game development toolkit that uses a team of
 specialized Claude agents to design, write, balance, and QA-test a complete
-game from a single natural-language prompt. The output is a playable Godot 4
-project.
+game from a single natural-language prompt. The default output is a playable
+Godot 4 project; a parallel **Unity 6** backend (`--engine unity`) is also
+available — see [`docs/UNITY_EXPORT.md`](docs/UNITY_EXPORT.md).
 
 ---
 
@@ -129,10 +130,13 @@ forge iterate "Add a boss encounter in the crystal caves and make the friendship
 ### 6. Export
 
 ```bash
-forge export --output ./my-game
+forge export --output ./my-game                       # Godot 4 (default)
+forge export --output ./my-unity-game --engine unity  # Unity 6 (C# scene-builder)
 ```
 
-Open `./my-game/` in Godot 4.6+ and hit Play.
+Open `./my-game/` in Godot 4.6+ and hit Play. The Unity backend builds its scene
+in C# (no hand-authored `.unity` files) and renders/builds headlessly — see
+[`docs/UNITY_EXPORT.md`](docs/UNITY_EXPORT.md).
 
 ---
 
@@ -161,7 +165,7 @@ on parse failures and iterates on critical QA issues automatically.
 ```
 forge create <prompt> --genre <genre>   Create a new game
 forge iterate <feedback>                Apply changes to the current project
-forge export --output <dir>             Export as a Godot project
+forge export --output <dir> [--engine godot|unity]   Export the game (Godot default; Unity optional)
 forge status                            Show current project summary
 ```
 

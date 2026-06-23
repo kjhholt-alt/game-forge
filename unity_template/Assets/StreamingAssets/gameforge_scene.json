@@ -1,0 +1,16 @@
+{
+  "title": "GameForge Template",
+  "genre": "sandbox",
+  "setting": "A bare proving ground awaiting a generated world.",
+  "target_mood": "neutral",
+  "core_mechanics": ["walk between rooms"],
+  "spaces": [
+    {"name": "Antechamber", "kind": "region", "description": "Where the slice begins."},
+    {"name": "Hall of Echoes", "kind": "room", "description": "A long resonant corridor."},
+    {"name": "The Vault", "kind": "dungeon", "description": "Sealed for now."}
+  ],
+  "quests": [{"name": "Find the seam", "detail": ""}],
+  "items": [{"name": "Lantern", "detail": "tool"}],
+  "npcs": [{"name": "The Warden", "detail": "guide"}],
+  "qa": {"playable": true, "score": 7.0, "summary": "Template stands up.", "issues": []}
+}

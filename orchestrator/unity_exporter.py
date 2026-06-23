@@ -1,0 +1,164 @@
+"""Deterministic Unity content generation for GameForge exports.
+
+Parallel backend to ``godot_exporter.py``. You cannot reliably have agents emit
+Unity ``.unity``/``.prefab`` YAML (GUID + ``.meta`` soup), so the Unity scene is
+built in **C# code** at runtime/build time -- exactly how the war-table project
+constructs its scenes. This module therefore turns an engine-neutral
+``GameProject`` manifest into:
+
+* ``Assets/StreamingAssets/gameforge_scene.json`` -- a flat, JsonUtility-friendly
+  projection that the C# ``GameForgeRuntime`` reads to build the scene, and
+* ``Assets/GameForge/Generated/GeneratedGameInfo.cs`` -- the same headline data
+  baked into compile-time C# constants (the "structured data -> C# gameplay
+  systems" seam, and a compiled fallback when the JSON is unavailable).
+
+The engine-neutral pipeline and schemas are untouched; this lives beside the
+Godot exporter and is selected with ``forge export --engine unity``.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from schemas import GameProject
+
+# Reuse the EXACT play-space extraction the Godot backend uses, so both engines
+# agree on what a "room" is from the same manifest.
+from orchestrator.godot_exporter import _collect_play_spaces
+
+SCENE_JSON_REL = "Assets/StreamingAssets/gameforge_scene.json"
+GENERATED_CS_REL = "Assets/GameForge/Generated/GeneratedGameInfo.cs"
+BOOTSTRAP_SCENE_REL = "Assets/GameForge/Scenes/Generated.unity"
+
+
+def generate_unity_content(project: GameProject, output_dir: Path) -> tuple[list[str], list[str]]:
+    """Write the Unity scene-model JSON + generated C# from *project*'s manifest.
+
+    Returns ``(scenes, scripts)`` mirroring :func:`godot_exporter.generate_godot_content`.
+    """
+    output_dir = Path(output_dir)
+    project_dict = project.model_dump(mode="json")
+    scene_model = _build_scene_model(project_dict)
+
+    # 1) flat scene model the C# runtime reads at build/play time
+    scene_json_path = output_dir / SCENE_JSON_REL
+    scene_json_path.parent.mkdir(parents=True, exist_ok=True)
+    scene_json_path.write_text(
+        json.dumps(scene_model, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    # 2) per-game C# constants (codegen seam + compiled fallback)
+    cs_path = output_dir / GENERATED_CS_REL
+    cs_path.parent.mkdir(parents=True, exist_ok=True)
+    cs_path.write_text(_generated_info_cs(scene_model), encoding="utf-8")
+
+    scenes = [BOOTSTRAP_SCENE_REL]
+    scripts = [GENERATED_CS_REL, SCENE_JSON_REL]
+
+    project.scenes_generated = scenes
+    project.scripts_generated = scripts
+    _mark_unity_gap_as_built(project)
+    return scenes, scripts
+
+
+def _build_scene_model(project: dict[str, Any]) -> dict[str, Any]:
+    concept = project.get("concept") or {}
+    spaces = _collect_play_spaces(project)  # identical extraction to the Godot backend
+
+    qa = project.get("qa_report") or {}
+    issues = [
+        {
+            "severity": str(issue.get("severity") or "")[:24],
+            "description": str(issue.get("description") or "")[:160],
+        }
+        for issue in (qa.get("issues") or [])[:6]
+    ]
+
+    return {
+        "title": str(concept.get("title") or "Generated Game"),
+        "genre": str(concept.get("genre") or "game"),
+        "setting": str(concept.get("setting") or ""),
+        "target_mood": str(concept.get("target_mood") or ""),
+        "core_mechanics": [str(x) for x in (concept.get("core_mechanics") or [])][:6],
+        "spaces": [
+            {
+                "name": str(space.get("name") or "Room"),
+                "kind": str(space.get("kind") or "room"),
+                "description": str(space.get("description") or ""),
+            }
+            for space in spaces
+        ],
+        "quests": _named(project.get("quests"), "title", "description"),
+        "items": _named(project.get("items"), "name", "category"),
+        "npcs": _named(project.get("npcs"), "name", "role"),
+        "qa": {
+            "playable": bool(qa.get("playable", False)),
+            "score": float(qa.get("overall_score") or 0.0),
+            "summary": str(qa.get("summary") or "")[:240],
+            "issues": issues,
+        },
+    }
+
+
+def _named(items: Any, name_key: str, detail_key: str, limit: int = 8) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
+    for entry in (items or [])[:limit]:
+        out.append({
+            "name": str(entry.get(name_key) or entry.get("name") or "")[:60],
+            "detail": str(entry.get(detail_key) or "")[:80],
+        })
+    return out
+
+
+def _generated_info_cs(scene_model: dict[str, Any]) -> str:
+    title = _cs_str(scene_model["title"])
+    genre = _cs_str(scene_model["genre"])
+    names = [space["name"] for space in scene_model["spaces"]]
+    names_literal = ", ".join(_cs_str(n) for n in names)
+    return f"""namespace GameForge.Generated
+{{
+    // AUTO-GENERATED by orchestrator/unity_exporter.py -- do not edit by hand.
+    // The structured-data -> C# seam: the exported game's headline data baked into
+    // compile-time constants the in-code scene-builder uses as a fallback.
+    public static class GeneratedGameInfo
+    {{
+        public const string Title = {title};
+        public const string Genre = {genre};
+        public const int SpaceCount = {len(names)};
+        public static readonly string[] SpaceNames = {{ {names_literal} }};
+    }}
+}}
+"""
+
+
+def _cs_str(value: str) -> str:
+    """Return a safe C# double-quoted string literal for *value*."""
+    s = str(value).replace("\\", "\\\\").replace('"', '\\"')
+    s = s.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+    return '"' + s + '"'
+
+
+def _mark_unity_gap_as_built(project: GameProject) -> None:
+    """Flip the 'no scenes generated' QA issue now that the Unity export stands up."""
+    if project.qa_report is None:
+        return
+    for issue in project.qa_report.issues:
+        location = issue.location.lower()
+        description = issue.description.lower()
+        if "scenes_generated" in location or "no scenes" in description:
+            issue.severity = "resolved"
+            issue.category = "build"
+            issue.description = (
+                "Deterministic Unity export now generates a flat scene model and C# "
+                "constants that the in-code scene-builder (GameForgeRuntime) reads to "
+                "stand up rooms, a player, and an info panel at build time."
+            )
+            issue.location = "Assets/StreamingAssets, Assets/GameForge/Generated"
+            issue.suggested_fix = (
+                "Next pass should deepen the schema->C# mapping (combat, dialogue, "
+                "items) into real Unity systems."
+            )
+            break

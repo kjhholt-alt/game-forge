@@ -86,6 +86,12 @@ class GameConfig(BaseSettings):
         description="Path to the Godot project template directory.",
     )
 
+    # --- Unity ---
+    unity_project_path: str = Field(
+        default="./unity_template",
+        description="Path to the Unity 6 project template directory (C# scene-builder backend).",
+    )
+
     # --- Storage ---
     state_db_path: str = Field(
         default="./game_state.db",

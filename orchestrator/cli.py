@@ -117,22 +117,32 @@ def iterate(ctx: click.Context, feedback: str) -> None:
     "--output", "-o",
     type=click.Path(),
     default="./my-game",
-    help="Output directory for the exported Godot project.",
+    help="Output directory for the exported game project.",
+)
+@click.option(
+    "--engine", "-e",
+    type=click.Choice(["godot", "unity"], case_sensitive=False),
+    default="godot",
+    help="Engine backend. 'godot' (default) writes a Godot 4 project; "
+         "'unity' writes a Unity 6 project whose scene is built in C# at build time.",
 )
 @click.pass_context
-def export(ctx: click.Context, output: str) -> None:
-    """Export the current project as a Godot project directory.
+def export(ctx: click.Context, output: str, engine: str) -> None:
+    """Export the current project as a playable game project.
 
     Example:
 
         forge export --output ./my-game
+        forge export --output ./my-unity-game --engine unity
     """
     forge = _get_forge(ctx)
 
     try:
-        out_path = forge.export(Path(output))
-        console.print(f"\n[bold green]Exported![/bold green] Godot project at: {out_path}\n")
-    except RuntimeError as exc:
+        out_path = forge.export(Path(output), engine=engine)
+        console.print(
+            f"\n[bold green]Exported![/bold green] {engine.capitalize()} project at: {out_path}\n"
+        )
+    except (RuntimeError, ValueError) as exc:
         console.print(f"[red bold]Error:[/red bold] {exc}")
         sys.exit(1)
 

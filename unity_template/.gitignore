@@ -1,0 +1,27 @@
+# Unity-generated — never commit these (regenerated on import/build)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+_build/
+_renders/
+
+# Code-built bootstrap scene (created during BuildPlayer, not authored)
+Assets/GameForge/Scenes/
+Assets/GameForge/Scenes.meta
+
+# IDE / solution files
+*.csproj
+*.sln
+*.user
+*.unityproj
+.vs/
+.vsconfig
+.idea/
+
+# OS
+.DS_Store

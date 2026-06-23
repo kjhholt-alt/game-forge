@@ -1,6 +1,44 @@
 # GameForge — Status
 
-**Last updated:** 2026-06-11
+**Last updated:** 2026-06-23
+
+## 2026-06-23 — Unity 6 export backend (vertical slice) lands beside Godot
+
+GameForge can now export the **same engine-neutral `GameProject`** to **Unity 6**,
+not just Godot. The agent pipeline and `schemas/` were untouched; the Unity
+coupling lives entirely beside the three Godot coupling points:
+
+| | Godot | Unity (new) |
+|---|---|---|
+| Exporter | `orchestrator/godot_exporter.py` | `orchestrator/unity_exporter.py` |
+| Template | `godot_template/` | `unity_template/` (Unity `6000.0.77f1`, Built-in RP) |
+| Scenes | `.tscn` text | **built in C#** at runtime/build time |
+
+**Key decision (why Unity differs from Godot):** you can't reliably have agents
+emit Unity `.unity`/`.prefab` YAML (GUID + `.meta` soup), so — exactly like the
+war-table project — the Unity scene is **constructed in C# code**, never
+hand-authored. The exporter maps the manifest → (a) `StreamingAssets/gameforge_scene.json`
+(a flat JsonUtility-friendly projection) + (b) `GeneratedGameInfo.cs` (the same
+data baked into compile-time constants). `GameForgeRuntime.cs` is the single
+source of truth that builds the scene from that data, driven by **both** Play and
+the headless Editor render — so the PNG matches what plays.
+
+**Wired:** `forge export --engine [godot|unity]` (default stays **godot**);
+`GameForge.export(out, engine="unity")`; `unity_project_path` in config.
+
+**PROVEN end-to-end (the gate):** exported `exports/existing-games/wickwater` to
+Unity → ran Unity 6 **headless batchmode** → rendered a PNG of the game standing
+up (title, 12 colour-coded room cubes, player at room 2/12 after `NextRoom()`,
+live quests/items/NPCs/QA panel — all from real manifest data). Render proof:
+`docs/unity_slice_wickwater.png`. The standalone player build also succeeds
+headless: `GF_BUILD_RESULT result=Succeeded errors=0` → `GameForge.exe`.
+
+The verify-by-looking + headless commands live in `docs/UNITY_EXPORT.md`.
+
+**Tests:** 164 passed, 5 deselected (+3 new `tests/test_unity_exporter.py`, all
+pure-Python — no Unity needed in CI). Slice scope is deliberate; deepening the
+schema → C# mapping (combat, dialogue, item systems, spatial layouts) is the
+next pass.
 
 ## 2026-06-11 — iterate() off the shim: the LAST silent-failure path is closed
 
