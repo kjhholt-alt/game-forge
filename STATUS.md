@@ -1,6 +1,42 @@
 # GameForge — Status
 
-**Last updated:** 2026-06-23
+**Last updated:** 2026-07-05
+
+## 2026-07-05 — Saga Engine (gl-0084): CK3 mod pipeline Phase 0 scout + Phase 1 spec
+
+New lane, `ck3_saga_engine/` — a fleet-written CK3 flavor-content pipeline
+(events/decisions/story_cycles) gated by a real deterministic validator,
+distinct from the Godot/Unity game-generation pipeline above. Kruz hand-built
+a hello-world proof mod ("Saga Engine," `saga.1` event) before dispatching
+this item; that seed is now migrated into git as
+`ck3_saga_engine/mod/saga_engine/`.
+
+**Toolchain proven, not just documented:**
+- Installed `ck3-tiger` v1.19.0 (community CK3 script validator, exact
+  version match for the installed game 1.19.0.6) to
+  `~/.operator/bin/ck3-tiger/`.
+- `ck3_saga_engine/tools/validate.py` wraps it, parses `--json` output, and
+  **exits non-zero on fatal/error findings** — confirmed tiger's own exit
+  code is always 0 regardless of errors, so this wrapper is the real gate.
+  Verified both ways: clean on the real mod, correctly fails (exit 1, exact
+  file/line/message) against a deliberately broken scratch mod.
+- `ck3_saga_engine/tools/deploy.py` mirrors the git-tracked mod source into
+  the live CK3 mod folder (which lives under `Documents\Paradox Interactive\`,
+  outside the repo). Full loop tested: deploy → validate → 0 findings.
+- Discovered `common/story_cycles` (vanilla's own multi-event narrative-arc
+  system, e.g. the El Cid companion saga) as the right primitive for
+  "20-event saga chains" — no new game system needs inventing.
+
+**Docs:** `ck3_saga_engine/docs/SCOUT.md` (toolchain findings),
+`THEME_SHORTLIST.md` (5 saga themes for Kruz to pick from, grounded in his
+actual save history — a Balkans rise campaign and a Roman-restoration
+campaign that reached Imperator), `SPEC.md` (Phase 1 pipeline: generate →
+validate → localize-audit → scripted-save playtest, plus a style bible).
+
+**Explicitly not done tonight (by design):** no saga content generated
+beyond the pre-existing hello-world seed; no theme picked (Kruz's call);
+Phase 2 (mass generation, first 20-event chain) is gated on that pick +
+spec sign-off.
 
 ## 2026-06-23 — Unity 6 export backend (vertical slice) lands beside Godot
 
