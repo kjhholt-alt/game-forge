@@ -1,6 +1,33 @@
 # GameForge — Status
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
+
+## 2026-07-06 — Saga Engine: Second Rome batch 3 — the ending forks land
+
+The Restorer-legitimacy tug-of-war now resolves. Batch 3 adds events
+`saga_second_rome.1008-1012`: a verdict prelude (`1008`, one last pull on
+the counter, sets `second_rome_verdict_ready`) and all four canonical
+endings from the theme shortlist, picked deterministically by a new
+`first_valid` verdict `effect_group` in the story_cycle reading the final
+counter:
+
+- **The Acclamation** (`1009`, counter ≥ 4) — recognized restorer; grants
+  the vanilla `nick_the_restorer` nickname.
+- **The Hollow Crown** (`1010`, counter 0..3) — the title held, the belief
+  never came.
+- **Another's Chronicle** (`1011`, counter ≤ -4, or negative with no adult
+  dynasty kin) — the rival wins the story; he gains prestige, you lose it.
+- **At Your Own Table** (`1012`, counter -3..-1 with adult dynasty kin) —
+  the claim splits the house; dynasty prestige loss, a kinsman leads the
+  schism.
+
+Every ending sets a `second_rome_ending_*` character flag and calls
+`end_story` (on_end cleanup already existed from batch 1). The ending
+kickoff currently gates on `second_rome_escalation_1_complete`; if
+escalation stages 2-3 are written later (ids `1013+`), re-point that gate
+at their closing flag — noted in both the story_cycle header and SPEC.md.
+Gate: `deploy.py` + `validate.py` clean — ck3-tiger 0 reports. Playtest
+remains Kruz-gated per the spec.
 
 ## 2026-07-05 — Saga Engine (gl-0084): CK3 mod pipeline Phase 0 scout + Phase 1 spec
 

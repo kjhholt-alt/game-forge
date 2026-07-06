@@ -10,8 +10,12 @@
 ### Batch 1 (setup, events 1000-1003) carries only the maintenance
 ### effect_group below. Batch 2 (escalation stage 1, events 1004-1007) adds
 ### the kickoff effect_group that advances the saga once the setup arc's
-### second_rome_setup_complete story variable is set. Escalation stage 2-3
-### + the ending fork remain later batches.
+### second_rome_setup_complete story variable is set. Batch 3 (ending fork,
+### events 1008-1012) adds the ending kickoff + verdict effect_groups that
+### resolve the tug-of-war once second_rome_escalation_1_complete is set.
+### If escalation stages 2-3 are written later (ids 1013+), re-point the
+### ending kickoff's gate at THEIR closing flag so the verdict comes after
+### the full arc instead of directly after stage 1.
 ###
 ##################################################
 
@@ -87,6 +91,131 @@ story_second_rome = {
 					trigger_event = {
 						id = saga_second_rome.1004
 						days = 3
+					}
+				}
+			}
+		}
+	}
+
+	# Ending fork kickoff -- fires once, when escalation stage 1 closes
+	# (second_rome_escalation_1_complete is set by saga_second_rome.1007's
+	# `after` block), opening the verdict prelude. See the header note about
+	# re-pointing this gate if escalation stages 2-3 are added later.
+	effect_group = {
+		days = 3
+
+		trigger = {
+			has_variable = second_rome_escalation_1_complete
+			NOT = { has_variable = second_rome_ending_started }
+		}
+
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = {
+				set_variable = second_rome_ending_started
+				story_owner = {
+					trigger_event = {
+						id = saga_second_rome.1008
+						days = 10
+					}
+				}
+			}
+		}
+	}
+
+	# The verdict -- once the question has been asked (saga_second_rome.1008
+	# sets second_rome_verdict_ready), read the final legitimacy counter and
+	# resolve the saga into exactly one of its four endings.
+	effect_group = {
+		days = 3
+
+		trigger = {
+			has_variable = second_rome_verdict_ready
+			NOT = { has_variable = second_rome_verdict_delivered }
+		}
+
+		first_valid = {
+			# Recognized Restorer -- the world believes
+			triggered_effect = {
+				trigger = {
+					var:second_rome_legitimacy_counter >= 4
+				}
+				effect = {
+					set_variable = second_rome_verdict_delivered
+					story_owner = {
+						trigger_event = {
+							id = saga_second_rome.1009
+							days = 4
+						}
+					}
+				}
+			}
+			# The Rival Prevails -- the counter-claim has won outright
+			triggered_effect = {
+				trigger = {
+					var:second_rome_legitimacy_counter <= -4
+				}
+				effect = {
+					set_variable = second_rome_verdict_delivered
+					story_owner = {
+						trigger_event = {
+							id = saga_second_rome.1011
+							days = 4
+						}
+					}
+				}
+			}
+			# Dynasty Schism -- contested badly enough that the house splits,
+			# if there is living adult kin (owner included in the count) to
+			# lead the split
+			triggered_effect = {
+				trigger = {
+					var:second_rome_legitimacy_counter < 0
+					story_owner = {
+						exists = dynasty
+						dynasty = {
+							any_dynasty_member = {
+								count >= 2
+								is_adult = yes
+							}
+						}
+					}
+				}
+				effect = {
+					set_variable = second_rome_verdict_delivered
+					story_owner = {
+						trigger_event = {
+							id = saga_second_rome.1012
+							days = 4
+						}
+					}
+				}
+			}
+			# Negative but no kin to split the house -- the rival simply wins
+			triggered_effect = {
+				trigger = {
+					var:second_rome_legitimacy_counter < 0
+				}
+				effect = {
+					set_variable = second_rome_verdict_delivered
+					story_owner = {
+						trigger_event = {
+							id = saga_second_rome.1011
+							days = 4
+						}
+					}
+				}
+			}
+			# The Hollow Crown -- held, but never believed (counter 0..3)
+			triggered_effect = {
+				trigger = { always = yes }
+				effect = {
+					set_variable = second_rome_verdict_delivered
+					story_owner = {
+						trigger_event = {
+							id = saga_second_rome.1010
+							days = 4
+						}
 					}
 				}
 			}
