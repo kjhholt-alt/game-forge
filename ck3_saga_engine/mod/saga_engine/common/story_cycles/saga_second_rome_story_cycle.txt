@@ -5,8 +5,13 @@
 ###
 ### Restorer legitimacy tug-of-war vs. a rival claimant. Triggered when the
 ### story owner holds an empire-tier title (see saga_second_rome_on_action.txt
-### for the entry point). Escalation stages + ending fork are later batches --
-### this file only carries the setup arc's own effect_group (maintenance).
+### for the entry point).
+###
+### Batch 1 (setup, events 1000-1003) carries only the maintenance
+### effect_group below. Batch 2 (escalation stage 1, events 1004-1007) adds
+### the kickoff effect_group that advances the saga once the setup arc's
+### second_rome_setup_complete story variable is set. Escalation stage 2-3
+### + the ending fork remain later batches.
 ###
 ##################################################
 
@@ -61,6 +66,31 @@ story_second_rome = {
 
 	on_owner_death = {
 		end_story = yes
+	}
+
+	# Escalation stage 1 kickoff -- fires once, when the setup arc closes
+	# (second_rome_setup_complete is set by saga_second_rome.1003's `after`
+	# block), advancing the saga into the rival's pressure campaign.
+	effect_group = {
+		days = 3
+
+		trigger = {
+			has_variable = second_rome_setup_complete
+			NOT = { has_variable = second_rome_escalation_1_started }
+		}
+
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = {
+				set_variable = second_rome_escalation_1_started
+				story_owner = {
+					trigger_event = {
+						id = saga_second_rome.1004
+						days = 3
+					}
+				}
+			}
+		}
 	}
 
 	# Maintenance -- the imperial claim is void the moment the title is lost

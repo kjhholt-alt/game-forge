@@ -29,3 +29,27 @@
  saga_second_rome.1003.desc:0 "An embassy from a neighboring realm arrives, ostensibly to pay respects -- in truth, to see whether your court can command awe or only argument. This is no idle theater. It is the first real test of whether the world will accept your empire as more than a fresh coat of paint over old stones."
  saga_second_rome.1003.a:0 "Stage a coronation worthy of the old emperors, whatever the cost."
  saga_second_rome.1003.b:0 "Answer their doubts with the ledgers and the roads, not spectacle."
+
+ # saga_second_rome.1004 -- The Rival Musters Support
+ saga_second_rome.1004.t:0 "The Rival Musters Support"
+ saga_second_rome.1004.desc:0 "Your rival has stopped merely denying your claim and started campaigning against it -- letters to distant courts, gifts to wavering allies, quiet suggestions that your empire is a costume, not a crown. It is a war fought in council chambers rather than fields, and it is already underway."
+ saga_second_rome.1004.a:0 "Send envoys of my own, court by court, and answer whisper with whisper."
+ saga_second_rome.1004.b:0 "Let him waste his breath. My armies will speak for me when it matters."
+
+ # saga_second_rome.1005 -- A Courtier's Wandering Eye
+ saga_second_rome.1005.t:0 "A Courtier's Wandering Eye"
+ saga_second_rome.1005.desc:0 "One of your own courtiers has been receiving gifts that did not come from you. Nothing said outright yet -- only a loosened tongue at the wrong dinner, a little too much curiosity about your plans. Your rival's coin has found a way through your own gates."
+ saga_second_rome.1005.a:0 "Root out the traitor before the rot spreads further."
+ saga_second_rome.1005.b:0 "Feed them false comfort, and let my rival believe he is winning."
+
+ # saga_second_rome.1006 -- The Rival's Envoy
+ saga_second_rome.1006.t:0 "The Rival's Envoy"
+ saga_second_rome.1006.desc:0 "An envoy stands before your full court, sent by your rival to demand -- not request -- that you set aside the imperial title as a fraud unbecoming of your station. Every eye in the hall is on you, waiting to see if the demand lands or breaks against you."
+ saga_second_rome.1006.a:0 "Answer the demand with dread. Let him carry that answer home."
+ saga_second_rome.1006.b:0 "Offer polite nothings and send him away with no commitment made."
+
+ # saga_second_rome.1007 -- Test of Arms
+ saga_second_rome.1007.t:0 "Test of Arms"
+ saga_second_rome.1007.desc:0 "Banners belonging to your rival's allies have been sighted mustering near your border -- not yet an invasion, but plainly a test of nerve, sent to see whether an emperor of paper flinches at the first show of steel. The whole court is watching to see what you do next."
+ saga_second_rome.1007.a:0 "Muster my own banners in answer. Let them see we do not flinch."
+ saga_second_rome.1007.b:0 "Reinforce the border quietly, and deny them the satisfaction of a spectacle."

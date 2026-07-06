@@ -2,18 +2,28 @@
 
 ##################################################
 # Second Rome -- Imperial Restoration Saga
-# Saga Engine Phase 2, batch 1 (setup stage)
+# Saga Engine Phase 2, batch 1 (setup stage) + batch 2 (escalation stage 1)
 #
 # Reserved ID block: saga_second_rome.1000-1999 (see docs/SPEC.md)
-# This batch: 1000-1003, the setup arc only.
+# Batch 1: 1000-1003, the setup arc.
+# Batch 2: 1004-1007, escalation stage 1 (rival pressure campaign). Next
+# free id after this batch: 1008.
 #
-# 1000  The Weight of the Purple  -- reflection on the empty title
-# 1001  Whispers in the Court     -- the court doubts you're truly emperor
-# 1002  A Voice Denies You        -- the rival claimant is revealed
-# 1003  The First Trial           -- first real legitimacy stakes; closes
-#                                    the setup arc (sets
-#                                    second_rome_setup_complete for the
-#                                    escalation stages of a later batch)
+# 1000  The Weight of the Purple   -- reflection on the empty title
+# 1001  Whispers in the Court      -- the court doubts you're truly emperor
+# 1002  A Voice Denies You         -- the rival claimant is revealed
+# 1003  The First Trial            -- first real legitimacy stakes; closes
+#                                     the setup arc (sets
+#                                     second_rome_setup_complete, which the
+#                                     story_cycle's escalation-1 kickoff
+#                                     effect_group watches for)
+# 1004  The Rival Musters Support  -- rival campaigns for foreign non-recognition
+# 1005  A Courtier's Wandering Eye -- rival's agents try to turn a courtier
+# 1006  The Rival's Envoy          -- public demand to renounce the title
+# 1007  Test of Arms               -- rival's allies muster at the border;
+#                                     closes escalation stage 1 (sets
+#                                     second_rome_escalation_1_complete for
+#                                     escalation stage 2, a later batch)
 ##################################################
 
 saga_second_rome.1000 = {
@@ -234,6 +244,280 @@ saga_second_rome.1003 = {
 		random_owned_story = {
 			type = story_second_rome
 			set_variable = second_rome_setup_complete
+		}
+	}
+}
+
+##################################################
+# Escalation stage 1 -- the rival's pressure campaign (batch 2)
+##################################################
+
+saga_second_rome.1004 = {
+	type = character_event
+	title = saga_second_rome.1004.t
+	desc = saga_second_rome.1004.desc
+	theme = diplomacy
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_rational
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = personality_dishonorable
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1004.a
+		add_prestige = minor_prestige_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1004.b
+		add_dread = minor_dread_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				subtract = 1
+			}
+		}
+	}
+
+	after = {
+		trigger_event = {
+			id = saga_second_rome.1005
+			days = 6
+		}
+	}
+}
+
+saga_second_rome.1005 = {
+	type = character_event
+	title = saga_second_rome.1005.t
+	desc = saga_second_rome.1005.desc
+	theme = intrigue
+
+	override_background = {
+		reference = courtyard
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_cynical
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = personality_callous
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1005.a
+		add_dread = minor_dread_gain
+		add_character_flag = second_rome_purged_a_traitor
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1005.b
+		add_stress = minor_stress_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	after = {
+		trigger_event = {
+			id = saga_second_rome.1006
+			days = 7
+		}
+	}
+}
+
+saga_second_rome.1006 = {
+	type = character_event
+	title = saga_second_rome.1006.t
+	desc = saga_second_rome.1006.desc
+	theme = crown
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_vengeful
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = personality_callous
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1006.a
+		add_dread = medium_dread_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 2
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1006.b
+		add_stress = minor_stress_loss
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				subtract = 1
+			}
+		}
+	}
+
+	after = {
+		trigger_event = {
+			id = saga_second_rome.1007
+			days = 8
+		}
+	}
+}
+
+saga_second_rome.1007 = {
+	type = character_event
+	title = saga_second_rome.1007.t
+	desc = saga_second_rome.1007.desc
+	theme = war
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = personality_vengeful
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1007.a
+		add_dread = medium_dread_gain
+		add_character_flag = second_rome_answered_the_muster
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 2
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1007.b
+		add_stress = minor_stress_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	after = {
+		random_owned_story = {
+			type = story_second_rome
+			set_variable = second_rome_escalation_1_complete
 		}
 	}
 }

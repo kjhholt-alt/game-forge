@@ -162,7 +162,7 @@ Kruz picks one theme from `THEME_SHORTLIST.md`. Once picked:
 
 | Saga | Namespace | ID block | Status |
 |---|---|---|---|
-| Second Rome — Imperial Restoration | `saga_second_rome` | `1000-1999` | Batch 1 (setup) done: `1000-1003` in `mod/saga_engine/events/saga_second_rome_events.txt` + `mod/saga_engine/common/story_cycles/saga_second_rome_story_cycle.txt`. Next free ID: `1004`. Escalation stages (3) + ending fork are later batches, same namespace, ids `1004+`. |
+| Second Rome — Imperial Restoration | `saga_second_rome` | `1000-1999` | Batch 1 (setup) done: `1000-1003`. Batch 2 (escalation stage 1 — rival pressure campaign + tug_of_war movement) done: `1004-1007`, wired via a kickoff `effect_group` in `saga_second_rome_story_cycle.txt` gated on `second_rome_setup_complete`; closes by setting `second_rome_escalation_1_complete`. Next free ID: `1008`. Escalation stages 2-3 + ending fork are later batches, same namespace, ids `1008+`. |
 
 Entry point: `common/on_action/saga_second_rome_on_action.txt` hooks
 `yearly_playable_pulse` (vanilla on_action, `on_actions` list merges
