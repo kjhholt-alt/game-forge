@@ -158,6 +158,20 @@ Kruz picks one theme from `THEME_SHORTLIST.md`. Once picked:
    the playtest stage above, and per the posture rules it's the one part of
    this that isn't fully autonomous by design.
 
+## Namespace reservations (Phase 2)
+
+| Saga | Namespace | ID block | Status |
+|---|---|---|---|
+| Second Rome — Imperial Restoration | `saga_second_rome` | `1000-1999` | Batch 1 (setup) done: `1000-1003` in `mod/saga_engine/events/saga_second_rome_events.txt` + `mod/saga_engine/common/story_cycles/saga_second_rome_story_cycle.txt`. Next free ID: `1004`. Escalation stages (3) + ending fork are later batches, same namespace, ids `1004+`. |
+
+Entry point: `common/on_action/saga_second_rome_on_action.txt` hooks
+`yearly_playable_pulse` (vanilla on_action, `on_actions` list merges
+additively across mod files — does not replace vanilla's own effect block)
+to check once a year whether the player now holds an empire-tier title
+(`highest_held_title_tier = tier_empire`) and hasn't run/finished this saga
+yet, then `create_story = story_second_rome` and picks the rival claimant
+(a rival independent ruler, falling back to a denying head of faith).
+
 ## Explicit non-goals for this pass (gl-0084 Phase 0/1)
 
 - No saga content was generated tonight beyond the pre-existing hello-world

@@ -1,0 +1,31 @@
+﻿l_english:
+ # Story cycle visualization
+ SECOND_ROME_RIVAL_LABEL:0 "Denies Your Claim"
+ second_rome_legitimacy_counter_label:0 "Restorer's Legitimacy"
+ SECOND_ROME_LEGITIMACY_COUNTER_TOOLTIP:0 "How widely your claim to the old empire's mantle is believed, from open mockery to unquestioned acclaim."
+ SECOND_ROME_LEGITIMACY_MIN_LABEL:0 "Hollow Crown"
+ SECOND_ROME_LEGITIMACY_MAX_LABEL:0 "Restorer Acclaimed"
+
+ # saga_second_rome.1000 -- The Weight of the Purple
+ saga_second_rome.1000.t:0 "The Weight of the Purple"
+ saga_second_rome.1000.desc:0 "The imperial crown sits on your brow now, heavier than any count's coronet ever was. Yet a title copied onto parchment is not the same as a title believed in the hearts of other rulers -- or your own court. Already you sense the whispers: usurper, upstart, pretender."
+ saga_second_rome.1000.a:0 "Let them call me pretender. I will make them believe it."
+ saga_second_rome.1000.b:0 "Legitimacy is proven through years of just rule, not proclamation."
+
+ # saga_second_rome.1001 -- Whispers in the Court
+ saga_second_rome.1001.t:0 "Whispers in the Court"
+ saga_second_rome.1001.desc:0 "Your councillors trade doubts behind half-closed doors. A throne is easily sat upon; it is another matter to be believed. If the old empire's glory is to be restored in truth and not just in name, someone out there will have to be convinced -- or answered."
+ saga_second_rome.1001.a:0 "Summon the court. I will hear their doubts openly."
+ saga_second_rome.1001.b:0 "Let doubts fester unspoken. I have no patience for gossip."
+
+ # saga_second_rome.1002 -- A Voice Denies You
+ saga_second_rome.1002.t:0 "A Voice Denies You"
+ saga_second_rome.1002.desc:0 "Word reaches your court that your claim to the purple has been denied outright, loudly enough that every hall from here to the coast has heard it. A throne unrecognized is a throne only half-held."
+ saga_second_rome.1002.a:0 "Denounce them before my own court, and let all know I heard the insult."
+ saga_second_rome.1002.b:0 "Ignore the insult. Let my deeds answer where words will not."
+
+ # saga_second_rome.1003 -- The First Trial
+ saga_second_rome.1003.t:0 "The First Trial"
+ saga_second_rome.1003.desc:0 "An embassy from a neighboring realm arrives, ostensibly to pay respects -- in truth, to see whether your court can command awe or only argument. This is no idle theater. It is the first real test of whether the world will accept your empire as more than a fresh coat of paint over old stones."
+ saga_second_rome.1003.a:0 "Stage a coronation worthy of the old emperors, whatever the cost."
+ saga_second_rome.1003.b:0 "Answer their doubts with the ledgers and the roads, not spectacle."

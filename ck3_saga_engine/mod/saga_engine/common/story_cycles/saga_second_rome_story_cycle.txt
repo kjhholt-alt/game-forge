@@ -1,0 +1,86 @@
+﻿##################################################
+###
+### Second Rome -- Imperial Restoration Saga
+### Saga Engine Phase 2, batch 1 (setup stage)
+###
+### Restorer legitimacy tug-of-war vs. a rival claimant. Triggered when the
+### story owner holds an empire-tier title (see saga_second_rome_on_action.txt
+### for the entry point). Escalation stages + ending fork are later batches --
+### this file only carries the setup arc's own effect_group (maintenance).
+###
+##################################################
+
+story_second_rome = {
+	visible = yes
+
+	icon = {
+		reference = "gfx/interface/icons/artifact/artefact_icons_unique_artifact_byzantine_imperial_crown.dds"
+	}
+
+	background = {
+		reference = "gfx/interface/illustrations/event_scenes/ep3_byzantine_throne_room.dds"
+	}
+
+	visualization = {
+		character = {
+			variable_name = "second_rome_rival"
+			label = "SECOND_ROME_RIVAL_LABEL"
+		}
+		tug_of_war_counter = {
+			label = "second_rome_legitimacy_counter_label"
+			variable_name = "second_rome_legitimacy_counter"
+			tooltip = SECOND_ROME_LEGITIMACY_COUNTER_TOOLTIP
+			min_label = SECOND_ROME_LEGITIMACY_MIN_LABEL
+			max_label = SECOND_ROME_LEGITIMACY_MAX_LABEL
+			min = -5
+			max = 5
+		}
+	}
+
+	on_setup = {
+		set_variable = {
+			name = second_rome_legitimacy_counter
+			value = 0
+		}
+		story_owner = {
+			trigger_event = {
+				id = saga_second_rome.1000
+				days = 2
+			}
+		}
+	}
+
+	on_end = {
+		remove_variable = second_rome_rival
+		remove_variable = second_rome_legitimacy_counter
+		story_owner = {
+			remove_variable = ongoing_second_rome_story
+			set_variable = had_second_rome_story
+		}
+	}
+
+	on_owner_death = {
+		end_story = yes
+	}
+
+	# Maintenance -- the imperial claim is void the moment the title is lost
+	effect_group = {
+		days = 1
+
+		trigger = {
+			story_owner = {
+				NOT = { highest_held_title_tier = tier_empire }
+			}
+		}
+
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = {
+				story_owner = { save_scope_as = story_owner }
+				debug_log = "Second Rome story invalidated -- story owner no longer holds an empire-tier title"
+				debug_log_scopes = yes
+				end_story = yes
+			}
+		}
+	}
+}

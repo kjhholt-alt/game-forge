@@ -1,0 +1,67 @@
+﻿##################################################
+###
+### Second Rome -- saga entry point
+###
+### Hooks into vanilla's yearly_playable_pulse (on_actions lists merge
+### additively across mod files -- this does not replace vanilla's own
+### effect block for that pulse) to check, once a year per playable
+### character, whether they now qualify to start the saga.
+###
+##################################################
+
+yearly_playable_pulse = {
+	on_actions = {
+		saga_second_rome_start_on_action
+	}
+}
+
+saga_second_rome_start_on_action = {
+	trigger = {
+		is_ai = no
+		highest_held_title_tier = tier_empire
+		NOT = { has_variable = had_second_rome_story }
+		NOT = { any_owned_story = { story_type = story_second_rome } }
+	}
+
+	effect = {
+		# Pick the rival claimant: prefer a rival crown, fall back to a
+		# denying head of faith -- both real, findable characters.
+		if = {
+			limit = {
+				any_independent_ruler = {
+					this != root
+					is_alive = yes
+				}
+			}
+			random_independent_ruler = {
+				limit = {
+					this != root
+					is_alive = yes
+				}
+				save_scope_as = second_rome_rival_candidate
+			}
+		}
+		else_if = {
+			limit = {
+				exists = faith.religious_head
+				faith.religious_head != root
+			}
+			faith.religious_head = { save_scope_as = second_rome_rival_candidate }
+		}
+		else = {
+			root = { save_scope_as = second_rome_rival_candidate }
+		}
+
+		create_story = story_second_rome
+
+		random_owned_story = {
+			type = story_second_rome
+			set_variable = {
+				name = second_rome_rival
+				value = scope:second_rome_rival_candidate
+			}
+		}
+
+		set_variable = ongoing_second_rome_story
+	}
+}

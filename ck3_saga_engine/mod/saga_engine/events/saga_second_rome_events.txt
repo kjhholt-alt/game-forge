@@ -1,0 +1,239 @@
+﻿namespace = saga_second_rome
+
+##################################################
+# Second Rome -- Imperial Restoration Saga
+# Saga Engine Phase 2, batch 1 (setup stage)
+#
+# Reserved ID block: saga_second_rome.1000-1999 (see docs/SPEC.md)
+# This batch: 1000-1003, the setup arc only.
+#
+# 1000  The Weight of the Purple  -- reflection on the empty title
+# 1001  Whispers in the Court     -- the court doubts you're truly emperor
+# 1002  A Voice Denies You        -- the rival claimant is revealed
+# 1003  The First Trial           -- first real legitimacy stakes; closes
+#                                    the setup arc (sets
+#                                    second_rome_setup_complete for the
+#                                    escalation stages of a later batch)
+##################################################
+
+saga_second_rome.1000 = {
+	type = character_event
+	title = saga_second_rome.1000.t
+	desc = saga_second_rome.1000.desc
+	theme = emperor
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1000.a
+		add_prestige = minor_prestige_gain
+		add_dread = minor_dread_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1000.b
+		add_piety = minor_piety_gain
+		add_character_flag = second_rome_measured_claim
+	}
+
+	after = {
+		trigger_event = {
+			id = saga_second_rome.1001
+			days = 5
+		}
+	}
+}
+
+saga_second_rome.1001 = {
+	type = character_event
+	title = saga_second_rome.1001.t
+	desc = saga_second_rome.1001.desc
+	theme = court
+
+	override_background = {
+		reference = courtyard
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_rational
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1001.a
+		add_prestige = minor_prestige_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1001.b
+		add_dread = minor_dread_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				subtract = 1
+			}
+		}
+	}
+
+	after = {
+		trigger_event = {
+			id = saga_second_rome.1002
+			days = 6
+		}
+	}
+}
+
+saga_second_rome.1002 = {
+	type = character_event
+	title = saga_second_rome.1002.t
+	desc = saga_second_rome.1002.desc
+	theme = crown
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_cynical
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = personality_callous
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1002.a
+		add_dread = minor_dread_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				subtract = 1
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1002.b
+		add_piety = minor_piety_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	after = {
+		trigger_event = {
+			id = saga_second_rome.1003
+			days = 7
+		}
+	}
+}
+
+saga_second_rome.1003 = {
+	type = character_event
+	title = saga_second_rome.1003.t
+	desc = saga_second_rome.1003.desc
+	theme = coronation
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1003.a
+		add_prestige = medium_prestige_gain
+		add_dread = medium_dread_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 2
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1003.b
+		add_piety = minor_piety_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	after = {
+		random_owned_story = {
+			type = story_second_rome
+			set_variable = second_rome_setup_complete
+		}
+	}
+}
