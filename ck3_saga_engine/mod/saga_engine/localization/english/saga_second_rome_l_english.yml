@@ -53,3 +53,33 @@
  saga_second_rome.1007.desc:0 "Banners belonging to your rival's allies have been sighted mustering near your border -- not yet an invasion, but plainly a test of nerve, sent to see whether an emperor of paper flinches at the first show of steel. The whole court is watching to see what you do next."
  saga_second_rome.1007.a:0 "Muster my own banners in answer. Let them see we do not flinch."
  saga_second_rome.1007.b:0 "Reinforce the border quietly, and deny them the satisfaction of a spectacle."
+
+ # saga_second_rome.1008 -- The Verdict of the Age (ending-fork prelude)
+ saga_second_rome.1008.t:0 "The Verdict of the Age"
+ saga_second_rome.1008.desc:0 "The rival's envoys have gone quiet, and the banners at the border have furled. In your own hall the whispers have thinned to a hush, and you have lived long enough among courts to know that hush is not peace. The age has finished asking whether you are truly emperor. It is about to answer."
+ saga_second_rome.1008.a:0 "Stake all that remains on one last act of majesty."
+ saga_second_rome.1008.b:0 "Let the answer come. I have done what could be done."
+
+ # saga_second_rome.1009 -- The Acclamation (ENDING: recognized restorer)
+ saga_second_rome.1009.t:0 "The Acclamation"
+ saga_second_rome.1009.desc:0 "They fill the streets to see you as the old emperors were seen, and no one had to be paid to cheer. The envoys who once weighed your court with narrowed eyes now kneel in it, and the chroniclers have quietly struck out 'styled himself emperor' and written the plain word instead. Only you know the full price of it -- the years, the coin, the men -- and no chronicle will ever carry that ledger."
+ saga_second_rome.1009.a:0 "Wear it as the old emperors wore it."
+ saga_second_rome.1009.b:0 "Remember every hand that ever doubted."
+
+ # saga_second_rome.1010 -- The Hollow Crown (ENDING: held, never believed)
+ saga_second_rome.1010.t:0 "The Hollow Crown"
+ saga_second_rome.1010.desc:0 "No herald denies you now; no army musters at your border; the title is yours for as long as you care to hold it. But you have watched your court bow at precisely the correct depth and not a finger's width lower, and you have read what the chroniclers write: 'he wore the purple' -- never 'he was Rome.' The empire stands. Only the belief in it never came."
+ saga_second_rome.1010.a:0 "Rule on as though they believed."
+ saga_second_rome.1010.b:0 "Build what will outlast their doubt."
+
+ # saga_second_rome.1011 -- Another's Chronicle (ENDING: the rival prevails)
+ saga_second_rome.1011.t:0 "Another's Chronicle"
+ saga_second_rome.1011.desc:0 "The story has been decided, and it is not yours. In every court that matters the tale now runs the same way: a pretender reached for the purple, and one man stood and named the fraud aloud. Singers carry your rival's name from here to the coast, while yours survives as a single line in another man's chronicle. You still hold the throne; the story has already left the room."
+ saga_second_rome.1011.a:0 "Endure. Chronicles are not the last word."
+ saga_second_rome.1011.b:0 "Strike his name from every book my writ can reach."
+
+ # saga_second_rome.1012 -- At Your Own Table (ENDING: dynasty schism)
+ saga_second_rome.1012.t:0 "At Your Own Table"
+ saga_second_rome.1012.desc:0 "It is not the rival who breaks you in the end -- he need only watch. A kinsman of your own house rises at your table and says aloud what half the hall has murmured for years: that if the purple can be taken by proclamation, it can be taken again, by blood no worse than yours. By nightfall the house has chosen sides along every old line of marriage, grievance, and inheritance. The empire you raised is dying at its own table, carved by the hands it was meant to feed."
+ saga_second_rome.1012.a:0 "Cast them from house and hall."
+ saga_second_rome.1012.b:0 "Yield a share, and keep the blood whole."

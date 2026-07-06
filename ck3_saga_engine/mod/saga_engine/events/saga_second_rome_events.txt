@@ -3,11 +3,13 @@
 ##################################################
 # Second Rome -- Imperial Restoration Saga
 # Saga Engine Phase 2, batch 1 (setup stage) + batch 2 (escalation stage 1)
+# + batch 3 (ending fork)
 #
 # Reserved ID block: saga_second_rome.1000-1999 (see docs/SPEC.md)
 # Batch 1: 1000-1003, the setup arc.
-# Batch 2: 1004-1007, escalation stage 1 (rival pressure campaign). Next
-# free id after this batch: 1008.
+# Batch 2: 1004-1007, escalation stage 1 (rival pressure campaign).
+# Batch 3: 1008-1012, the ending fork (verdict prelude + four endings).
+# Next free id after this batch: 1013.
 #
 # 1000  The Weight of the Purple   -- reflection on the empty title
 # 1001  Whispers in the Court      -- the court doubts you're truly emperor
@@ -24,6 +26,19 @@
 #                                     closes escalation stage 1 (sets
 #                                     second_rome_escalation_1_complete for
 #                                     escalation stage 2, a later batch)
+# 1008  The Verdict of the Age     -- prelude: the question can no longer be
+#                                     deferred; one last pull on the counter,
+#                                     then sets second_rome_verdict_ready for
+#                                     the story_cycle's verdict effect_group
+# 1009  The Acclamation            -- ENDING, counter >= 4: recognized
+#                                     restorer; the coronation history accepts
+# 1010  The Hollow Crown           -- ENDING, counter 0..3: the title held,
+#                                     the belief never came
+# 1011  Another's Chronicle        -- ENDING, counter <= -4 (or negative with
+#                                     no kin to split the house): the rival
+#                                     wins the story
+# 1012  At Your Own Table          -- ENDING, counter -3..-1 with living adult
+#                                     dynasty kin: the claim splits the house
 ##################################################
 
 saga_second_rome.1000 = {
@@ -518,6 +533,309 @@ saga_second_rome.1007 = {
 		random_owned_story = {
 			type = story_second_rome
 			set_variable = second_rome_escalation_1_complete
+		}
+	}
+}
+
+##################################################
+# Ending fork -- the verdict of the age (batch 3)
+#
+# 1008 is the prelude: the last chance to move the legitimacy counter before
+# it is read. Its `after` block sets second_rome_verdict_ready, which the
+# story_cycle's verdict effect_group watches; that effect_group reads the
+# final counter and fires exactly one of the four endings (1009-1012). Every
+# ending closes the saga via end_story, which runs the story_cycle's on_end
+# cleanup (variables removed, had_second_rome_story set on the owner).
+##################################################
+
+saga_second_rome.1008 = {
+	type = character_event
+	title = saga_second_rome.1008.t
+	desc = saga_second_rome.1008.desc
+	theme = emperor
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = worry
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1008.a
+		add_stress = minor_stress_gain
+		random_owned_story = {
+			type = story_second_rome
+			change_variable = {
+				name = second_rome_legitimacy_counter
+				add = 1
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1008.b
+		add_stress = minor_stress_loss
+	}
+
+	after = {
+		random_owned_story = {
+			type = story_second_rome
+			set_variable = second_rome_verdict_ready
+		}
+	}
+}
+
+# ENDING -- Recognized Restorer (counter >= 4)
+saga_second_rome.1009 = {
+	type = character_event
+	title = saga_second_rome.1009.t
+	desc = saga_second_rome.1009.desc
+	theme = coronation
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = happiness
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = shame
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+		give_nickname = nick_the_restorer
+	}
+
+	option = {
+		name = saga_second_rome.1009.a
+		add_prestige = major_prestige_gain
+	}
+
+	option = {
+		name = saga_second_rome.1009.b
+		add_prestige = medium_prestige_gain
+		add_dread = minor_dread_gain
+	}
+
+	after = {
+		add_character_flag = second_rome_ending_restorer
+		random_owned_story = {
+			type = story_second_rome
+			end_story = yes
+		}
+	}
+}
+
+# ENDING -- The Hollow Crown (counter 0..3)
+saga_second_rome.1010 = {
+	type = character_event
+	title = saga_second_rome.1010.t
+	desc = saga_second_rome.1010.desc
+	theme = crown
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = sadness
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		add_prestige = medium_prestige_loss
+	}
+
+	option = {
+		name = saga_second_rome.1010.a
+		add_stress = minor_stress_gain
+	}
+
+	option = {
+		name = saga_second_rome.1010.b
+		add_piety = minor_piety_gain
+	}
+
+	after = {
+		add_character_flag = second_rome_ending_hollow_crown
+		random_owned_story = {
+			type = story_second_rome
+			end_story = yes
+		}
+	}
+}
+
+# ENDING -- The Rival Prevails (counter <= -4, or negative with no kin)
+saga_second_rome.1011 = {
+	type = character_event
+	title = saga_second_rome.1011.t
+	desc = saga_second_rome.1011.desc
+	theme = crown
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = shame
+	}
+
+	right_portrait = {
+		character = scope:rival
+		animation = happiness
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		random_owned_story = {
+			type = story_second_rome
+			var:second_rome_rival = {
+				save_scope_as = rival
+			}
+		}
+		add_prestige = major_prestige_loss
+		scope:rival = {
+			add_prestige = medium_prestige_gain
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1011.a
+		add_stress = minor_stress_loss
+	}
+
+	option = {
+		name = saga_second_rome.1011.b
+		add_dread = medium_dread_gain
+		add_stress = minor_stress_gain
+	}
+
+	after = {
+		add_character_flag = second_rome_ending_rival_prevailed
+		random_owned_story = {
+			type = story_second_rome
+			end_story = yes
+		}
+	}
+}
+
+# ENDING -- Dynasty Schism (counter -3..-1, with living adult dynasty kin)
+saga_second_rome.1012 = {
+	type = character_event
+	title = saga_second_rome.1012.t
+	desc = saga_second_rome.1012.desc
+	theme = dynasty
+
+	override_background = {
+		reference = throne_room
+	}
+
+	left_portrait = {
+		character = root
+		animation = anger
+	}
+
+	right_portrait = {
+		character = scope:schism_kinsman
+		animation = personality_bold
+	}
+
+	trigger = {
+		any_owned_story = {
+			story_type = story_second_rome
+		}
+	}
+
+	immediate = {
+		# Pick the kinsman who leads the schism; root fallback mirrors the
+		# on_action's rival-candidate fallback so the scope always exists.
+		if = {
+			limit = {
+				exists = dynasty
+				dynasty = {
+					any_dynasty_member = {
+						NOT = { this = root }
+						is_adult = yes
+					}
+				}
+			}
+			dynasty = {
+				random_dynasty_member = {
+					limit = {
+						NOT = { this = root }
+						is_adult = yes
+					}
+					save_scope_as = schism_kinsman
+				}
+			}
+		}
+		else = {
+			save_scope_as = schism_kinsman
+		}
+		if = {
+			limit = { exists = dynasty }
+			dynasty = {
+				add_dynasty_prestige = medium_dynasty_prestige_loss
+			}
+		}
+	}
+
+	option = {
+		name = saga_second_rome.1012.a
+		add_dread = medium_dread_gain
+		add_stress = minor_stress_gain
+	}
+
+	option = {
+		name = saga_second_rome.1012.b
+		add_prestige = medium_prestige_loss
+		scope:schism_kinsman = {
+			add_prestige = minor_prestige_gain
+		}
+	}
+
+	after = {
+		add_character_flag = second_rome_ending_dynasty_schism
+		random_owned_story = {
+			type = story_second_rome
+			end_story = yes
 		}
 	}
 }

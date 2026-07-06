@@ -162,7 +162,7 @@ Kruz picks one theme from `THEME_SHORTLIST.md`. Once picked:
 
 | Saga | Namespace | ID block | Status |
 |---|---|---|---|
-| Second Rome — Imperial Restoration | `saga_second_rome` | `1000-1999` | Batch 1 (setup) done: `1000-1003`. Batch 2 (escalation stage 1 — rival pressure campaign + tug_of_war movement) done: `1004-1007`, wired via a kickoff `effect_group` in `saga_second_rome_story_cycle.txt` gated on `second_rome_setup_complete`; closes by setting `second_rome_escalation_1_complete`. Next free ID: `1008`. Escalation stages 2-3 + ending fork are later batches, same namespace, ids `1008+`. |
+| Second Rome — Imperial Restoration | `saga_second_rome` | `1000-1999` | Batch 1 (setup) done: `1000-1003`. Batch 2 (escalation stage 1 — rival pressure campaign + tug_of_war movement) done: `1004-1007`, wired via a kickoff `effect_group` in `saga_second_rome_story_cycle.txt` gated on `second_rome_setup_complete`; closes by setting `second_rome_escalation_1_complete`. Batch 3 (ending fork) done: `1008-1012` — verdict prelude (`1008`, last counter pull, sets `second_rome_verdict_ready`) + four endings picked by a `first_valid` verdict `effect_group` reading the final counter: Recognized Restorer (`1009`, ≥ 4), Hollow Crown (`1010`, 0..3), Rival Prevails (`1011`, ≤ -4, or negative with no adult dynasty kin), Dynasty Schism (`1012`, -3..-1 with adult dynasty kin). All endings `end_story`. Next free ID: `1013`. If escalation stages 2-3 are written later, re-point the ending kickoff's gate (currently `second_rome_escalation_1_complete`) at their closing flag. |
 
 Entry point: `common/on_action/saga_second_rome_on_action.txt` hooks
 `yearly_playable_pulse` (vanilla on_action, `on_actions` list merges
