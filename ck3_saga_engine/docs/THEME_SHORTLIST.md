@@ -1,5 +1,8 @@
 # Saga Engine — Theme Shortlist (pick one)
 
+> **DECIDED 2026-07-05: Kruz picked #1 "Second Rome".** Kept for the record;
+> the other four themes remain candidates for later sagas.
+
 **For:** Kruz, morning-after review of gl-0084.
 **Ask:** pick ONE of these 5 as the Phase 1/2 saga theme. Mass content
 generation (Phase 2) does not start until you pick and the spec

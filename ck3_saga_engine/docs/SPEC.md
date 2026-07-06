@@ -1,8 +1,9 @@
 # Saga Engine — Phase 1 Content Pipeline Spec
 
-**Status:** DRAFT — needs Kruz's theme pick (`THEME_SHORTLIST.md`) and
-sign-off before Phase 2 (mass generation / the first 20-event chain) starts.
-Nothing in this doc has been used to generate saga content yet.
+**Status:** ACTIVE — Kruz picked the theme 2026-07-05: **#1 "Second Rome" —
+Imperial Restoration Saga** (`THEME_SHORTLIST.md`) and gave the go ("Lets do
+... second rome for CK3"). Phase 2 mass generation is unblocked; first batch
+= the setup stage, per the batch sizing below.
 
 ## Mission
 
