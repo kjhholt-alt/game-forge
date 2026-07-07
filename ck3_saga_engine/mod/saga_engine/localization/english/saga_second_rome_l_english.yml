@@ -54,6 +54,36 @@
  saga_second_rome.1007.a:0 "Muster my own banners in answer. Let them see we do not flinch."
  saga_second_rome.1007.b:0 "Reinforce the border quietly, and deny them the satisfaction of a spectacle."
 
+ # saga_second_rome.1013 -- The Faith Turns Its Back
+ saga_second_rome.1013.t:0 "The Faith Turns Its Back"
+ saga_second_rome.1013.desc:0 "Your rival's coin has bought more than gossip -- a bishop has begun murmuring that a crown claimed by proclamation, and not blessed by any council of the faithful, was never truly consecrated at all. It is a slower knife than an army, but it cuts at the one thing an emperor cannot simply muster: the sanction of heaven."
+ saga_second_rome.1013.a:0 "Let the bishop preach. My throne answers to no pulpit."
+ saga_second_rome.1013.b:0 "Make my peace with the clergy before the whisper becomes doctrine."
+
+ # saga_second_rome.1014 -- A Banner Changes Hands
+ saga_second_rome.1014.t:0 "A Banner Changes Hands"
+ saga_second_rome.1014.desc:0 "One of your own vassals has stopped hedging and openly declared for your rival's cause -- his banner struck from your muster rolls, his oaths recast as another man's promises. It is the first defection that cannot be explained away as caution, and every other wavering lord in your court is watching to see what an emperor does about it."
+ saga_second_rome.1014.a:0 "Make an example that no other banner will dare follow."
+ saga_second_rome.1014.b:0 "Let him go. A forced oath was never worth the ink."
+
+ # saga_second_rome.1015 -- Blood at the Border
+ saga_second_rome.1015.t:0 "Blood at the Border"
+ saga_second_rome.1015.desc:0 "What began as banners mustering at a distance has become a raid in earnest -- steadings burned, a border garrison bloodied, before the raiders melted back across the line. Your rival calls it the work of unruly men he does not command. No one at your court believes that, least of all you."
+ saga_second_rome.1015.a:0 "Answer blood with blood, and send the raiders home in pieces."
+ saga_second_rome.1015.b:0 "Hold the line and let the provocation go unanswered -- for now."
+
+ # saga_second_rome.1016 -- The Rival's Ultimatum
+ saga_second_rome.1016.t:0 "The Rival's Ultimatum"
+ saga_second_rome.1016.desc:0 "Your rival's herald stands before your full court at last, and there is no diplomacy left in his message: set aside the imperial title within the season, or answer for it on the field. Every courtier in the hall has gone very quiet, waiting to learn whether their emperor is a man who bends or a man who musters."
+ saga_second_rome.1016.a:0 "Tell him the only answer he will get is my army's."
+ saga_second_rome.1016.b:0 "Play for time. A season is long enough to prepare."
+
+ # saga_second_rome.1017 -- The Muster Answers
+ saga_second_rome.1017.t:0 "The Muster Answers"
+ saga_second_rome.1017.desc:0 "The ultimatum's season has run out, and there is no more room for half-measures. Levies are called, banners raised, and the quiet pretense that this was ever a war of words alone has finally, openly broken. Whatever comes of this claim now, it will be decided by more than a chronicler's pen."
+ saga_second_rome.1017.a:0 "Muster in full. Let this be settled by arms, not argument."
+ saga_second_rome.1017.b:0 "Muster enough to be taken seriously, and pray it is enough to end this without a field of dead."
+
  # saga_second_rome.1008 -- The Verdict of the Age (ending-fork prelude)
  saga_second_rome.1008.t:0 "The Verdict of the Age"
  saga_second_rome.1008.desc:0 "The rival's envoys have gone quiet, and the banners at the border have furled. In your own hall the whispers have thinned to a hush, and you have lived long enough among courts to know that hush is not peace. The age has finished asking whether you are truly emperor. It is about to answer."

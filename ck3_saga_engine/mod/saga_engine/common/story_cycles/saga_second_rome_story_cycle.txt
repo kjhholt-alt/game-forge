@@ -11,11 +11,11 @@
 ### effect_group below. Batch 2 (escalation stage 1, events 1004-1007) adds
 ### the kickoff effect_group that advances the saga once the setup arc's
 ### second_rome_setup_complete story variable is set. Batch 3 (ending fork,
-### events 1008-1012) adds the ending kickoff + verdict effect_groups that
-### resolve the tug-of-war once second_rome_escalation_1_complete is set.
-### If escalation stages 2-3 are written later (ids 1013+), re-point the
-### ending kickoff's gate at THEIR closing flag so the verdict comes after
-### the full arc instead of directly after stage 1.
+### events 1008-1012) adds the ending kickoff + verdict effect_groups. Batch 4
+### (escalation stage 2, events 1013-1017) adds a second kickoff effect_group
+### gated on second_rome_escalation_1_complete, and re-points the ending
+### kickoff's gate at second_rome_escalation_2_complete so the verdict comes
+### after the full arc instead of directly after stage 1.
 ###
 ##################################################
 
@@ -97,15 +97,40 @@ story_second_rome = {
 		}
 	}
 
-	# Ending fork kickoff -- fires once, when escalation stage 1 closes
+	# Escalation stage 2 kickoff -- fires once, when escalation stage 1 closes
 	# (second_rome_escalation_1_complete is set by saga_second_rome.1007's
-	# `after` block), opening the verdict prelude. See the header note about
-	# re-pointing this gate if escalation stages 2-3 are added later.
+	# `after` block), advancing the saga into open confrontation.
 	effect_group = {
 		days = 3
 
 		trigger = {
 			has_variable = second_rome_escalation_1_complete
+			NOT = { has_variable = second_rome_escalation_2_started }
+		}
+
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = {
+				set_variable = second_rome_escalation_2_started
+				story_owner = {
+					trigger_event = {
+						id = saga_second_rome.1013
+						days = 3
+					}
+				}
+			}
+		}
+	}
+
+	# Ending fork kickoff -- fires once, when escalation stage 2 closes
+	# (second_rome_escalation_2_complete is set by saga_second_rome.1017's
+	# `after` block), opening the verdict prelude. If further escalation
+	# stages are written later, re-point this gate at their closing flag.
+	effect_group = {
+		days = 3
+
+		trigger = {
+			has_variable = second_rome_escalation_2_complete
 			NOT = { has_variable = second_rome_ending_started }
 		}
 

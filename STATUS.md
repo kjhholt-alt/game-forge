@@ -2,6 +2,34 @@
 
 **Last updated:** 2026-07-06
 
+## 2026-07-06 — Saga Engine: Second Rome batch 4 — escalation stage 2, open confrontation
+
+Escalation stage 2 adds events `saga_second_rome.1013-1017`, the rival's
+pressure campaign from batch 2 tipping into open confrontation:
+
+- **The Faith Turns Its Back** (`1013`) — the rival leans on the clergy to
+  cast doubt on the coronation's legitimacy.
+- **A Banner Changes Hands** (`1014`) — a vassal defects openly to the
+  rival's cause.
+- **Blood at the Border** (`1015`) — the pressure campaign becomes a real
+  border raid.
+- **The Rival's Ultimatum** (`1016`) — public demand, before the full court,
+  to abdicate the title or face war.
+- **The Muster Answers** (`1017`) — armies actually raised; closes the
+  stage by setting `second_rome_escalation_2_complete`.
+
+Wired via a new kickoff `effect_group` in the story_cycle gated on
+`second_rome_escalation_1_complete` (batch 2's closing flag). Per the
+gotcha flagged in batch 3's write-up, the **ending kickoff's gate has been
+re-pointed** from `second_rome_escalation_1_complete` to
+`second_rome_escalation_2_complete`, so the verdict fork now fires after
+this stage instead of directly after stage 1 — updated in both the
+story_cycle header comment and `SPEC.md`'s namespace table. Next free ID:
+`1018`.
+
+Gate: `deploy.py` + `validate.py` clean — ck3-tiger 0 reports. Playtest
+remains Kruz-gated per the spec.
+
 ## 2026-07-06 — Saga Engine: Second Rome batch 3 — the ending forks land
 
 The Restorer-legitimacy tug-of-war now resolves. Batch 3 adds events
