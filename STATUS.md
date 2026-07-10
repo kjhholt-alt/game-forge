@@ -1,6 +1,36 @@
 # GameForge — Status
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-10
+
+## 2026-07-10 — gl-0454: Tarkov-genre micro-prototype smoke — pipeline still green
+
+Fired a fresh full-pipeline smoke (concept → world → mechanics → narrative
+→ art → QA) on `"2D extraction shooter micro-prototype: 3 interconnected
+rooms, randomised loot spawns, single exit trigger"`, proving the
+generation path still works after weeks with no smoke-signals in the
+decision feed.
+
+- **Real generation, no fallbacks:** concept **"Coldstore"** (a 3-room
+  harbor cold-store extraction map — gutting floor → freezer → loading
+  dock), world "The Coldstore", 11 items, 6 quests, 5 NPCs, full style
+  guide. QA ran and flagged **10 real design issues** (undefined loot
+  table, null stat/combat systems) — QA doing its job, not an error.
+- **Export proved:** `scripts/smoke_full_pipeline.export/` has
+  `project.godot` + 21 `.gd` scripts + 10 `.tscn` scenes + 83.6 KB
+  manifest; `smoke_full_pipeline.report.json` ok=true.
+- **Tests:** `pytest tests/` = **164 passed, 5 deselected** (the
+  repo grew past the old "110" figure with the unity/godot exporter +
+  signal tests).
+- **Two robustness fixes** so the pipeline survives slower nested
+  `claude -p` calls under headless/fleet load (a single heavy stage now
+  can exceed the old 240s per-call cap): `GAMEFORGE_STRUCTURED_TIMEOUT_S`
+  (per-call floor, `director._call_structured`) and
+  `GAMEFORGE_SMOKE_OUTER_TIMEOUT_S` (smoke outer cap). Both
+  backward-compatible; defaults unchanged.
+- **Auth gotcha (headless):** nested `claude -p` from a headless
+  greenlight run gets `401 Invalid authentication credentials` unless
+  `CLAUDE_CODE_OAUTH_TOKEN` (from `operator-core/.env`) is exported into
+  the subprocess env — the session's own auth isn't inherited by children.
 
 ## 2026-07-06 — Saga Engine: Second Rome batch 4 — escalation stage 2, open confrontation
 
