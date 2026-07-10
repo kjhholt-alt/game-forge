@@ -506,9 +506,25 @@ class GameDirector:
 
         Uses the Claude CLI's structured JSON mode through claudex and then
         validates the result with Pydantic.
+
+        The per-call timeout can be raised (never lowered) via the
+        ``GAMEFORGE_STRUCTURED_TIMEOUT_S`` environment variable. Nested
+        ``claude -p`` calls run markedly slower under fleet/headless load
+        than in an interactive session, where a single heavy stage
+        (narrative, whole-project regeneration) can exceed the default 240s.
+        Treating the env value as a floor keeps the heavier iterate() call
+        (480s) at or above its own baseline.
         """
         import asyncio as _aio
+        import os as _os
         import claudex as _cx
+
+        _env_timeout = _os.environ.get("GAMEFORGE_STRUCTURED_TIMEOUT_S")
+        if _env_timeout:
+            try:
+                timeout_s = max(timeout_s, int(_env_timeout))
+            except ValueError:
+                pass
 
         schema = schema_cls.model_json_schema()
         result = await _aio.to_thread(

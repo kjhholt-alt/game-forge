@@ -69,12 +69,13 @@ async def main() -> int:
             "run. Pixel art, calm and contemplative, ~15 min sessions."
         )
 
+        outer_timeout = int(os.environ.get("GAMEFORGE_SMOKE_OUTER_TIMEOUT_S", "900"))
         project = await asyncio.wait_for(
             forge.create(
                 prompt=prompt,
                 genre=GameGenre.ROGUELIKE,
             ),
-            timeout=900,  # 15 min hard cap
+            timeout=outer_timeout,  # default 15 min hard cap; env-overridable
         )
         # Export to a tmp dir + verify the Godot scaffolding landed
         export_dir = HERE / "smoke_full_pipeline.export"
