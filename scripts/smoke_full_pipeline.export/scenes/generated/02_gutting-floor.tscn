@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[node name="Gutting_Floor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 900.0
+offset_bottom = 68.0
+text = "Gutting Floor"
+
+[node name="Kind" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 420.0
+offset_bottom = 106.0
+text = "Entrance"
+
+[node name="Description" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = 122.0
+offset_right = 980.0
+offset_bottom = 420.0
+fit_content = true
+text = "Where you come in. Long gutting tables slick with old frost, drainage channels choked with rime, rows of rusted hooks swaying on a chain track that never stopped. One sodium lamp stutters overhead, throwing the hooks' shadows back and forth across the tiles. Loot here is thin and shallow — the picked-over crates and lockers nearest the door — but it is the safest air in the building and the room every run begins and, if you're lucky, ends beside."

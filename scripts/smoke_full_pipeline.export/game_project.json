@@ -1,1475 +1,1519 @@
 {
-  "id": "b94495fe-467a-45c1-b433-8f846caba6b9",
+  "id": "a882389d-1ffd-4891-b891-e8f60225d07a",
   "concept": {
-    "title": "The Midnight Interchange",
+    "title": "Coldstore",
     "genre": "roguelike",
-    "setting": "A single moonlit train station suspended between worlds, where the 12:00 train never quite arrives and three puzzle spirits drift between five brass-and-glass rooms. Each night the clockmaker, Wren Tallow, must repair the station's failing mechanisms before the moon sets.",
+    "setting": "A decommissioned harbor cold-store: a three-room refrigerated warehouse abandoned when the cannery folded, now picked over by scavengers who rarely all walk back out. You enter through the gutting floor, and the only way home is the loading dock on the far side of the freezer.",
     "core_mechanics": [
-      "Wind-and-set: spend mainspring charges to rewind broken clocks, each rewind nudges an adjacent room's puzzle state",
-      "Five-room loop: Waiting Hall, Lost Luggage, Signal Box, Platform 3½, and the Conductor's Office shuffle their hazards and gifts each run",
-      "Three spirit dialogues: the Stationmaster (riddles), the Porter (memory matching), and the Last Passenger (sliding-tile timetables) each request a specific repair",
-      "Tool drafting: between rooms, pick one of three brass tools (oil can, tuning fork, pendulum weight) that reshape how puzzles resolve",
-      "Moon meter: a single 12-minute timer ticks down as the moon crosses the skylight; finishing a spirit's request banks moonlight for the next run",
-      "Persistent ledger: solved repairs leave engraved cogs in the workshop, unlocking new starting tools and softer puzzle variants on future runs"
+      "Three interconnected rooms in a fixed loop -- gutting floor, freezer core, loading dock -- joined by heavy roller doors that groan when you open them and give away your position.",
+      "Randomised loot spawns each run: crates, lockers, and frozen body-caches roll from a weighted table, with the richest gear buried deepest in the freezer core so reward scales with how far you overcommit.",
+      "Single extraction trigger at the loading dock -- stand in the marked zone and hold for 8 seconds; the extract chime is audible building-wide, turning the last stretch into the tensest moment of the run.",
+      "Limited-slot rig: you carry only what fits, so every pickup forces a drop, and you extract with exactly what's on your back -- die and it all spills.",
+      "A single sound-hunting AI scavenger stalks the depot, drawn to gunfire, sprinting footsteps, and the extract chime -- staying quiet is the only real defense.",
+      "Permadeath per run seeds the world: loot you die carrying spills into the next run's spawn table, so the depot slowly fills with the ghosts of your failed pulls."
     ],
-    "art_style": "Hand-pixeled at 64x64 sprite scale with warm brass and midnight-blue glass palette, lantern bloom, gentle parallax steam, and ink-drawn UI on aged paper",
-    "target_mood": "Hushed, melancholic, and quietly hopeful — the feeling of a quiet platform at midnight where everything is broken but nothing is hostile",
+    "art_style": "Tight 32x32 pixel art in a cold, desaturated palette of frost-white, rust brown, and sodium-lamp amber, with heavy dithered shadows and a single flickering light source per room casting long moving silhouettes.",
+    "target_mood": "Held-breath tension -- the specific dread of being one room too deep with a full rig and a long, loud walk back to the only door.",
     "player_count": 1,
-    "estimated_playtime_hours": 4.0,
-    "description": "A short cozy roguelike about Wren Tallow, a clockmaker tending a moonlit station between worlds. Twelve-minute runs across five rooms, three puzzle spirits, no combat — just brass gears, soft train ambience, and the slow rebuilding of a place that wants to be whole.",
+    "estimated_playtime_hours": 6.0,
+    "description": "Coldstore distills the extraction-shooter loop -- enter, loot, extract -- down to three rooms and five minutes. Push deeper into a frozen abandoned cold-store for better loot, but every step from the entrance is a step you have to survive on the way back. A lone sound-hunting scavenger, groaning doors, and an 8-second extract timer that the whole building can hear make greed the deadliest thing you carry. Loot lost on death respawns into future runs, so the depot remembers everyone who didn't make it -- including you.",
     "unique_selling_points": [
-      "12-minute runs designed for a single cup of tea",
-      "No combat, no failure state — only repairs that carry forward",
-      "Three hand-written spirits whose requests reshape the station each night",
-      "Lo-fi train-platform ambience as a core mechanic, not just background"
+      "A full extraction-shooter run compressed into three rooms and roughly 300 seconds -- the genre stripped to its tensest core for a true micro-prototype.",
+      "Your carried loot becomes the next run's loot table: every death re-seeds the depot, so the world visibly accumulates the wreckage of prior attempts.",
+      "One sound-driven hunter and a building-wide extract chime turn the final 8 seconds into the scariest decision in the run."
     ]
   },
   "world": {
-    "id": "world_midnight_interchange",
-    "name": "The Midnight Interchange",
-    "description": "A single moonlit train station suspended between worlds where the 12:00 train never quite arrives. Wren Tallow, a clockmaker, drifts between five brass-and-glass rooms each night, repairing failing mechanisms before the moon sets. Three puzzle spirits — the Stationmaster, the Porter, and the Last Passenger — wait among the lantern-bloom and gentle steam.",
-    "lore_summary": "Long ago the Midnight Interchange served travelers crossing between waking worlds, its great brass clock keeping the threshold honest. When the 12:00 train failed to arrive one autumn night, the station slipped halfway out of time. Now its mechanisms wind down a little more each evening, and only Wren Tallow — last of the threshold clockmakers — returns to wind them. Each repaired cog is engraved into the workshop floor, a quiet ledger of nights the station almost became whole again.",
+    "id": "world_coldstore",
+    "name": "The Coldstore",
+    "description": "A decommissioned harbor cold-store rendered as a single, brutal extraction loop. Three refrigerated rooms — the gutting floor, the freezer core, and the loading dock — chained in a fixed triangle by heavy roller doors that groan and betray your position. You enter through the gutting floor; the only way home is the extraction zone on the loading dock, on the far side of the freezer. Push deeper for richer loot, then survive the long, loud walk back while a lone sound-hunting scavenger listens for your mistakes.",
+    "lore_summary": "When the cannery folded, the harbor's three-room cold-store was left powered-down and rotting, its compressors ticking as they thawed. Scavengers found the frozen stock and buried gear first, then found each other, and now few who go in for the deep caches walk back out through the loading dock. Something adapted to the dark and the cold and learned that noise means prey — it patrols the roller-door loop, drawn to gunfire, to sprinting boots, and above all to the building-wide chime of an extraction in progress. Everyone who dies in here leaves their rig where they fall, and the frost claims it into the next scavenger's spawn table. The depot remembers every failed pull, including yours.",
     "overworld": {
       "regions": [
         {
-          "id": "region_interchange",
-          "name": "The Midnight Interchange",
-          "biome": "urban",
-          "description": "A moonlit threshold station of brass fittings, midnight-blue glass, and slow drifting steam. Five rooms loop around a central platform beneath a great skylight that frames the crossing moon. The 12-minute moon meter ticks softly overhead, and lantern bloom catches every polished gear.",
+          "id": "region_coldstore_depot",
+          "name": "The Coldstore",
+          "biome": "ruins",
+          "description": "A three-room refrigerated warehouse frozen mid-decay: frost-white rime creeping over rust-brown steel, sodium-lamp amber bleeding from one flickering fixture per room, dithered shadows swinging long across the floor. The rooms form a fixed loop joined by three heavy roller doors, each one a groaning announcement of where you are. There is exactly one way out, and it is the loudest place to stand in the building.",
           "level_range": [
             1,
-            4
+            3
           ],
           "rooms": [
             {
-              "id": "room_waiting_hall",
-              "name": "Waiting Hall",
+              "id": "gutting_floor",
+              "name": "Gutting Floor",
               "room_type": "entrance",
-              "description": "A vaulted hall of empty benches and a wall of departure boards whose letters quietly reshuffle. Brass chandeliers hang low, their pendulums all stopped at 11:59. This is where Wren arrives each night and where the moon meter first begins to tick.",
-              "width": 4,
-              "height": 3,
+              "description": "Where you come in. Long gutting tables slick with old frost, drainage channels choked with rime, rows of rusted hooks swaying on a chain track that never stopped. One sodium lamp stutters overhead, throwing the hooks' shadows back and forth across the tiles. Loot here is thin and shallow — the picked-over crates and lockers nearest the door — but it is the safest air in the building and the room every run begins and, if you're lucky, ends beside.",
+              "width": 12,
+              "height": 10,
               "position": [
                 0,
                 0
               ],
               "entities": [
-                "entity_wren_tallow",
-                "entity_arrival_clock",
-                "entity_tool_draft_table"
+                "spawn_player",
+                "loot_crate_common",
+                "loot_locker_shallow",
+                "enemy_scavenger_patrol"
               ],
               "properties": {
-                "is_run_start": true,
-                "shuffle_each_run": true,
-                "ambient_audio": "distant_steam_hush",
-                "tool_draft_count": 3
+                "loot_tier": "shallow",
+                "light_source": "single_flicker_sodium",
+                "roller_doors": [
+                  "door_gutting_to_freezer",
+                  "door_dock_to_gutting"
+                ],
+                "danger": "low",
+                "role": "entry_and_fallback"
               }
             },
             {
-              "id": "room_lost_luggage",
-              "name": "Lost Luggage",
-              "room_type": "puzzle",
-              "description": "Shelves stacked with travel cases that hum faintly, each tagged with a name no living passenger remembers. The Porter drifts here, asking Wren to match returning luggage to its forgotten owner through quiet memory pairs.",
-              "width": 3,
-              "height": 3,
+              "id": "freezer_core",
+              "name": "Freezer Core",
+              "room_type": "treasure",
+              "description": "The deep room — the coldest, darkest heart of the loop, where the richest gear is buried in frozen body-caches and sealed cold-crates that the fold left untouched. The single lamp here barely holds, guttering to near-black between pulses, and the silhouettes that swing across the shelving are not always yours. This is where reward scales with how far you overcommit, and where the scavenger hunts most. Every step in is a step you have to carry back out, loud rig and all.",
+              "width": 16,
+              "height": 14,
               "position": [
                 1,
                 0
               ],
               "entities": [
-                "entity_porter_spirit",
-                "entity_humming_cases",
-                "entity_tag_lantern"
+                "loot_body_cache_rare",
+                "loot_crate_rare",
+                "loot_frozen_stock",
+                "freezer_flicker_light",
+                "enemy_scavenger"
               ],
               "properties": {
-                "puzzle_type": "memory_match",
-                "spirit_request": "porter_memory",
-                "shuffle_each_run": true,
-                "adjacent_nudge_targets": [
-                  "room_waiting_hall",
-                  "room_signal_box"
-                ]
+                "loot_tier": "deep",
+                "light_source": "failing_flicker_sodium",
+                "roller_doors": [
+                  "door_gutting_to_freezer",
+                  "door_freezer_to_dock"
+                ],
+                "danger": "high",
+                "role": "deepest_richest_loot",
+                "overcommit_reward": true
               }
             },
             {
-              "id": "room_signal_box",
-              "name": "Signal Box",
-              "room_type": "puzzle",
-              "description": "A cramped tower of levers, dials, and a wall-sized track diagram lit by oil lamps. Mainspring charges spent here rewind the signal clock, nudging puzzle states in the rooms on either side.",
-              "width": 2,
-              "height": 3,
+              "id": "loading_dock",
+              "name": "Loading Dock",
+              "room_type": "exit",
+              "description": "The far side of the freezer and the only way home. A concrete apron under a half-raised bay door, one painted extraction zone marked on the floor, a dead forklift and stacked pallets for whatever cover they're worth. Stand in the zone and hold for eight seconds — the extract chime rings through every room in the building, and the last stretch to this door becomes the tensest walk of the run. Mid-grade loot sits here too, tempting one more pickup before you commit.",
+              "width": 12,
+              "height": 8,
               "position": [
                 2,
                 0
               ],
               "entities": [
-                "entity_signal_levers",
-                "entity_track_diagram",
-                "entity_mainspring_dispenser"
+                "extract_zone",
+                "loot_crate_uncommon",
+                "roller_door_bay",
+                "enemy_scavenger_lure"
               ],
               "properties": {
-                "puzzle_type": "wind_and_set",
-                "nudge_radius": 1,
-                "shuffle_each_run": true,
-                "adjacent_nudge_targets": [
-                  "room_lost_luggage",
-                  "room_platform_three_half"
-                ]
-              }
-            },
-            {
-              "id": "room_platform_three_half",
-              "name": "Platform 3½",
-              "room_type": "puzzle",
-              "description": "A narrow platform tucked between Platform 3 and Platform 4 that should not exist. The Last Passenger waits here on a bench, holding a sliding-tile timetable that never quite finishes resolving. Steam coils in slow parallax across the tracks.",
-              "width": 4,
-              "height": 2,
-              "position": [
-                3,
-                1
-              ],
-              "entities": [
-                "entity_last_passenger_spirit",
-                "entity_sliding_timetable",
-                "entity_phantom_train_whistle"
-              ],
-              "properties": {
-                "puzzle_type": "sliding_tile_timetable",
-                "spirit_request": "last_passenger_timetable",
-                "shuffle_each_run": true,
-                "adjacent_nudge_targets": [
-                  "room_signal_box",
-                  "room_conductors_office"
-                ]
-              }
-            },
-            {
-              "id": "room_conductors_office",
-              "name": "Conductor's Office",
-              "room_type": "npc",
-              "description": "A small wood-paneled office stacked with logbooks, riddle-cards, and a stopped grandfather clock. The Stationmaster receives Wren here, trading riddles for repair tokens and engraving each completed cog into the workshop ledger.",
-              "width": 3,
-              "height": 2,
-              "position": [
-                2,
-                2
-              ],
-              "entities": [
-                "entity_stationmaster_spirit",
-                "entity_workshop_ledger",
-                "entity_engraved_cog_wall"
-              ],
-              "properties": {
-                "puzzle_type": "riddle",
-                "spirit_request": "stationmaster_riddle",
-                "is_ledger_room": true,
-                "persistent_unlocks": true
+                "loot_tier": "mid",
+                "light_source": "single_flicker_sodium",
+                "roller_doors": [
+                  "door_freezer_to_dock",
+                  "door_dock_to_gutting"
+                ],
+                "danger": "medium",
+                "role": "extraction",
+                "extract_zone_marked": true,
+                "extract_hold_seconds": 8,
+                "extract_chime_building_wide": true
               }
             }
           ],
           "points_of_interest": [
-            "The Great Skylight (moon meter)",
-            "The Arrival Clock (run timer hub)",
-            "The Workshop Ledger (persistent cog engravings)",
-            "Platform 3½ phantom whistle",
-            "The Tool Draft Table (oil can, tuning fork, pendulum weight)"
+            "The painted extraction zone on the loading dock — the single trigger for going home",
+            "Frozen body-caches in the freezer core, where dead scavengers' rigs re-seed the loot table",
+            "The three groaning roller doors that give away your position every time you open one",
+            "The one flickering sodium lamp per room, the only light and the source of every moving silhouette"
           ],
-          "ambient_mood": "hushed, melancholic, quietly hopeful"
+          "ambient_mood": "held-breath dread — one room too deep with a full rig and a long, loud walk back to the only door"
         }
       ],
       "connections": [
         {
-          "from_id": "room_waiting_hall",
-          "to_id": "room_lost_luggage",
+          "from_id": "gutting_floor",
+          "to_id": "freezer_core",
           "bidirectional": true,
           "locked": false,
           "lock_key": null,
           "hidden": false,
-          "description": "A brass-framed archway draped in soft lantern light leading from the benches into the luggage shelves."
+          "description": "The first roller door, off the gutting floor into the freezer core. It groans on its track loud enough to carry building-wide — opening it tells the depot exactly where you are and which way you're headed."
         },
         {
-          "from_id": "room_lost_luggage",
-          "to_id": "room_signal_box",
+          "from_id": "freezer_core",
+          "to_id": "loading_dock",
           "bidirectional": true,
           "locked": false,
           "lock_key": null,
           "hidden": false,
-          "description": "A narrow service door behind the shelves, ringing faintly with signal bells."
+          "description": "The deep door, out of the freezer core onto the loading dock. Crossing it committed means you have your full rig and only the extraction walk left — the loudest, tensest threshold in the loop."
         },
         {
-          "from_id": "room_signal_box",
-          "to_id": "room_platform_three_half",
+          "from_id": "loading_dock",
+          "to_id": "gutting_floor",
           "bidirectional": true,
           "locked": false,
           "lock_key": null,
           "hidden": false,
-          "description": "An iron stairwell descending to a platform that wasn't there a moment ago."
-        },
-        {
-          "from_id": "room_platform_three_half",
-          "to_id": "room_conductors_office",
-          "bidirectional": true,
-          "locked": false,
-          "lock_key": null,
-          "hidden": false,
-          "description": "A varnished door at the platform's end, its frosted glass etched with a stopped clock face."
-        },
-        {
-          "from_id": "room_conductors_office",
-          "to_id": "room_waiting_hall",
-          "bidirectional": true,
-          "locked": false,
-          "lock_key": null,
-          "hidden": false,
-          "description": "A short corridor lined with old timetables, completing the five-room loop back to the benches."
-        },
-        {
-          "from_id": "room_waiting_hall",
-          "to_id": "room_signal_box",
-          "bidirectional": true,
-          "locked": true,
-          "lock_key": "key_signal_pass",
-          "hidden": true,
-          "description": "A hidden shortcut through a maintenance hatch beneath the departure boards, opened by a signal pass earned from the Stationmaster."
-        },
-        {
-          "from_id": "room_lost_luggage",
-          "to_id": "room_platform_three_half",
-          "bidirectional": true,
-          "locked": true,
-          "lock_key": "key_porter_token",
-          "hidden": true,
-          "description": "A luggage chute the Porter unlocks once enough memory pairs have been restored."
+          "description": "The service roller door closing the loop back to the gutting floor, letting you circle the depot instead of doubling straight back through the freezer — for the price of one more groaning announcement."
         }
       ],
-      "starting_region_id": "region_interchange"
+      "starting_region_id": "region_coldstore_depot"
     },
-    "dungeons": [],
+    "dungeons": [
+      {
+        "id": "dungeon_coldstore",
+        "name": "The Coldstore Loop",
+        "theme": "Abandoned refrigerated harbor warehouse — frost-white and rust, one failing lamp per room, a sound-hunting scavenger, and a single eight-second extraction that the whole building can hear.",
+        "difficulty": 6,
+        "rooms": [
+          {
+            "id": "cs_gutting_floor",
+            "name": "Gutting Floor",
+            "room_type": "entrance",
+            "description": "Run entry. Gutting tables, swinging hooks, and clogged drains under one stuttering sodium lamp. Shallow, picked-over loot and the lowest danger in the loop — the room you spawn beside and the one you pray to reach again with a full back.",
+            "width": 12,
+            "height": 10,
+            "position": [
+              0,
+              0
+            ],
+            "entities": [
+              "spawn_player",
+              "loot_crate_common",
+              "loot_locker_shallow",
+              "enemy_scavenger_patrol"
+            ],
+            "properties": {
+              "loot_tier": "shallow",
+              "danger": "low",
+              "light_source": "single_flicker_sodium"
+            }
+          },
+          {
+            "id": "cs_freezer_core",
+            "name": "Freezer Core",
+            "room_type": "treasure",
+            "description": "The deep room and the scavenger's favored hunting ground. Frozen body-caches and sealed cold-crates hold the richest gear in the building, guarded by near-total dark between the lamp's dying pulses. Reward scales with how far you overcommit; so does the odds you never leave.",
+            "width": 16,
+            "height": 14,
+            "position": [
+              1,
+              0
+            ],
+            "entities": [
+              "loot_body_cache_rare",
+              "loot_crate_rare",
+              "loot_frozen_stock",
+              "freezer_flicker_light",
+              "enemy_scavenger"
+            ],
+            "properties": {
+              "loot_tier": "deep",
+              "danger": "high",
+              "light_source": "failing_flicker_sodium",
+              "hunter_lair": true
+            }
+          },
+          {
+            "id": "cs_loading_dock",
+            "name": "Loading Dock",
+            "room_type": "exit",
+            "description": "The extraction point: one painted zone, hold for eight seconds, and a chime that rings through every room. The only way home, and the loudest place to stand in the depot.",
+            "width": 12,
+            "height": 8,
+            "position": [
+              2,
+              0
+            ],
+            "entities": [
+              "extract_zone",
+              "loot_crate_uncommon",
+              "roller_door_bay",
+              "enemy_scavenger_lure"
+            ],
+            "properties": {
+              "loot_tier": "mid",
+              "danger": "medium",
+              "light_source": "single_flicker_sodium",
+              "extract_hold_seconds": 8,
+              "extract_chime_building_wide": true
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from_id": "cs_gutting_floor",
+            "to_id": "cs_freezer_core",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "Roller door from the gutting floor into the freezer core — groans building-wide when opened."
+          },
+          {
+            "from_id": "cs_freezer_core",
+            "to_id": "cs_loading_dock",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "Roller door from the freezer core out onto the loading dock — the committed-and-loaded threshold."
+          },
+          {
+            "from_id": "cs_loading_dock",
+            "to_id": "cs_gutting_floor",
+            "bidirectional": true,
+            "locked": false,
+            "lock_key": null,
+            "hidden": false,
+            "description": "Service roller door closing the loop from the dock back to the gutting floor."
+          }
+        ],
+        "entry_room_id": "cs_gutting_floor",
+        "exit_room_id": "cs_loading_dock",
+        "boss_room_id": "cs_freezer_core",
+        "loot_table_id": "loot_coldstore_weighted",
+        "estimated_clear_time_minutes": 5
+      }
+    ],
     "global_properties": {
-      "run_duration_minutes": 12,
-      "run_structure": "five_room_loop",
-      "combat": "none",
-      "failure_state": "none",
-      "persistent_progression": "engraved_cogs_in_workshop_ledger",
-      "spirits": [
-        "Stationmaster (riddles)",
-        "Porter (memory matching)",
-        "Last Passenger (sliding-tile timetables)"
-      ],
-      "tool_draft_pool": [
-        "oil_can",
-        "tuning_fork",
-        "pendulum_weight"
-      ],
-      "core_resource": "mainspring_charges",
-      "moon_meter": {
-        "duration_minutes": 12,
-        "banks_on_spirit_completion": true
-      },
-      "art_style": "hand-pixeled 64x64, warm brass and midnight-blue glass, lantern bloom, parallax steam, ink-on-aged-paper UI",
-      "palette": [
-        "brass_gold",
-        "midnight_blue",
-        "lantern_amber",
-        "aged_paper_cream"
-      ],
-      "mood": "hushed, melancholic, quietly hopeful",
-      "ambient_audio": [
-        "soft_train_hush",
-        "distant_whistle",
-        "pendulum_tick",
-        "steam_release"
-      ],
+      "genre": "roguelike",
       "player_count": 1,
-      "estimated_playtime_hours": 4.0
+      "estimated_playtime_hours": 6.0,
+      "target_run_seconds": 300,
+      "target_mood": "held-breath tension — the specific dread of being one room too deep with a full rig and a long, loud walk back to the only door",
+      "art_style": {
+        "resolution": "32x32 pixel art",
+        "palette": [
+          "frost-white",
+          "rust-brown",
+          "sodium-lamp amber"
+        ],
+        "tone": "cold, desaturated",
+        "shadows": "heavy dithered",
+        "lighting": "a single flickering light source per room casting long, moving silhouettes"
+      },
+      "loop_structure": {
+        "room_count": 3,
+        "topology": "fixed triangle loop",
+        "order": [
+          "gutting_floor",
+          "freezer_core",
+          "loading_dock"
+        ],
+        "loop_closes_back_to": "gutting_floor",
+        "depth_gradient": "loot richness increases with distance from entrance; deepest and richest is the freezer core"
+      },
+      "extraction": {
+        "single_trigger": true,
+        "location": "loading_dock",
+        "marked_zone": true,
+        "hold_seconds": 8,
+        "chime_audible_building_wide": true,
+        "note": "The extract chime is the loudest sound in the run and draws the scavenger; the final stretch is the tensest moment."
+      },
+      "rig": {
+        "type": "limited-slot",
+        "rule": "carry only what fits; every pickup forces a drop; you extract with exactly what's on your back",
+        "on_death": "the entire rig spills at the point of death"
+      },
+      "hunter": {
+        "count": 1,
+        "archetype": "sound-hunting AI scavenger",
+        "drawn_to": [
+          "gunfire",
+          "sprinting footsteps",
+          "opening roller doors",
+          "the extract chime"
+        ],
+        "primary_defense": "staying quiet",
+        "patrols": "the full roller-door loop, favoring the freezer core"
+      },
+      "loot_system": {
+        "spawns": "randomised each run from a weighted table",
+        "containers": [
+          "crates",
+          "lockers",
+          "frozen body-caches"
+        ],
+        "richest_buried": "freezer_core",
+        "risk_reward": "reward scales with how far you overcommit"
+      },
+      "permadeath_seeding": {
+        "enabled": true,
+        "rule": "loot you die carrying spills into the next run's spawn table",
+        "effect": "the depot slowly fills with the ghosts of failed pulls, including the player's own",
+        "narrative": "the world visibly accumulates the wreckage of prior attempts"
+      },
+      "unique_selling_points": [
+        "A full extraction-shooter run compressed into three rooms and roughly 300 seconds — the genre stripped to its tensest core for a true micro-prototype.",
+        "Your carried loot becomes the next run's loot table: every death re-seeds the depot, so the world visibly accumulates the wreckage of prior attempts.",
+        "One sound-driven hunter and a building-wide extract chime turn the final 8 seconds into the scariest decision in the run."
+      ]
     }
   },
   "quests": [
     {
-      "id": "quest_wind_the_arrival_clock",
-      "title": "Wind the Arrival Clock",
-      "description": "The Arrival Clock in the Waiting Hall has stopped at 11:59 again. Wren must spend a mainspring charge to wind it and begin the night's run, then draft her first brass tool from the table beside the benches.",
-      "quest_giver_npc_id": "npc_wren_tallow",
-      "location_id": "room_waiting_hall",
+      "id": "quest_first_walk",
+      "title": "The First Walk Back",
+      "description": "Greta pulls you aside before you touch a crate. Everyone's first run is the same lesson: getting in is free, getting out is the whole game. Grab something worthless, learn the loop, and stand in the painted zone until the chime lets go. If you can survive one loud extraction, you might survive a greedy one later.",
+      "quest_giver_npc_id": "npc_greta_old_teeth",
+      "location_id": "gutting_floor",
       "level_requirement": 1,
       "objectives": [
         {
-          "id": "obj_wind_arrival_clock",
-          "description": "Spend one Mainspring Charge to wind the Arrival Clock and start the moon meter.",
-          "objective_type": "solve",
-          "target": "entity_arrival_clock",
+          "id": "obj_first_walk_talk",
+          "description": "Hear Greta out on the gutting floor before you head in.",
+          "objective_type": "talk",
+          "target": "npc_greta_old_teeth",
           "count": 1,
           "optional": false
         },
         {
-          "id": "obj_draft_first_tool",
-          "description": "Choose one brass tool from the Tool Draft Table to carry into the loop.",
+          "id": "obj_first_walk_loot",
+          "description": "Pull anything from a shallow crate or locker near the entrance.",
           "objective_type": "collect",
-          "target": "entity_tool_draft_table",
+          "target": "loot_crate_common",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_first_walk_reach",
+          "description": "Cross the freezer core to the loading dock and find the painted extraction zone.",
+          "objective_type": "explore",
+          "target": "extract_zone",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_first_walk_extract",
+          "description": "Stand in the zone and hold through all eight seconds of the chime.",
+          "objective_type": "survive",
+          "target": "extract_zone",
           "count": 1,
           "optional": false
         }
       ],
       "rewards": {
-        "xp": 0,
-        "gold": 0,
+        "xp": 100,
+        "gold": 40,
         "items": [
-          "item_mainspring_charge"
+          "cs_rattle_can_decoy",
+          "cs_harbor_scrip"
         ],
-        "reputation": {},
+        "reputation": {
+          "harbor_scavengers": 10
+        },
         "unlocks": [
-          "quest_match_the_humming_cases",
-          "quest_set_the_signal_levers",
-          "quest_solve_the_sliding_timetable"
+          "quest_fences_cut",
+          "quest_deep_pull",
+          "quest_run_silent"
         ]
       },
       "prerequisites": [],
       "branches": {},
-      "failure_conditions": [],
+      "failure_conditions": [
+        "The player dies anywhere in the loop before the extraction completes"
+      ],
       "time_limit_turns": null
     },
     {
-      "id": "quest_match_the_humming_cases",
-      "title": "The Porter's Memory Pairs",
-      "description": "Three humming travel cases on the Lost Luggage shelves are searching for their owners' tags. The Porter asks Wren to match each case to its rightful name before the lantern dims.",
-      "quest_giver_npc_id": "npc_porter_spirit",
-      "location_id": "room_lost_luggage",
+      "id": "quest_fences_cut",
+      "title": "The Fence's Cut",
+      "description": "Marrow doesn't go in anymore — she waits at the bay door and buys what walks out. She'll pay real scrip for sealed cannery stock, the safe pull nobody dies for. Fill three rig slots with frozen tins and bring them to the dock. It's the coward's run, and cowards are the ones still trading.",
+      "quest_giver_npc_id": "npc_marrow",
+      "location_id": "loading_dock",
       "level_requirement": 1,
       "objectives": [
         {
-          "id": "obj_match_three_cases",
-          "description": "Match three humming travel cases to their owner tags in the Lost Luggage shelves.",
-          "objective_type": "solve",
-          "target": "puzzle_porter_memory",
+          "id": "obj_fences_collect",
+          "description": "Loot three sealed Frozen Stock Tins from crates around the loop.",
+          "objective_type": "collect",
+          "target": "cs_frozen_stock_tin",
           "count": 3,
           "optional": false
         },
         {
-          "id": "obj_receive_porter_token",
-          "description": "Receive the Porter's Brass Token, which unlocks the luggage chute to Platform 3½.",
-          "objective_type": "collect",
-          "target": "item_porter_token",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_use_tuning_fork",
-          "description": "Strike the tuning fork to chime a single hidden pair (optional softening).",
-          "objective_type": "solve",
-          "target": "item_tuning_fork",
-          "count": 1,
-          "optional": true
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_porter_token",
-          "item_moonlight_vial",
-          "item_engraved_cog"
-        ],
-        "reputation": {
-          "interchange_spirits": 5
-        },
-        "unlocks": [
-          "quest_engrave_the_ledger"
-        ]
-      },
-      "prerequisites": [
-        "quest_wind_the_arrival_clock"
-      ],
-      "branches": {},
-      "failure_conditions": [],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_set_the_signal_levers",
-      "title": "Rewind the Signal Box",
-      "description": "The Signal Box's track diagram has gone dim and its levers stick at half-throw. Wren must spend mainspring charges to rewind the signal clock, nudging puzzle states in the rooms on either side.",
-      "quest_giver_npc_id": "npc_wren_tallow",
-      "location_id": "room_signal_box",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_spend_charges_signal",
-          "description": "Spend at least three Mainspring Charges at the signal clock to rewind it.",
-          "objective_type": "solve",
-          "target": "entity_signal_levers",
-          "count": 3,
-          "optional": false
-        },
-        {
-          "id": "obj_align_track_diagram",
-          "description": "Align all four track segments on the wall diagram so the lamps burn steady.",
-          "objective_type": "solve",
-          "target": "entity_track_diagram",
-          "count": 4,
-          "optional": false
-        },
-        {
-          "id": "obj_earn_signal_pass",
-          "description": "Receive the Stationmaster's Signal Pass after the signal clock rings true.",
-          "objective_type": "collect",
-          "target": "item_signal_pass",
-          "count": 1,
-          "optional": true
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_signal_pass",
-          "item_mainspring_charge",
-          "item_engraved_cog"
-        ],
-        "reputation": {
-          "interchange_spirits": 3
-        },
-        "unlocks": [
-          "quest_engrave_the_ledger"
-        ]
-      },
-      "prerequisites": [
-        "quest_wind_the_arrival_clock"
-      ],
-      "branches": {},
-      "failure_conditions": [],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_solve_the_sliding_timetable",
-      "title": "The Last Passenger's Timetable",
-      "description": "On Platform 3½ the Last Passenger holds a sliding-tile timetable that refuses to finish resolving. Wren must arrange the tiles into a valid departure before the phantom whistle fades.",
-      "quest_giver_npc_id": "npc_last_passenger_spirit",
-      "location_id": "room_platform_three_half",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_solve_timetable",
-          "description": "Slide the timetable tiles into a coherent 12:00 departure pattern.",
-          "objective_type": "solve",
-          "target": "entity_sliding_timetable",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_anchor_with_ticket",
-          "description": "Lock one tile in place using a Phantom Ticket to ease the final slide.",
-          "objective_type": "solve",
-          "target": "item_phantom_ticket",
-          "count": 1,
-          "optional": true
-        },
-        {
-          "id": "obj_hear_whistle",
-          "description": "Stand at the edge of Platform 3½ as the phantom whistle answers the solved timetable.",
-          "objective_type": "explore",
-          "target": "entity_phantom_train_whistle",
-          "count": 1,
-          "optional": false
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_phantom_ticket",
-          "item_moonlight_vial",
-          "item_engraved_cog"
-        ],
-        "reputation": {
-          "interchange_spirits": 5
-        },
-        "unlocks": [
-          "quest_engrave_the_ledger"
-        ]
-      },
-      "prerequisites": [
-        "quest_wind_the_arrival_clock"
-      ],
-      "branches": {},
-      "failure_conditions": [],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_engrave_the_ledger",
-      "title": "Engrave the Workshop Ledger",
-      "description": "Before the moon sets, Wren returns to the Conductor's Office to deliver her solved riddle cards. The Stationmaster receives each one and engraves a new cog into the workshop floor — a quiet promise that tonight, the station almost became whole.",
-      "quest_giver_npc_id": "npc_stationmaster_spirit",
-      "location_id": "room_conductors_office",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_deliver_riddle_cards",
-          "description": "Deliver at least one solved Stationmaster's Riddle Card to the Conductor's Office.",
+          "id": "obj_fences_deliver",
+          "description": "Extract with the tins and hand them to Marrow at the loading dock.",
           "objective_type": "deliver",
-          "target": "item_riddle_card",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_engrave_cog",
-          "description": "Engrave a new cog into the workshop ledger floor.",
-          "objective_type": "craft",
-          "target": "item_engraved_cog",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_bank_moonlight",
-          "description": "Bank a vial of moonlight to carry into the next run.",
-          "objective_type": "collect",
-          "target": "item_moonlight_vial",
-          "count": 1,
-          "optional": true
-        }
-      ],
-      "rewards": {
-        "xp": 0,
-        "gold": 0,
-        "items": [
-          "item_engraved_cog",
-          "item_moonlight_vial"
-        ],
-        "reputation": {
-          "interchange_spirits": 10
-        },
-        "unlocks": [
-          "quest_three_spirits_one_night"
-        ]
-      },
-      "prerequisites": [
-        "quest_match_the_humming_cases",
-        "quest_set_the_signal_levers",
-        "quest_solve_the_sliding_timetable"
-      ],
-      "branches": {},
-      "failure_conditions": [],
-      "time_limit_turns": null
-    },
-    {
-      "id": "quest_three_spirits_one_night",
-      "title": "Three Spirits, One Night",
-      "description": "A rare alignment: fulfill all three spirits' requests within a single 12-minute run. The skylight will hold the moon a heartbeat longer, and the Workshop Ledger will engrave a triple cog — softening every puzzle in nights to come.",
-      "quest_giver_npc_id": "npc_stationmaster_spirit",
-      "location_id": "room_conductors_office",
-      "level_requirement": 1,
-      "objectives": [
-        {
-          "id": "obj_complete_porter_request",
-          "description": "Complete the Porter's memory matching request this run.",
-          "objective_type": "solve",
-          "target": "porter_memory",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_complete_last_passenger_request",
-          "description": "Complete the Last Passenger's sliding-tile timetable this run.",
-          "objective_type": "solve",
-          "target": "last_passenger_timetable",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_complete_stationmaster_riddle",
-          "description": "Answer the Stationmaster's riddle and turn in the card this run.",
-          "objective_type": "solve",
-          "target": "stationmaster_riddle",
-          "count": 1,
-          "optional": false
-        },
-        {
-          "id": "obj_finish_before_moonset",
-          "description": "Reach the Conductor's Office before the moon meter expires.",
-          "objective_type": "survive",
-          "target": "moon_meter",
-          "count": 1,
+          "target": "npc_marrow",
+          "count": 3,
           "optional": false
         }
       ],
       "rewards": {
-        "xp": 0,
-        "gold": 0,
+        "xp": 80,
+        "gold": 70,
         "items": [
-          "item_engraved_cog",
-          "item_engraved_cog",
-          "item_engraved_cog",
-          "item_moonlight_vial"
+          "cs_thermal_syrette",
+          "cs_tin_door_grease"
         ],
         "reputation": {
-          "interchange_spirits": 25
+          "harbor_scavengers": 10
         },
         "unlocks": []
       },
       "prerequisites": [
-        "quest_engrave_the_ledger"
+        "quest_first_walk"
       ],
       "branches": {},
       "failure_conditions": [
-        "Moon meter expires before all three spirit requests are completed"
+        "The player dies carrying the tins, spilling them back into the depot"
       ],
-      "time_limit_turns": 12
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_run_silent",
+      "title": "Run Silent",
+      "description": "Greta's real lesson, the one that kept her breathing: the depot only kills the loud. Make a full loop and extract without ever firing a gun — grease a door, feltsole your boots, throw a can if you must, but never once give the Listener your bearing. Do it clean and she'll trust you with the quiet gear.",
+      "quest_giver_npc_id": "npc_greta_old_teeth",
+      "location_id": "loading_dock",
+      "level_requirement": 1,
+      "objectives": [
+        {
+          "id": "obj_silent_grease",
+          "description": "Use a Tin of Door Grease to cross at least one roller door without the groan.",
+          "objective_type": "solve",
+          "target": "door_freezer_to_dock",
+          "count": 1,
+          "optional": true
+        },
+        {
+          "id": "obj_silent_extract",
+          "description": "Complete an extraction without ever firing the Sidearm or the Scattergun.",
+          "objective_type": "survive",
+          "target": "extract_zone",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 150,
+        "gold": 60,
+        "items": [
+          "cs_feltsole_boots"
+        ],
+        "reputation": {
+          "harbor_scavengers": 20
+        },
+        "unlocks": []
+      },
+      "prerequisites": [
+        "quest_first_walk"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "The player fires the Scavenger's Sidearm or the Thawline Scattergun during the run",
+        "The Listener detects and reaches the player"
+      ],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_deep_pull",
+      "title": "The Deep Pull",
+      "description": "Marrow's seen your clean runs and wants the caches only the brave reach. Push all the way into the freezer core, crack a frozen body-cache for rare gear, and carry it back through two doors and the Listener's favorite room. The pay is triple the tins. So is the odds you don't come back.",
+      "quest_giver_npc_id": "npc_marrow",
+      "location_id": "freezer_core",
+      "level_requirement": 2,
+      "objectives": [
+        {
+          "id": "obj_deep_reach",
+          "description": "Enter the freezer core, the deepest room in the loop.",
+          "objective_type": "explore",
+          "target": "freezer_core",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_deep_cache",
+          "description": "Break open a rare frozen body-cache and take what's inside.",
+          "objective_type": "collect",
+          "target": "loot_body_cache_rare",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_deep_extract",
+          "description": "Extract at the loading dock still carrying the rare pull.",
+          "objective_type": "survive",
+          "target": "extract_zone",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 220,
+        "gold": 130,
+        "items": [
+          "cs_insulated_rig_vest"
+        ],
+        "reputation": {
+          "harbor_scavengers": 15
+        },
+        "unlocks": [
+          "quest_depot_remembers",
+          "quest_silence_the_listener"
+        ]
+      },
+      "prerequisites": [
+        "quest_first_walk"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "The player dies in the freezer core, spilling the cache into the next run's spawn table"
+      ],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_depot_remembers",
+      "title": "The Depot Remembers",
+      "description": "There's a voice in the freezer core that isn't the wind — Kell, frozen where he fell, still counting the dead by their tags. He'll give you the bundle if you promise to find his rig, the one the frost swallowed into this run's spawns. Wear the Ghost-Rig Tags and the dead point the way to the dead. One day someone wears yours.",
+      "quest_giver_npc_id": "npc_frostbit_kell",
+      "location_id": "freezer_core",
+      "level_requirement": 2,
+      "objectives": [
+        {
+          "id": "obj_remember_tags",
+          "description": "Cut the Ghost-Rig Tags free from Kell's frozen body-cache.",
+          "objective_type": "collect",
+          "target": "cs_ghost_rig_tags",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_remember_find",
+          "description": "Follow the tags to the richest re-seeded body-cache — a prior scavenger's spilled rig.",
+          "objective_type": "explore",
+          "target": "loot_body_cache_rare",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_remember_extract",
+          "description": "Carry the recovered ghost-rig out through the extraction zone.",
+          "objective_type": "survive",
+          "target": "extract_zone",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 260,
+        "gold": 90,
+        "items": [
+          "cs_ghost_rig_tags"
+        ],
+        "reputation": {
+          "harbor_scavengers": 15
+        },
+        "unlocks": []
+      },
+      "prerequisites": [
+        "quest_deep_pull"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "The player dies carrying the ghost-rig, adding their own tags to Kell's count"
+      ],
+      "time_limit_turns": null
+    },
+    {
+      "id": "quest_silence_the_listener",
+      "title": "Silence the Listener",
+      "description": "Everyone's run ends the same eventually — the thing in the loop hears you and comes. Marrow says there's one gun deep enough to end it: the Thawline Scattergun, sealed in a cold-crate at the core. Take it up, and understand the joke — the only weapon that can kill the Listener is the loudest thing in the building, and firing it calls it straight to you. Win the fight you're forced to start.",
+      "quest_giver_npc_id": "npc_marrow",
+      "location_id": "freezer_core",
+      "level_requirement": 3,
+      "objectives": [
+        {
+          "id": "obj_silence_arm",
+          "description": "Recover the Thawline Scattergun from the sealed cold-crate in the freezer core.",
+          "objective_type": "collect",
+          "target": "cs_thawline_scattergun",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_silence_kill",
+          "description": "Put the Listener down when the blast draws it to your position.",
+          "objective_type": "kill",
+          "target": "npc_the_listener",
+          "count": 1,
+          "optional": false
+        },
+        {
+          "id": "obj_silence_extract",
+          "description": "Extract at the loading dock after the depot goes quiet.",
+          "objective_type": "survive",
+          "target": "extract_zone",
+          "count": 1,
+          "optional": false
+        }
+      ],
+      "rewards": {
+        "xp": 500,
+        "gold": 300,
+        "items": [
+          "cs_thawline_scattergun"
+        ],
+        "reputation": {
+          "harbor_scavengers": 30
+        },
+        "unlocks": []
+      },
+      "prerequisites": [
+        "quest_deep_pull"
+      ],
+      "branches": {},
+      "failure_conditions": [
+        "The player is killed by the Listener before the extraction completes"
+      ],
+      "time_limit_turns": null
     }
   ],
   "npcs": [
     {
-      "id": "npc_wren_tallow",
-      "name": "Wren Tallow",
-      "role": "civilian",
-      "description": "The last of the threshold clockmakers, Wren returns to the Midnight Interchange each night with a tin of mainspring charges in her apron pocket. She speaks softly, listens longer than she talks, and treats every stopped clock as a quiet apology she means to answer.",
-      "appearance": "A slight woman in her late thirties wearing a heavy canvas apron over a midnight-blue work shirt, sleeves rolled to the elbow. Brass loupe pushed up into chestnut hair, oil-smudged fingertips, a leather tool belt of tiny instruments. Lantern-amber light catches the brass buttons at her cuffs.",
+      "id": "npc_greta_old_teeth",
+      "name": "Greta 'Old Teeth'",
+      "role": "mentor",
+      "description": "The gutting floor's fixture — a veteran scavenger who lost her nerve for the deep room and now sits by the entrance rethreading hooks, warning every newcomer with the same three rules. She's the reason a few of them walk back out. She never goes past the first door anymore, and she won't tell you why.",
+      "appearance": "A wiry woman bundled in frost-stiff canvas and a moth-eaten thermal hood, gutting hook worn on a belt loop, half her teeth gone and the rest capped in dull steel. Sodium light catches the rime in her eyebrows; she never fully faces the freezer door.",
       "personality": {
         "traits": [
-          "patient",
-          "observant",
-          "gentle",
-          "quietly stubborn"
+          "wary",
+          "blunt",
+          "superstitious",
+          "protective"
         ],
         "values": [
-          "repair over replacement",
-          "honoring what was almost",
-          "the dignity of small mechanisms"
+          "silence",
+          "patience",
+          "walking back out alive"
         ],
         "fears": [
-          "finishing the last repair",
-          "the night she fails to return",
-          "a station that finally stops humming"
+          "the freezer core",
+          "the sound of a groaning door behind her",
+          "dying loud like the others"
         ],
         "quirks": [
-          "hums the same four-note phrase while winding springs",
-          "thumbs the engraved cogs underfoot before each run",
-          "names every clock she repairs"
+          "counts to eight under her breath without meaning to",
+          "taps the wall twice before she'll open a door"
         ],
-        "speech_pattern": "soft, measured, often trailing into a half-finished thought"
+        "speech_pattern": "clipped, low, half-whispered — she talks like the walls are listening"
       },
-      "location_id": "room_waiting_hall",
+      "location_id": "gutting_floor",
       "stats": {
-        "level": 1,
-        "hp": 10,
-        "attack": 0,
-        "defense": 0,
+        "level": 3,
+        "hp": 40,
+        "attack": 9,
+        "defense": 8,
+        "speed": 7,
+        "special_abilities": [
+          "reads the loop's noise level at a glance",
+          "silent movement"
+        ]
+      },
+      "relationships": [
+        {
+          "target_npc_id": "npc_marrow",
+          "type": "old partner",
+          "trust": 70,
+          "description": "They ran the loop together for years until Greta stopped going in. Marrow stayed at the door; Greta stayed at the other."
+        },
+        {
+          "target_npc_id": "npc_frostbit_kell",
+          "type": "grief",
+          "trust": 60,
+          "description": "Kell was her last partner into the core. She hears his voice in there and can't bring herself to answer it."
+        }
+      ],
+      "schedule": {
+        "entries": [
+          {
+            "time": "always",
+            "location": "gutting_floor",
+            "activity": "rethreading hooks and watching the entrance"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [
+        "dlg_greta_intro",
+        "dlg_greta_rules",
+        "dlg_greta_silent"
+      ],
+      "inventory": [
+        "cs_gutting_hook",
+        "cs_rattle_can_decoy"
+      ],
+      "quest_ids": [
+        "quest_first_walk",
+        "quest_run_silent"
+      ],
+      "barks": {
+        "greeting": [
+          "New face. Good. Old faces are the ones hanging on the hooks.",
+          "Keep your voice down in here. It listens."
+        ],
+        "idle": [
+          "One flickering lamp, one groaning door, one thing that hunts. Learn all three or feed all three.",
+          "Eight seconds. That's how long the chime holds you still while it comes. Eight.",
+          "The stock outlasted the cannery. Most of us don't outlast the stock."
+        ],
+        "quest_offer": [
+          "Grab something worthless and get to that door. Prove you can leave before you learn to be greedy.",
+          "Run me a clean loop. No guns. Not one. Then we'll talk about what I keep quiet."
+        ],
+        "quest_complete": [
+          "You walked back out. Most don't. Don't let it go to your head — greed's the only thing that carries as far as a gunshot.",
+          "Silent the whole way. Good. You'll live longer than the loud ones did."
+        ],
+        "warning": [
+          "You hear that door groan? Now it knows where you are.",
+          "Every step deeper is a step you carry back. Don't forget the walk."
+        ]
+      },
+      "is_essential": true,
+      "faction": "harbor_scavengers"
+    },
+    {
+      "id": "npc_marrow",
+      "name": "Marrow",
+      "role": "merchant",
+      "description": "The fence at the bay door. She stopped going in the day she watched a partner spill a full rig in the core, and now she trades from the concrete apron — brass scrip for whatever you drag out, gear for whatever you'll owe. She never crosses the extraction line inward. She's watched too many people not come back across it.",
+      "appearance": "A broad, still figure in a quilted dock coat, breath fogging under the half-raised bay door, a strongbox of brass tokens at her boots. Amber lamplight pools on a face that gives away nothing; frost has made a beard of her scarf.",
+      "personality": {
+        "traits": [
+          "shrewd",
+          "calm",
+          "transactional",
+          "quietly kind"
+        ],
+        "values": [
+          "a fair cut",
+          "never crossing the line inward",
+          "keeping her scavengers coming back"
+        ],
+        "fears": [
+          "the extract chime she can't un-hear",
+          "owing a dead person",
+          "the day nobody walks out"
+        ],
+        "quirks": [
+          "weighs every tin in her palm before naming a price",
+          "won't say the Listener's name, calls it 'the tenant'"
+        ],
+        "speech_pattern": "even, unhurried, dry — a fence's cadence that never rises"
+      },
+      "location_id": "loading_dock",
+      "stats": {
+        "level": 2,
+        "hp": 35,
+        "attack": 7,
+        "defense": 9,
         "speed": 5,
         "special_abilities": [
-          "Wind-and-Set",
-          "Tool Drafting",
-          "Ledger Engraving"
+          "appraises loot value instantly",
+          "reads a scavenger's odds by how full their rig is"
         ]
       },
       "relationships": [
         {
-          "target_npc_id": "npc_stationmaster_spirit",
-          "type": "respectful",
-          "trust": 75,
-          "description": "Wren treats the Stationmaster as a former teacher she never quite stopped studying under."
-        },
-        {
-          "target_npc_id": "npc_porter_spirit",
-          "type": "fond",
+          "target_npc_id": "npc_greta_old_teeth",
+          "type": "old partner",
           "trust": 70,
-          "description": "The Porter passed her her first brass token; she never forgot the weight of it."
+          "description": "Two halves of a run that stopped running. Greta guards the way in, Marrow the way out, and neither goes between anymore."
         },
         {
-          "target_npc_id": "npc_last_passenger_spirit",
-          "type": "tender",
-          "trust": 65,
-          "description": "Wren never asks the Last Passenger where she meant to go. She just sits with her until the whistle answers."
+          "target_npc_id": "npc_pallett",
+          "type": "uneasy business",
+          "trust": 30,
+          "description": "Pallett brings her the best caches and the worst attitude. She pays him and watches him leave."
         }
       ],
       "schedule": {
         "entries": [
           {
-            "time": "dusk",
-            "location": "room_waiting_hall",
-            "activity": "arrives, winds the Arrival Clock, drafts a tool"
-          },
-          {
-            "time": "moonrise",
-            "location": "region_interchange",
-            "activity": "loops the five rooms repairing mechanisms"
-          },
-          {
-            "time": "moonset",
-            "location": "room_conductors_office",
-            "activity": "engraves the night's cog into the workshop ledger"
+            "time": "always",
+            "location": "loading_dock",
+            "activity": "fencing loot at the bay door"
           }
         ]
       },
       "dialogue_tree_ids": [
-        "dialogue_wren_arrival",
-        "dialogue_wren_tool_draft",
-        "dialogue_wren_ledger"
+        "dlg_marrow_trade",
+        "dlg_marrow_deep_pull",
+        "dlg_marrow_scattergun"
       ],
       "inventory": [
-        "item_mainspring_charge",
-        "item_mainspring_charge",
-        "item_mainspring_charge"
+        "cs_scavenger_sidearm",
+        "cs_insulated_rig_vest",
+        "cs_thermal_syrette",
+        "cs_tin_door_grease",
+        "cs_harbor_scrip"
       ],
       "quest_ids": [
-        "quest_wind_the_arrival_clock",
-        "quest_set_the_signal_levers"
+        "quest_fences_cut",
+        "quest_deep_pull",
+        "quest_silence_the_listener"
       ],
       "barks": {
-        "idle": [
-          "Almost.",
-          "Just a turn more.",
-          "There you are.",
-          "The springs remember."
-        ],
         "greeting": [
-          "Evening. The clocks are listening."
+          "You crossed the line the right way — outward. What'd you bring me?",
+          "Full rig. Good runs and dead men both come in with a full rig. Which are you?"
         ],
-        "winding": [
-          "One charge. One quiet turn.",
-          "Soft, now. Soft.",
-          "I hear you."
+        "idle": [
+          "Dead company's money for a dead man's gear. Still spends.",
+          "I buy what walks out. I don't ask what didn't.",
+          "The tenant's quiet today. Don't make me revise that."
         ],
-        "ledger": [
-          "A night that almost became whole.",
-          "Another cog. Another almost."
+        "quest_offer": [
+          "Tins are safe money. Bring me three and we're square.",
+          "There's a scattergun in the core that can end the tenant. It's also the loudest way to introduce yourself. Your call.",
+          "Push to the deep caches. Triple the pay, triple the reasons you won't spend it."
+        ],
+        "quest_complete": [
+          "Clean pull. Here's your cut — count it, I always do.",
+          "You brought the rare stuff back across the line. That's rarer than the stuff."
+        ],
+        "warning": [
+          "That chime's ringing. Everything in here just heard where you'll be for eight seconds.",
+          "Don't fire that thing near my door. I'll take the gear off your corpse either way."
         ]
       },
       "is_essential": true,
-      "faction": "threshold_clockmakers"
+      "faction": "harbor_scavengers"
     },
     {
-      "id": "npc_stationmaster_spirit",
-      "name": "The Stationmaster",
-      "role": "quest_giver",
-      "description": "A tall, dignified spirit who keeps the Conductor's Office and the workshop ledger. He trades hand-lettered riddle cards for engraved cogs and signs every Signal Pass with the same fountain pen he used the night the 12:00 train failed to arrive.",
-      "appearance": "A translucent figure in a long midnight-blue coat with brass buttons, a brimmed cap pulled low, a pocket watch chain that fades into mist where the watch itself should hang. Lantern light passes through him like through frosted glass.",
+      "id": "npc_pallett",
+      "name": "Pallett",
+      "role": "rival",
+      "description": "A brash younger scavenger who works the same loop you do and wants you to know he works it better. He runs loud and lucky, hauls out caches that should've killed him, and treats the freezer core like a personal shelf. Sooner or later luck runs the same way for everyone in here. He doesn't believe that yet.",
+      "appearance": "Lean and twitchy in a patched dock jacket hung with rattling trophies, a felt-wrapped sidearm on his hip he loves too much to keep quiet. Frost on a cocky grin; his boots are loud and he's proud of the stride.",
       "personality": {
         "traits": [
-          "formal",
-          "weary",
-          "thoughtful",
-          "kind beneath the protocol"
+          "cocky",
+          "reckless",
+          "competitive",
+          "superstitious under the bravado"
         ],
         "values": [
-          "the ledger",
-          "honest riddles",
-          "the dignity of the threshold"
+          "the biggest pull",
+          "bragging rights",
+          "getting there first"
         ],
         "fears": [
-          "forgetting the answers",
-          "an empty platform",
-          "the pen running dry"
+          "being the one left holding the loud gun",
+          "that Greta's rules are right",
+          "the silence right before the tenant arrives"
         ],
         "quirks": [
-          "taps the stopped grandfather clock twice before speaking",
-          "signs every pass with a flourish that loops back on itself",
-          "claims not to know his own riddles"
+          "names every cache he cracks",
+          "whistles when he's nervous, which is loud, which is a problem"
         ],
-        "speech_pattern": "courteous, antiquated, fond of the conditional tense"
+        "speech_pattern": "fast, boastful, needling — talks more than is safe in here"
       },
-      "location_id": "room_conductors_office",
+      "location_id": "loading_dock",
       "stats": {
-        "level": 1,
-        "hp": 10,
-        "attack": 0,
-        "defense": 0,
-        "speed": 3,
+        "level": 2,
+        "hp": 45,
+        "attack": 12,
+        "defense": 6,
+        "speed": 9,
         "special_abilities": [
-          "Riddle Issuing",
-          "Signal Pass Signing",
-          "Ledger Engraving"
+          "fast looter",
+          "draws the hunter's attention off you when he's louder"
         ]
       },
       "relationships": [
         {
-          "target_npc_id": "npc_wren_tallow",
-          "type": "mentor_like",
-          "trust": 80,
-          "description": "Considers Wren the rightful keeper of the threshold, though he would never say so aloud."
+          "target_npc_id": "npc_marrow",
+          "type": "supplier",
+          "trust": 40,
+          "description": "He brings Marrow the deepest caches and the loudest opinions. She pays for one and endures the other."
         },
         {
-          "target_npc_id": "npc_porter_spirit",
-          "type": "colleague",
-          "trust": 70,
-          "description": "They have shared the night shift for longer than either remembers."
-        },
-        {
-          "target_npc_id": "npc_last_passenger_spirit",
-          "type": "patient",
-          "trust": 60,
-          "description": "He keeps a seat reserved for her, though she never sits in the office."
+          "target_npc_id": "npc_greta_old_teeth",
+          "type": "dismissive",
+          "trust": 25,
+          "description": "He calls Greta 'the doorstop' and ignores every rule she's tried to hand him."
         }
       ],
       "schedule": {
         "entries": [
           {
-            "time": "dusk",
-            "location": "room_conductors_office",
-            "activity": "writes the night's riddles"
+            "time": "before a run",
+            "location": "loading_dock",
+            "activity": "bragging and gearing up"
           },
           {
-            "time": "moonrise",
-            "location": "room_conductors_office",
-            "activity": "receives Wren, trades cards"
-          },
-          {
-            "time": "moonset",
-            "location": "room_conductors_office",
-            "activity": "engraves cogs into the ledger floor"
+            "time": "during a run",
+            "location": "freezer_core",
+            "activity": "cracking the deepest caches first"
           }
         ]
       },
       "dialogue_tree_ids": [
-        "dialogue_stationmaster_greeting",
-        "dialogue_stationmaster_riddle",
-        "dialogue_stationmaster_ledger"
+        "dlg_pallett_taunt",
+        "dlg_pallett_race"
       ],
       "inventory": [
-        "item_riddle_card",
-        "item_riddle_card",
-        "item_signal_pass",
-        "item_engraved_cog"
+        "cs_scavenger_sidearm",
+        "cs_thermal_syrette"
       ],
-      "quest_ids": [
-        "quest_engrave_the_ledger",
-        "quest_three_spirits_one_night"
-      ],
+      "quest_ids": [],
       "barks": {
-        "idle": [
-          "The pen is still wet.",
-          "A station is only as honest as its clocks."
-        ],
         "greeting": [
-          "Good evening, clockmaker. The ledger is listening."
+          "Oh, it's you. Try to keep up, or don't — more caches for me.",
+          "You still counting to eight like the doorstop taught you? Cute."
         ],
-        "riddle": [
-          "A card, if you'd care to draw one.",
-          "I no longer know the answer myself, you understand."
+        "idle": [
+          "Deepest crate in the core's got my name on it. Literally, I named it.",
+          "Loud gets you the good stuff first. Quiet gets you the leftovers.",
+          "The tenant? Never touched me. Never will."
         ],
-        "engraving": [
-          "A new cog. Mark the date.",
-          "The floor remembers what the timetables forget."
+        "taunt": [
+          "Bet I clear the core and extract before you grease your first door.",
+          "You extract with what's on your back. Mine's fuller. Math's simple."
+        ],
+        "combat": [
+          "Should've stayed quiet, huh —",
+          "You're gonna make it hear us both!"
+        ],
+        "warning": [
+          "...you hear that? No? Good. Keep not hearing it.",
+          "Okay. Okay, that door groaned and it wasn't me. That wasn't me."
         ]
       },
-      "is_essential": true,
-      "faction": "interchange_spirits"
+      "is_essential": false,
+      "faction": "harbor_scavengers"
     },
     {
-      "id": "npc_porter_spirit",
-      "name": "The Porter",
-      "role": "quest_giver",
-      "description": "A round-shouldered spirit who drifts the Lost Luggage shelves with a brass tag-lantern, returning humming travel cases to their forgotten owners. He presses a small brass token into Wren's palm whenever a pair is restored.",
-      "appearance": "A short, broad spirit in a porter's vest and pillbox cap, brass tags clipped along his belt and lapels. His outline shimmers like steam off a kettle; his hands, though translucent, hold the cases firmly.",
-      "personality": {
-        "traits": [
-          "dutiful",
-          "warm",
-          "softly mournful",
-          "infinitely patient"
-        ],
-        "values": [
-          "returning what was lost",
-          "the names on the tags",
-          "small comforts in luggage"
-        ],
-        "fears": [
-          "a case with no name",
-          "an owner who never returns",
-          "his lantern going dim"
-        ],
-        "quirks": [
-          "hums to the cases as he sorts them",
-          "polishes each tag with the cuff of his vest",
-          "tips his cap to luggage as well as people"
-        ],
-        "speech_pattern": "kind, slow, sentences ending on a soft uplift"
-      },
-      "location_id": "room_lost_luggage",
-      "stats": {
-        "level": 1,
-        "hp": 10,
-        "attack": 0,
-        "defense": 0,
-        "speed": 4,
-        "special_abilities": [
-          "Memory Matching",
-          "Token Granting",
-          "Tag-Lantern Glow"
-        ]
-      },
-      "relationships": [
-        {
-          "target_npc_id": "npc_wren_tallow",
-          "type": "fond",
-          "trust": 75,
-          "description": "Pressed her first brass token into her palm and remembers the moment though she does not."
-        },
-        {
-          "target_npc_id": "npc_stationmaster_spirit",
-          "type": "colleague",
-          "trust": 70,
-          "description": "Defers to the Stationmaster's protocol but disagrees quietly about the timetables."
-        },
-        {
-          "target_npc_id": "npc_last_passenger_spirit",
-          "type": "protective",
-          "trust": 65,
-          "description": "Keeps her case set aside on the topmost shelf, dusted weekly, never tagged."
-        }
-      ],
-      "schedule": {
-        "entries": [
-          {
-            "time": "dusk",
-            "location": "room_lost_luggage",
-            "activity": "sorts the night's humming cases"
-          },
-          {
-            "time": "moonrise",
-            "location": "room_lost_luggage",
-            "activity": "guides Wren through memory pairs"
-          },
-          {
-            "time": "moonset",
-            "location": "room_lost_luggage",
-            "activity": "presses tokens into Wren's palm and dims the lantern"
-          }
-        ]
-      },
-      "dialogue_tree_ids": [
-        "dialogue_porter_greeting",
-        "dialogue_porter_memory",
-        "dialogue_porter_token"
-      ],
-      "inventory": [
-        "item_humming_case",
-        "item_humming_case",
-        "item_humming_case",
-        "item_porter_token"
-      ],
-      "quest_ids": [
-        "quest_match_the_humming_cases"
-      ],
-      "barks": {
-        "idle": [
-          "Hum a little louder, dear.",
-          "Someone meant to come back for you."
-        ],
-        "greeting": [
-          "Ah. The clockmaker. Right on time, as always."
-        ],
-        "matching": [
-          "There — that one's yours, isn't it?",
-          "A coat. A paperback. A packed lunch. Yes."
-        ],
-        "token": [
-          "A token, for your trouble.",
-          "The chute will open for you now."
-        ]
-      },
-      "is_essential": true,
-      "faction": "interchange_spirits"
-    },
-    {
-      "id": "npc_last_passenger_spirit",
-      "name": "The Last Passenger",
-      "role": "quest_giver",
-      "description": "A young spirit in travel coat and scarf who waits on Platform 3½ with a sliding-tile timetable that never quite resolves. She offers Wren a new phantom ticket each night and never quite explains where she meant to go.",
-      "appearance": "A slender figure on a bench, knees together, a folded travel coat across her lap. Her scarf catches the parallax steam as if alive. The timetable in her hands clicks and shifts of its own accord; her edges blur the longer you look.",
-      "personality": {
-        "traits": [
-          "wistful",
-          "patient",
-          "playful in small flashes",
-          "quietly resolute"
-        ],
-        "values": [
-          "the journey",
-          "the held seat",
-          "a ticket in every pocket"
-        ],
-        "fears": [
-          "the train arriving",
-          "the train never arriving",
-          "being remembered wrongly"
-        ],
-        "quirks": [
-          "hums fragments of a lullaby she can't finish",
-          "presses each phantom ticket flat with her thumb before handing it over",
-          "watches the skylight as if reading it"
-        ],
-        "speech_pattern": "lilting, full of half-rhymes, often a beat behind the question"
-      },
-      "location_id": "room_platform_three_half",
-      "stats": {
-        "level": 1,
-        "hp": 10,
-        "attack": 0,
-        "defense": 0,
-        "speed": 4,
-        "special_abilities": [
-          "Phantom Ticketing",
-          "Timetable Holding",
-          "Whistle Summoning"
-        ]
-      },
-      "relationships": [
-        {
-          "target_npc_id": "npc_wren_tallow",
-          "type": "tender",
-          "trust": 70,
-          "description": "Sits closer to Wren than to anyone else. Will not say why."
-        },
-        {
-          "target_npc_id": "npc_porter_spirit",
-          "type": "grateful",
-          "trust": 75,
-          "description": "Knows her case sits dusted on the topmost shelf, and is glad of it."
-        },
-        {
-          "target_npc_id": "npc_stationmaster_spirit",
-          "type": "respectful",
-          "trust": 55,
-          "description": "Tips her chin to him from the platform but will not enter the office."
-        }
-      ],
-      "schedule": {
-        "entries": [
-          {
-            "time": "dusk",
-            "location": "room_platform_three_half",
-            "activity": "watches the skylight, shuffles the timetable"
-          },
-          {
-            "time": "moonrise",
-            "location": "room_platform_three_half",
-            "activity": "offers Wren a phantom ticket"
-          },
-          {
-            "time": "moonset",
-            "location": "room_platform_three_half",
-            "activity": "listens for the whistle that almost answers"
-          }
-        ]
-      },
-      "dialogue_tree_ids": [
-        "dialogue_last_passenger_greeting",
-        "dialogue_last_passenger_timetable",
-        "dialogue_last_passenger_whistle"
-      ],
-      "inventory": [
-        "item_phantom_ticket",
-        "item_phantom_ticket",
-        "item_moonlight_vial"
-      ],
-      "quest_ids": [
-        "quest_solve_the_sliding_timetable"
-      ],
-      "barks": {
-        "idle": [
-          "Not yet. Not yet.",
-          "Almost a whistle. Almost a hand on my shoulder."
-        ],
-        "greeting": [
-          "You came. You always do."
-        ],
-        "timetable": [
-          "Slide this one — no, the other. Yes.",
-          "A ticket for you. Don't read the destination too closely."
-        ],
-        "whistle": [
-          "There. Did you hear it? It almost answered."
-        ]
-      },
-      "is_essential": true,
-      "faction": "interchange_spirits"
-    },
-    {
-      "id": "npc_arrival_clock_echo",
-      "name": "The Arrival Clock",
+      "id": "npc_frostbit_kell",
+      "name": "Frostbit Kell",
       "role": "mysterious",
-      "description": "Not quite an NPC, not quite a machine — the Arrival Clock in the Waiting Hall has a voice of its own, soft as a pendulum tick. It greets Wren at the start of every run and counts down the moon meter in a whisper only she can hear.",
-      "appearance": "A vast brass-and-glass clock mounted above the departure boards, its pendulum stopped at 11:59. When Wren winds it the face glows faintly lantern-amber and the second hand begins its slow sweep.",
+      "description": "A body-cache in the freezer core that still speaks — or seems to, in the space between the lamp's dying pulses. Kell went in with Greta and never came back across, and now he counts the dead by their tags and asks passing scavengers to find the rig the frost took from him. Whether he's a ghost, a hallucination of the cold, or just the depot remembering out loud, the tags he gives are real.",
+      "appearance": "A frost-glazed shape half-fused to the shelving, one hand still closed around a wire loop of stamped dog-tags. Rime bridges his eyelashes; an amber glow seems to sit behind the ice when the lamp gutters, and his voice arrives without his mouth moving.",
       "personality": {
         "traits": [
-          "ancient",
-          "soft-spoken",
-          "metrical"
+          "sorrowful",
+          "patient",
+          "knowing",
+          "strangely gentle"
         ],
         "values": [
-          "honest time",
-          "the threshold",
-          "Wren"
+          "being remembered",
+          "the dead pointing the way to the dead",
+          "warning the living without scaring them off"
         ],
         "fears": [
-          "a night unwound",
-          "a moon that does not cross"
+          "being forgotten into the spawn table",
+          "the living becoming the counted",
+          "the silence after the last scavenger stops coming"
         ],
         "quirks": [
-          "speaks in tick-tock cadence",
-          "calls out the moon's quarter-marks"
+          "recites names between the lamp's flickers",
+          "never speaks while the room is fully lit"
         ],
-        "speech_pattern": "metronomic, sentences clipped to the beat of a pendulum"
+        "speech_pattern": "slow, layered, half-echo — like the cold itself doing the talking"
       },
-      "location_id": "room_waiting_hall",
+      "location_id": "freezer_core",
       "stats": {
-        "level": 1,
-        "hp": 99,
+        "level": 2,
+        "hp": 1,
         "attack": 0,
         "defense": 0,
         "speed": 0,
         "special_abilities": [
-          "Moon Meter Voice",
-          "Quarter-Hour Chime"
+          "reveals a re-seeded body-cache",
+          "cannot be harmed or moved"
         ]
       },
       "relationships": [
         {
-          "target_npc_id": "npc_wren_tallow",
-          "type": "devoted",
-          "trust": 100,
-          "description": "Wound by her hands every night. Will run for no one else."
+          "target_npc_id": "npc_greta_old_teeth",
+          "type": "last partner",
+          "trust": 80,
+          "description": "He knows she hears him from the gutting floor and can't come in. He doesn't blame her. He just keeps his tags ready."
         }
       ],
-      "schedule": null,
+      "schedule": {
+        "entries": [
+          {
+            "time": "always",
+            "location": "freezer_core",
+            "activity": "frozen in the shelving, counting the tags"
+          }
+        ]
+      },
       "dialogue_tree_ids": [
-        "dialogue_arrival_clock_greeting",
-        "dialogue_arrival_clock_quarter_marks"
+        "dlg_kell_first_voice",
+        "dlg_kell_tags",
+        "dlg_kell_remember"
       ],
-      "inventory": [],
-      "quest_ids": [],
+      "inventory": [
+        "cs_ghost_rig_tags"
+      ],
+      "quest_ids": [
+        "quest_depot_remembers"
+      ],
       "barks": {
-        "idle": [
-          "Tick. Tock. Tick.",
-          "Eleven. Fifty. Nine."
-        ],
         "greeting": [
-          "Wind. Me. Wren."
+          "Still... warm. You're still warm. Good. Come closer — no, not too loud.",
+          "The lamp dips and I can speak. Listen fast."
         ],
-        "quarter_hour": [
-          "A. Quarter. Spent.",
-          "Half. The. Moon."
+        "idle": [
+          "Everyone who dies in here leaves their rig where they fall. I count them. It's all I do now.",
+          "The frost claims it into the next one's table. Yours too, someday. I'll count you kindly.",
+          "Carry the tags and the dead point the way to the dead."
         ],
-        "moonset": [
-          "Soft. Now. Soft."
+        "quest_offer": [
+          "Take my tags. Find the rig the cold swallowed this run — the richest one. It was somebody, once.",
+          "One of the caches out there is you. A you that didn't make it. The tags will show you. Don't flinch."
+        ],
+        "quest_complete": [
+          "You brought it back across the line. One less name only I remember.",
+          "The depot remembers everyone. Today it remembered gently, because of you."
+        ],
+        "warning": [
+          "It favors this room. It's near. Lower your voice or join my count.",
+          "Don't run. Running is a sound. Sound is how it finds the warm ones."
         ]
       },
       "is_essential": true,
-      "faction": "the_interchange_itself"
+      "faction": null
+    },
+    {
+      "id": "npc_the_listener",
+      "name": "The Listener",
+      "role": "boss",
+      "description": "The thing that adapted to the dark and the cold and learned that noise means prey. Once a scavenger, maybe — now something that patrols the roller-door loop by ear alone, drawn to gunfire, to sprinting boots, to a groaning door, and above all to the building-wide chime of an extraction in progress. It cannot see well in the sodium dark. It does not need to. Stay silent and it walks past. Make one sound and it walks toward.",
+      "appearance": "A long, low silhouette that reads as human only in the wrong light — frost-crusted and rag-wound, head cocked permanently to one side as if always listening. It moves without weight until it sprints, and then the whole loop hears it come. Its eyes are pale and useless; its ears are not.",
+      "personality": {
+        "traits": [
+          "patient",
+          "relentless",
+          "silent",
+          "sound-fixated"
+        ],
+        "values": [
+          "noise",
+          "the hunt",
+          "the loop it never leaves"
+        ],
+        "fears": [],
+        "quirks": [
+          "freezes utterly at any new sound to fix its bearing",
+          "loses the trail completely the instant its prey goes quiet"
+        ],
+        "speech_pattern": "wordless — a dragging rasp, a listening stillness, a sudden sprint"
+      },
+      "location_id": "freezer_core",
+      "stats": {
+        "level": 3,
+        "hp": 120,
+        "attack": 28,
+        "defense": 10,
+        "speed": 12,
+        "special_abilities": [
+          "sound-hunting: navigates by noise, not sight",
+          "drawn to gunfire, sprinting footsteps, groaning doors, and the extract chime",
+          "sprint-charge toward the loudest source",
+          "loses all track of silent prey",
+          "favors the freezer core, patrols the full loop"
+        ]
+      },
+      "relationships": [],
+      "schedule": {
+        "entries": [
+          {
+            "time": "always",
+            "location": "freezer_core",
+            "activity": "patrolling the loop by ear, favoring the deep room"
+          }
+        ]
+      },
+      "dialogue_tree_ids": [],
+      "inventory": [
+        "cs_ghost_rig_tags"
+      ],
+      "quest_ids": [],
+      "barks": {
+        "alerted": [
+          "[a dragging rasp stops — it heard you]",
+          "[the head cocks toward the sound]"
+        ],
+        "hunting": [
+          "[boots on frost, coming fast]",
+          "[it's in the room the chime came from]"
+        ],
+        "lost_track": [
+          "[the sprint slows — you went quiet in time]",
+          "[it stands still, listening for a sound you didn't make]"
+        ],
+        "combat": [
+          "[no words, only weight and speed]",
+          "[it found the loud one]"
+        ]
+      },
+      "is_essential": true,
+      "faction": "the_cold"
     }
   ],
   "items": [
     {
-      "id": "item_mainspring_charge",
-      "name": "Mainspring Charge",
-      "description": "A coiled brass spring humming with stored tension, spent to rewind broken clocks across the station.",
-      "category": "consumable",
+      "id": "cs_gutting_hook",
+      "name": "Gutting Hook",
+      "description": "A meat hook pried off the swaying chain track on the gutting floor, its point honed on the drainage grate. It kills without a bang — the only weapon in the depot that won't call the scavenger down on you.",
+      "category": "weapon",
       "rarity": "common",
       "level_requirement": 1,
-      "value": 5,
-      "sell_value": 1,
-      "stackable": true,
-      "max_stack": 12,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Rewind Clock",
-          "description": "Spend one charge to rewind a broken clock and nudge an adjacent room's puzzle state by one step.",
-          "trigger": "on_use",
-          "parameters": {
-            "nudge_radius": 1,
-            "charges_consumed": 1
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "Wren keeps a tin of these in her apron pocket. Each one was wound by a clockmaker who is no longer in the world.",
-      "icon_description": "A small coiled brass spring resting on aged cream paper, lantern-amber highlight catching the inner curl"
-    },
-    {
-      "id": "item_oil_can",
-      "name": "Brass Oil Can",
-      "description": "A long-spouted oil can that softens the resolution of any single puzzle, smoothing tile slides and dial turns.",
-      "category": "key_item",
-      "rarity": "uncommon",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
+      "value": 20,
+      "sell_value": 6,
       "stackable": false,
       "max_stack": 1,
       "stat_modifiers": [
         {
-          "stat": "puzzle_ease",
-          "value": 1,
+          "stat": "melee_damage",
+          "value": 8,
           "is_percentage": false
-        }
-      ],
-      "effects": [
+        },
         {
-          "name": "Easing Drop",
-          "description": "Apply a single drop to convert the next puzzle's hardest constraint into its softer variant for this run.",
-          "trigger": "on_use",
-          "parameters": {
-            "uses_per_run": 1,
-            "target": "next_puzzle",
-            "variant": "soft"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The label has worn away, but the smell of warm brass and clove oil tells Wren everything she needs to know.",
-      "icon_description": "A slender brass oil can with a curved spout, a single amber droplet suspended at the tip"
-    },
-    {
-      "id": "item_tuning_fork",
-      "name": "Tuning Fork",
-      "description": "A silvered tuning fork that, when struck against a rail, reveals the hidden order of luggage tags and timetable tiles.",
-      "category": "key_item",
-      "rarity": "uncommon",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Resonant Hint",
-          "description": "Strike to briefly chime the correct next move in the current puzzle — one memory pair or one tile slide.",
-          "trigger": "on_use",
-          "parameters": {
-            "uses_per_run": 2,
-            "reveals": "single_correct_move"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "Calibrated to the pitch of the 12:00 whistle. Wren has never heard the whistle herself, but the fork remembers.",
-      "icon_description": "A two-pronged silver tuning fork, its tips faintly glowing midnight-blue against aged paper"
-    },
-    {
-      "id": "item_pendulum_weight",
-      "name": "Pendulum Weight",
-      "description": "A heavy brass bob that, hung in any room, slows the moon meter's tick for the duration of one puzzle.",
-      "category": "key_item",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [
-        {
-          "stat": "moon_meter_rate",
-          "value": -25,
+          "stat": "stealth",
+          "value": 15,
           "is_percentage": true
         }
       ],
       "effects": [
         {
-          "name": "Hung Bob",
-          "description": "Hang the weight to slow the moon meter by 25% while solving the current room's puzzle.",
-          "trigger": "on_use",
+          "name": "Silent Work",
+          "description": "Strikes make no report and add nothing to the depot's noise level — a clean kill leaves the hunter none the wiser.",
+          "trigger": "on_attack",
           "parameters": {
-            "uses_per_run": 1,
-            "duration": "current_puzzle",
-            "moon_meter_rate_modifier": -0.25
+            "noise_generated": 0,
+            "backstab_multiplier": 2.5
           }
         }
       ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "Heavier than it looks. Wren swears she can feel the moon hesitating whenever it swings.",
-      "icon_description": "A polished brass pendulum bob on a short chain, catching warm lantern light"
-    },
-    {
-      "id": "item_porter_token",
-      "name": "Porter's Brass Token",
-      "description": "A small engraved token the Porter presses into Wren's palm when memory pairs are restored. Opens the luggage chute to Platform 3½.",
-      "category": "key_item",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Unlock Luggage Chute",
-          "description": "Unlocks the hidden chute connecting Lost Luggage to Platform 3½.",
-          "trigger": "on_pickup",
-          "parameters": {
-            "unlocks_connection": "key_porter_token"
-          }
-        }
+      "weapon_type": "dagger",
+      "damage_range": [
+        6,
+        12
       ],
-      "weapon_type": null,
-      "damage_range": null,
       "armor_value": null,
-      "lore_text": "Stamped with a name no one will say aloud. The Porter only hands it to those who matched the case to its owner.",
-      "icon_description": "A round brass token, its rim worn smooth, a single tag-shaped notch cut into the face"
+      "lore_text": "Every scavenger who walks the gutting floor takes a hook. Most of them are still in here, hanging where they fell.",
+      "icon_description": "A rust-brown steel hook with a frost-white honed tip, wrapped in dark cloth grip, on a black backdrop with a faint amber highlight."
     },
     {
-      "id": "item_signal_pass",
-      "name": "Signal Pass",
-      "description": "A folded paper pass embossed with the Stationmaster's stopped-clock seal. Opens the maintenance hatch beneath the departure boards.",
-      "category": "key_item",
-      "rarity": "rare",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": false,
-      "max_stack": 1,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Unlock Maintenance Hatch",
-          "description": "Unlocks the hidden shortcut from the Waiting Hall directly into the Signal Box.",
-          "trigger": "on_pickup",
-          "parameters": {
-            "unlocks_connection": "key_signal_pass"
-          }
-        }
-      ],
-      "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The Stationmaster signs each one with the same fountain pen he used the night the 12:00 train failed to arrive.",
-      "icon_description": "A folded cream paper pass, ink-drawn stopped-clock seal pressed in midnight-blue wax"
-    },
-    {
-      "id": "item_engraved_cog",
-      "name": "Engraved Cog",
-      "description": "A small brass cog inscribed with the date of a completed repair. Engraved into the workshop ledger floor at the end of each run.",
-      "category": "currency",
+      "id": "cs_scavenger_sidearm",
+      "name": "Scavenger's Sidearm",
+      "description": "A blowback pistol wrapped in felt and oiled rag to choke its report. Pulled from a shallow locker near the entrance, it's the loudest thing you can safely carry — quiet enough to use once, never twice in the same room.",
+      "category": "weapon",
       "rarity": "uncommon",
       "level_requirement": 1,
-      "value": 1,
-      "sell_value": 0,
-      "stackable": true,
-      "max_stack": 99,
-      "stat_modifiers": [],
+      "value": 65,
+      "sell_value": 22,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "ranged_damage",
+          "value": 14,
+          "is_percentage": false
+        },
+        {
+          "stat": "aim_stability",
+          "value": 10,
+          "is_percentage": true
+        }
+      ],
       "effects": [
         {
-          "name": "Ledger Engraving",
-          "description": "Banked between runs in the Conductor's Office floor; unlocks new starting tools and softer puzzle variants on future runs.",
-          "trigger": "on_pickup",
+          "name": "Muffled Report",
+          "description": "The rag wadding halves the shot's carry, but each round still bleeds noise into the room — fire twice and the scavenger has your bearing.",
+          "trigger": "on_attack",
           "parameters": {
-            "persistent": true,
-            "unlocks": "starting_tools_and_soft_variants"
+            "noise_generated": 45,
+            "noise_radius_rooms": 1
           }
         }
       ],
       "weapon_type": null,
-      "damage_range": null,
+      "damage_range": [
+        12,
+        18
+      ],
       "armor_value": null,
-      "lore_text": "A night that almost became whole. Wren reads the dates with her thumb whenever a run feels heavy.",
-      "icon_description": "A small brass cog with a date engraved across its face, set against worn workshop floorboards"
+      "lore_text": "Found on a scavenger who thought the felt would save him. It muffled the shot; it didn't muffle the boots that came running.",
+      "icon_description": "A stubby dark pistol swaddled in frost-grey rag, amber lamp-glint on the slide, dithered shadow pooling beneath."
     },
     {
-      "id": "item_moonlight_vial",
-      "name": "Banked Moonlight",
-      "description": "A glass vial of pale moonlight banked when a spirit's request is fulfilled. Carries forward to the next run as starting moon meter time.",
-      "category": "consumable",
+      "id": "cs_thawline_scattergun",
+      "name": "Thawline Scattergun",
+      "description": "A cannery slaughter-gun buried in a sealed cold-crate at the heart of the freezer core. It ends anything in one pull — and the blast rings through all three rooms, ringing the dinner bell for the thing that hunts the loop.",
+      "category": "weapon",
       "rarity": "rare",
-      "level_requirement": 1,
-      "value": 10,
-      "sell_value": 2,
-      "stackable": true,
-      "max_stack": 3,
+      "level_requirement": 2,
+      "value": 240,
+      "sell_value": 90,
+      "stackable": false,
+      "max_stack": 1,
       "stat_modifiers": [
         {
-          "stat": "moon_meter_seconds",
-          "value": 45,
+          "stat": "ranged_damage",
+          "value": 42,
+          "is_percentage": false
+        },
+        {
+          "stat": "carry_slots",
+          "value": -1,
           "is_percentage": false
         }
       ],
       "effects": [
         {
-          "name": "Bank Moonlight",
-          "description": "Adds 45 seconds to the next run's moon meter when carried across the workshop ledger.",
-          "trigger": "on_use",
+          "name": "Building-Wide Blast",
+          "description": "A single discharge floods the entire depot with noise, drawing the scavenger straight to your position from wherever it patrols.",
+          "trigger": "on_attack",
           "parameters": {
-            "seconds_added": 45,
-            "applies_to": "next_run"
+            "noise_generated": 100,
+            "noise_radius_rooms": 3,
+            "draws_hunter": true
           }
         }
       ],
       "weapon_type": null,
-      "damage_range": null,
-      "armor_value": null,
-      "lore_text": "The Last Passenger says moonlight tastes like a station you almost remembered.",
-      "icon_description": "A slim glass vial of softly glowing pale-blue liquid, corked with brass and aged paper label"
-    },
-    {
-      "id": "item_humming_case",
-      "name": "Humming Travel Case",
-      "description": "A small leather case that hums faintly when carried near its owner's belongings. Used to complete the Porter's memory pairs.",
-      "category": "quest_item",
-      "rarity": "common",
-      "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
-      "stackable": true,
-      "max_stack": 6,
-      "stat_modifiers": [],
-      "effects": [
-        {
-          "name": "Owner Resonance",
-          "description": "Hums louder as Wren approaches the matching tag in Lost Luggage, narrowing memory-match pairs.",
-          "trigger": "on_pickup",
-          "parameters": {
-            "puzzle": "porter_memory",
-            "hint_radius": 1
-          }
-        }
+      "damage_range": [
+        34,
+        50
       ],
-      "weapon_type": null,
-      "damage_range": null,
       "armor_value": null,
-      "lore_text": "Each case holds a folded coat, a paperback, a packed lunch — small proofs that someone meant to come back.",
-      "icon_description": "A small worn leather case with a brass clasp and a paper tag, soft motion lines suggesting a hum"
+      "lore_text": "The deepest reward in the Coldstore, and the loudest mistake. The gear that lets you win a fight is the gear that guarantees you have to.",
+      "icon_description": "A wide double-barrel choked with frost, rust bleeding along the receiver, one amber flare of lamplight on the muzzle."
     },
     {
-      "id": "item_riddle_card",
-      "name": "Stationmaster's Riddle Card",
-      "description": "A stiff cream card hand-lettered with one of the Stationmaster's riddles. Solved cards become engraved cogs.",
-      "category": "quest_item",
+      "id": "cs_insulated_rig_vest",
+      "name": "Insulated Rig Vest",
+      "description": "A quilted dockhand's vest layered with torn thermal blanket. It turns a knife-line into a bruise and keeps the freezer's bite off your ribs long enough to reach the far door.",
+      "category": "armor",
       "rarity": "uncommon",
       "level_requirement": 1,
-      "value": 0,
-      "sell_value": 0,
+      "value": 90,
+      "sell_value": 30,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "armor",
+          "value": 18,
+          "is_percentage": false
+        },
+        {
+          "stat": "cold_resistance",
+          "value": 25,
+          "is_percentage": true
+        }
+      ],
+      "effects": [
+        {
+          "name": "Deadweight Padding",
+          "description": "The bulk that stops a blade also drags at your stride — sprinting in it is measurably slower.",
+          "trigger": "passive",
+          "parameters": {
+            "move_speed_modifier": -8
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": 18,
+      "lore_text": "Stripped off a body-cache in the freezer core. It kept its last owner warm right up until it didn't keep them quiet.",
+      "icon_description": "A bulky frost-white quilted vest with rust stains at the seams, dithered shadow folds, amber trim on the buckles."
+    },
+    {
+      "id": "cs_feltsole_boots",
+      "name": "Feltsole Boots",
+      "description": "Work boots with the treads torn out and thick cannery felt lashed over the soles. On the gutting floor's frost-slick tiles they turn a sprint into a whisper — the single best defense against a hunter that listens for boots.",
+      "category": "accessory",
+      "rarity": "rare",
+      "level_requirement": 1,
+      "value": 130,
+      "sell_value": 44,
+      "stackable": false,
+      "max_stack": 1,
+      "stat_modifiers": [
+        {
+          "stat": "noise",
+          "value": -35,
+          "is_percentage": true
+        },
+        {
+          "stat": "stealth",
+          "value": 20,
+          "is_percentage": true
+        }
+      ],
+      "effects": [
+        {
+          "name": "Whispered Stride",
+          "description": "Even at a full sprint your footfalls generate almost no noise, letting you cover the long walk back without ringing the scavenger's ears.",
+          "trigger": "passive",
+          "parameters": {
+            "sprint_noise_reduction": 0.65
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": 2,
+      "lore_text": "The quiet ones last longest in here. The felt was somebody's whole survival plan, and it worked until greed put a loud gun in their hands.",
+      "icon_description": "Scuffed rust-brown boots wrapped in pale grey felt strips, frost caked on the toes, long dithered shadow trailing behind."
+    },
+    {
+      "id": "cs_thermal_syrette",
+      "name": "Thermal Syrette",
+      "description": "A one-shot warming stim from a dockworker's first-aid tin. Jabbed into the thigh it dulls the cold-ache and closes a wound fast — but the gasp of relief it pulls out of you carries in the quiet.",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "level_requirement": 1,
+      "value": 40,
+      "sell_value": 12,
       "stackable": true,
       "max_stack": 5,
       "stat_modifiers": [],
       "effects": [
         {
-          "name": "Solve Riddle",
-          "description": "Turn in a solved riddle card to the Stationmaster to bank an engraved cog into the workshop ledger.",
+          "name": "Warm Surge",
+          "description": "Restores a chunk of health and clears the freezer's cold-slow for a short window.",
           "trigger": "on_use",
           "parameters": {
-            "reward": "engraved_cog",
-            "quantity": 1
+            "heal_amount": 40,
+            "cold_immunity_seconds": 20,
+            "noise_generated": 15
           }
         }
       ],
       "weapon_type": null,
       "damage_range": null,
       "armor_value": null,
-      "lore_text": "The Stationmaster keeps a stack in his desk drawer. He claims he doesn't know the answers himself anymore.",
-      "icon_description": "A cream cardstock rectangle with a hand-lettered ink riddle and a stopped-clock watermark"
+      "lore_text": "There's always one left in the tin, and always a reason you're bleeding badly enough to want it. The Coldstore is generous with second chances and stingy with thirds.",
+      "icon_description": "A small amber-fluid syrette with a frost-white plunger, red band near the needle, on a dark dithered tile."
     },
     {
-      "id": "item_phantom_ticket",
-      "name": "Phantom Ticket",
-      "description": "A ticket stub for the 12:00 train that never quite arrives. Stamped with a destination that changes when no one is looking.",
-      "category": "quest_item",
-      "rarity": "epic",
+      "id": "cs_rattle_can_decoy",
+      "name": "Rattle-Can Decoy",
+      "description": "A dented paint can packed with frozen bolts. Lob it across a room and the clatter yanks the sound-hunting scavenger toward the noise — buying you the seconds to slip a roller door the other way.",
+      "category": "consumable",
+      "rarity": "common",
       "level_requirement": 1,
+      "value": 25,
+      "sell_value": 8,
+      "stackable": true,
+      "max_stack": 8,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Throw & Rattle",
+          "description": "Creates a loud noise source at the landing point that pulls the hunter away from you toward the decoy for its duration.",
+          "trigger": "on_use",
+          "parameters": {
+            "lure_radius_rooms": 2,
+            "distraction_seconds": 12,
+            "throw_range_tiles": 8
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The trick every survivor learns and every corpse learned too late: the scavenger chases sound, not sense. Give it something louder than yourself.",
+      "icon_description": "A crushed rust-orange paint can with frost-white bolts spilling from the lid, faint amber rim-light."
+    },
+    {
+      "id": "cs_tin_door_grease",
+      "name": "Tin of Door Grease",
+      "description": "Congealed axle grease scraped from the loading dock's dead forklift. Smeared into a roller door's track it silences the groan for a single open — one door you can cross without announcing yourself to the whole building.",
+      "category": "consumable",
+      "rarity": "uncommon",
+      "level_requirement": 1,
+      "value": 35,
+      "sell_value": 10,
+      "stackable": true,
+      "max_stack": 4,
+      "stat_modifiers": [],
+      "effects": [
+        {
+          "name": "Silence the Groan",
+          "description": "The next roller door you open makes no sound, denying the scavenger the announcement it usually gets from a groaning track.",
+          "trigger": "on_use",
+          "parameters": {
+            "silent_door_opens": 1,
+            "noise_generated": 0
+          }
+        }
+      ],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Three doors, and every one of them a siren. A single tin buys you one quiet threshold — spend it on the door you most need to survive crossing.",
+      "icon_description": "A flat rust-lidded tin half-full of dark amber grease with a bent smearing rag, cold grey highlights."
+    },
+    {
+      "id": "cs_frozen_stock_tin",
+      "name": "Frozen Stock Tin",
+      "description": "A cold-store tin of harbor cannery stock, still sealed and rimed with frost. Worthless as a tool but it fills a rig slot with pure sell-weight — the safe pull for the scavenger who wants to walk out with something for certain.",
+      "category": "material",
+      "rarity": "common",
+      "level_requirement": 1,
+      "value": 30,
+      "sell_value": 18,
+      "stackable": true,
+      "max_stack": 10,
+      "stat_modifiers": [],
+      "effects": [],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "The cannery folded with the shelves still full. The stock outlasted the company, the workers, and most of the scavengers who came for it.",
+      "icon_description": "A frost-crusted cylindrical tin with a faded rust-and-amber cannery label, dithered ice glaze across the top."
+    },
+    {
+      "id": "cs_harbor_scrip",
+      "name": "Harbor Scrip",
+      "description": "Brass company tokens the cannery paid its dockhands in, now the only currency the scavengers around the Coldstore still trade. What you extract with buys the next run's edge.",
+      "category": "currency",
+      "rarity": "common",
+      "level_requirement": 1,
+      "value": 1,
+      "sell_value": 1,
+      "stackable": true,
+      "max_stack": 999,
+      "stat_modifiers": [],
+      "effects": [],
+      "weapon_type": null,
+      "damage_range": null,
+      "armor_value": null,
+      "lore_text": "Good only at the harbor, and the harbor's gone. The scavengers kept using it anyway — a dead company's money for a dead man's gear.",
+      "icon_description": "A small stack of tarnished brass tokens stamped with an anchor, frost-white edges, warm amber sheen."
+    },
+    {
+      "id": "cs_ghost_rig_tags",
+      "name": "Ghost-Rig Tags",
+      "description": "A bundle of frozen dog-tags cut from the body-caches in the freezer core — every scavenger who didn't make the dock. Held on your rig, the depot's ghosts read to you: you can feel where the frost claimed a heavy rig into this run's spawns.",
+      "category": "key_item",
+      "rarity": "epic",
+      "level_requirement": 2,
       "value": 0,
       "sell_value": 0,
       "stackable": false,
@@ -1477,78 +1521,70 @@
       "stat_modifiers": [],
       "effects": [
         {
-          "name": "Timetable Anchor",
-          "description": "Hold during a sliding-tile timetable puzzle to lock one tile of Wren's choosing in place.",
-          "trigger": "on_use",
+          "name": "The Depot Remembers",
+          "description": "Marks the location of the richest re-seeded body-cache — a prior scavenger's spilled rig — at the start of each run, including one of your own past deaths.",
+          "trigger": "passive",
           "parameters": {
-            "puzzle": "last_passenger_timetable",
-            "locks_tiles": 1
+            "reveals_seeded_cache": true,
+            "count": 1,
+            "includes_player_ghosts": true
           }
         }
       ],
       "weapon_type": null,
       "damage_range": null,
       "armor_value": null,
-      "lore_text": "The Last Passenger carries one in every pocket. She offers Wren a new stub each night and never quite explains where she meant to go.",
-      "icon_description": "A pale paper ticket stub with smudged midnight-blue ink, edges softened from being held too long"
+      "lore_text": "Everyone who dies in here leaves their rig where they fall, and the frost claims it into the next scavenger's table. Carry the tags and the dead point the way to the dead. One day a stranger will find yours.",
+      "icon_description": "A frozen cluster of stamped steel dog-tags on a wire loop, rime bridging the links, faint amber glow behind the frost."
     }
   ],
   "encounters": [],
   "stat_system": null,
   "combat_system": null,
   "style_guide": {
-    "art_style": "Hand-pixeled 2D at a 64x64 sprite base for characters and key props, with 32x32 tile units for floors/walls and 128x128 reserved for hero set-pieces (Arrival Clock, Workshop Ledger floor, Great Skylight). Target render resolution: 384x216 internal canvas upscaled 5x to 1920x1080 with integer scaling, no sub-pixel filtering. Sprites use a strict 24-color global palette per scene with selective dithering (Bayer 4x4) only on glass and steam edges. Character silhouettes read at 3 tiles tall (Wren ~40px), with brass-loupe and apron-buckle as silhouette anchors. Animations: 8-frame idle breathing loops at 8fps, 6-frame winding loops at 12fps, 4-frame pendulum sways at 6fps, 12-frame steam puffs at 10fps for parallax layers, and 24-frame moon-meter sweep cycles tied to the 12-minute timer. UI is ink-on-aged-paper: hand-drawn at 2x pixel scale with 1px sepia outlines (#3a2a1c), drop-shadowed onto a paper texture overlay set to multiply at 35% opacity. Lantern bloom is achieved with a 3-pass additive blur on amber light sources (radius 2px, 4px, 8px) clamped to a 50% alpha ceiling so it never crushes the palette. Two parallax steam layers move at 0.25x and 0.6x camera speed; foreground gear-shadows pass at 1.4x. No anti-aliasing on sprite edges; all rotations are pre-baked at 8 cardinal angles to preserve the hand-pixeled feel.",
+    "art_style": "Tight 32x32px pixel art on a strict integer grid — every sprite, tile, and prop authored at 32x32 native and rendered at integer scale only (3x/4x, nearest-neighbor, no bilinear, no sub-pixel camera). Characters occupy a 16w x 28h silhouette within their 32x32 cell, read-first (recognizable in one flickering frame) with hunched, cold-braced posture. Environment is orthographic top-down-3/4 (2:1 dimetric feel faked in flat tiles) so roller doors, gutting tables, and shelving read as depth without true perspective. Hard 1px outlines are selective, not universal: full dark outline (#1a1418) only where a sprite meets lit floor; outlines DROP to interior shading where a sprite sits in shadow, so figures visually dissolve into the dark exactly like the Listener does. Dithering is the signature technique — 2x2 and 4x4 Bayer checker dithers carry every shadow gradient and every frost-to-rust transition; never use smooth anti-aliased ramps, the grain IS the mood. Palette is hard-capped: max 6 hues + 4 neutral values per sprite. Frost rime is painted as 1-2px stippled highlight clusters on top edges of steel; rust is a dithered mid-brown bleed pooling at bottom edges and weld seams. Loot containers use a shared 32x32 silhouette language with tier-coded lid trim (see palette) so players read value at a glance. Extraction zone is a 2x2 tile stencil of amber hazard-chevrons that pulses. UI is diegetic-minimal: a bottom rig-slot strip (4-6 slots, 24x24 item icons), a 3-segment thin outline map of the loop, and an 8-second extract ring drawn as a depleting 32px arc.",
     "color_palette": [
-      "#1a1f3a — midnight blue (primary background, deep glass)",
-      "#2d3656 — dusk blue (mid walls, shadowed brass)",
-      "#4a5681 — moon blue (skylight wash, distant steam)",
-      "#7a8bb8 — pale moon (glass highlights, spirit edges)",
-      "#c9b27a — brass gold (primary metal, fittings, gears)",
-      "#e8c980 — polished brass (highlight on rims, buttons)",
-      "#f4d98a — lantern amber (light source core)",
-      "#ffe8a8 — lantern bloom (additive glow inner)",
-      "#a87b3a — aged brass (worn metal, ledger engravings)",
-      "#6b4a2a — oxidized brass (deep shadow on metal)",
-      "#3a2a1c — sepia ink (UI outlines, hand-lettering)",
-      "#e8d9b8 — aged paper cream (UI background, riddle cards)",
-      "#c4b394 — paper shadow (UI mid-tone, fold creases)",
-      "#9a8a6a — paper deep (UI border, tag edges)",
-      "#5a4838 — wood walnut (office paneling, benches)",
-      "#3a2e22 — wood deep shadow",
-      "#c89878 — Wren's skin (warm, lantern-lit)",
-      "#8a5a3a — Wren's hair (chestnut, oil-touched)",
-      "#1f2a44 — Wren's shirt (midnight work blue)",
-      "#7a6850 — Wren's apron (heavy canvas)",
-      "#b8c4d6 — spirit translucent (Stationmaster/Porter/Passenger base)",
-      "#d8e0ec — spirit highlight (frosted-glass edges)",
-      "#5a8a9a — phantom whistle teal (Platform 3½ accent)",
-      "#2a1a1a — true black (reserved for ink details and silhouette punch only)"
+      "#0c0a0d — void black (unlit floor, deep shadow cores, the dark the Listener hides in)",
+      "#1a1418 — near-black outline / darkest dither value",
+      "#2b2430 — cold shadow purple-grey (mid shadow, under-table, shelving recesses)",
+      "#3d4a52 — steel shadow blue-grey (unlit refrigerated wall/steel base value)",
+      "#5b6b70 — cold steel mid (lit fixtures, roller doors, forklift, gutting tables)",
+      "#8f9ba0 — frost steel highlight (lit metal edges, chain track, hooks)",
+      "#c7d2d4 — rime white (frost stipple, breath fog, ice on shelving — the coldest lit value)",
+      "#eef2f0 — frost-white specular (only on directly-lit ice/rime peaks, use sparingly)",
+      "#3a2419 — rust shadow brown (deep corrosion, drainage channels, blood-old stains)",
+      "#6b4326 — rust brown mid (corroded steel, canvas, wood pallets, Greta's canvas wrap)",
+      "#9c6b3d — warm rust / worn leather (rig vests, dock coat, felt-wrapped gear)",
+      "#c98a3a — sodium amber mid (the flickering lamp's core glow, extract chevrons)",
+      "#f2b64c — sodium amber highlight (lamp filament, hot bloom, extract-zone pulse peak)",
+      "#f7d489 — amber specular bloom (1px hot centers only, the filament itself)",
+      "#7a2f2f — muted alarm crimson (blood-caches, damage flashes, Listener-alerted vignette tint)",
+      "#4a5c4e — sickly frost-green (frozen stock, spoiled body-caches, Kell's ghost glow)"
     ],
-    "mood": "Hushed, melancholic, and quietly hopeful — the visual feeling of a quiet platform at midnight where every brass fitting is dimmed but still warm, every pane of glass holds a held breath, and the lantern light promises that nothing here is hostile, only waiting. Steam drifts slow enough to count, pendulums sway in long arcs, and even the broken clocks tick once when looked at. The palette never goes fully black or fully white; the station exists in the soft margin between sleep and waking.",
+    "mood": "Held-breath dread. The screen should feel like standing one room too deep with a full rig — mostly darkness pressed in from the edges, a single trembling pool of amber light you cannot trust, and the constant sense that any bright pixel or loud animation is a mistake that gets you heard. Warmth (amber) means safety and visibility but also exposure; cold (frost-white/steel-blue) means the dark that hides you AND the thing hunting in it. Every visual beat is about the tension between wanting to see and needing to stay unseen. Loot should look tempting and heavy; the walk back should look longer than the walk in. The world visibly accumulates death — spilled rigs, frost-glazed body-caches, and dog-tags dressing the floor so the depot literally shows the wreckage of prior runs.",
     "reference_games": [
-      "Eastward (Pixpil) — for warm pixel lighting, parallax interiors, and gentle ambient storytelling",
-      "A Short Hike (adamgryu) — for hushed cozy pacing and quiet world tone",
-      "Inscryption (Daniel Mullins) — for ink-on-paper UI and hand-lettered card aesthetics",
-      "Spiritfarer (Thunder Lotus) — for melancholic-hopeful tone and tender NPC framing",
-      "Return of the Obra Dinn (Lucas Pope) — for 1-bit-adjacent restraint and brass/sepia mood (palette only, not 1-bit)",
-      "Loop Hero (Four Quarters) — for 64x64 hand-pixeled clarity at low resolution",
-      "Stardew Valley (ConcernedApe) — for lantern bloom, parallax depth, and readable indoor pixel scenes",
-      "The Case of the Golden Idol — for ink-and-aged-paper UI typography and hand-drawn frames",
-      "Strange Horticulture — for cozy-melancholic mood with quiet desk-scale interactions",
-      "Carto — for soft warm interiors and gentle puzzle pacing visuals"
+      "Darkwood — single moving light source, oppressive off-screen darkness, sound-driven dread",
+      "Duskers — desaturated industrial-decay palette, cold dread of derelict spaces, minimal diegetic UI",
+      "Teleglitch — tight low-res sprites, claustrophobic corridors, grimy top-down survival horror",
+      "Hyper Light Drifter — masterclass in limited-palette dithered pixel lighting and silhouette-first readability",
+      "Katana ZERO / Death's Door pixel lineage — high-contrast rim-lit sprites against dark grounds (for the light-pool contrast, not the color)",
+      "Barotrauma — grim decommissioned-industrial atmosphere, frost/rust materials, threat-in-the-dark tension",
+      "Into the Breach — clean 32-ish px tactical readability and tier-coded object silhouettes at small scale"
     ],
-    "line_weight": "1px sepia (#3a2a1c) outlines on UI elements and riddle cards; sprites use no outlines, relying on palette contrast and 1-pixel rim-light on brass edges (lantern-amber #f4d98a) for silhouette readability. Spirits have a deliberately broken 1-pixel outline (#d8e0ec) that fades every 3 frames to read as translucent. Architectural tiles use no outlines — depth is communicated through 2-step shadow ramps (midnight #1a1f3a → dusk #2d3656 → moon #4a5681).",
-    "texture_style": "Hand-pixeled with deliberate hand-placed dither only on glass surfaces (Bayer 4x4), steam edges (scattered noise), and spirit volumes (vertical-streak dither at 25% density). Brass is rendered with 3-step shadow ramps and a single hand-placed specular pixel per curve — never gradients, never auto-shading. Wood paneling uses 2-pixel horizontal grain repeated every 8px with hand-broken irregularity. Aged paper UI has a baked low-frequency noise overlay (multiply, 20% opacity) and hand-drawn fold creases at card corners. Floor tiles in the Conductor's Office show engraved cog patterns as 1-pixel-deep recessed shading — these accumulate visibly across runs as the persistent ledger fills.",
-    "lighting": "Warm-key, cool-fill, single-source per room. Lantern-amber (#f4d98a) primary lights cast a 3-pass additive bloom (2px/4px/8px radius, 50% alpha ceiling) with a 16-tile falloff to midnight-blue ambient (#1a1f3a). The Great Skylight in the Waiting Hall casts a moving moon-blue (#4a5681) shaft that sweeps across the floor over the 12-minute moon meter — 1 tile every 30 seconds, baked as 24 keyframes. Spirits emit no light themselves but pick up edge-fill from the nearest lantern, with their translucent fill (#b8c4d6) shifting 1 palette step warmer when within 3 tiles of an amber source. Platform 3½ uses a phantom-teal (#5a8a9a) secondary fill from off-screen, half the intensity of the main lantern, to mark it as not-quite-real. No room is ever lit above 70% perceptual brightness; the station is always dim, always warm, always waiting."
+    "line_weight": "Selective 1px hard outline. Full #1a1418 outline only where a sprite borders directly-lit floor; outlines thin or vanish into interior shadow where the sprite sits in darkness, letting figures dissolve into the black. Interior detail uses 1px shading lines and dither clusters, never 2px lines — at 32x32 a 2px line eats too much silhouette. Absolutely no outer glow strokes; light bloom is done with palette ramps and dither, not outlines.",
+    "texture_style": "Heavy dithered grime, not clean flats. Every surface carries a material story via 2x2/4x4 Bayer dithering: frost rime stippled along top/lit edges (#c7d2d4 clusters), rust bleeding up from bottoms and weld seams (#6b4326 into #3a2419), and shadow gradients carried entirely by ordered dither rather than smooth ramps. Floors are cold concrete/steel-tile with dithered wear paths and frozen drainage streaks. Grain is intentional and consistent — think 'frost-crusted decommissioned steel,' never smooth or painterly. Keep large flat void areas truly flat (#0c0a0d) so the eye can't parse the dark — that emptiness is a feature.",
+    "lighting": "ONE flickering sodium lamp per room is the entire lighting model — a single warm point source (#f2b64c core → #c98a3a → #9c6b3d falloff → hard dither edge → #0c0a0d void) baked into tiles as a radial dithered gradient. Light is amber and dying; everything outside its pool is near-pure black. FLICKER is the hero animation: an 8-frame looping brightness/position wobble at ~8-10fps, with an irregular timing curve (hold bright 3 frames, stutter-dim 2, near-black 1, recover 2) so it never feels metronomic — the Freezer Core lamp guts to near-#0c0a0d for a full frame between pulses. Every prop with the lamp between it and the wall casts a long hard dithered shadow that SWINGS with the flicker (hooks, shelving, the player) — pre-render 2-3 shadow-angle variants and cross-blend them to the flicker frame so silhouettes physically move. Extract-zone amber chevrons pulse on a separate 6-frame ~4fps breathing cycle. Listener-alerted state washes a subtle #7a2f2f dither vignette in from screen edges (no flashy full-screen flash — keep the dread quiet). Rim-light discipline: cold #8f9ba0/#c7d2d4 edge highlights only on the lamp-facing side of sprites; the far side falls fully to shadow value."
   },
   "scenes_generated": [
     "res://scenes/generated/generated_game.tscn",
-    "res://scenes/generated/01_the-midnight-interchange.tscn",
-    "res://scenes/generated/02_waiting-hall.tscn",
-    "res://scenes/generated/03_lost-luggage.tscn",
-    "res://scenes/generated/04_signal-box.tscn",
-    "res://scenes/generated/05_platform-3.tscn",
-    "res://scenes/generated/06_conductor-s-office.tscn"
+    "res://scenes/generated/01_the-coldstore.tscn",
+    "res://scenes/generated/02_gutting-floor.tscn",
+    "res://scenes/generated/03_freezer-core.tscn",
+    "res://scenes/generated/04_loading-dock.tscn",
+    "res://scenes/generated/05_the-coldstore-loop.tscn",
+    "res://scenes/generated/06_gutting-floor.tscn",
+    "res://scenes/generated/07_freezer-core.tscn",
+    "res://scenes/generated/08_loading-dock.tscn"
   ],
   "scripts_generated": [
     "res://scripts/generated/game_project_data.gd",
@@ -1556,68 +1592,98 @@
     "res://scripts/generated/quest_runtime.gd"
   ],
   "qa_report": {
-    "project_id": "b94495fe-467a-45c1-b433-8f846caba6b9",
+    "project_id": "a882389d-1ffd-4891-b891-e8f60225d07a",
     "issues": [
       {
-        "severity": "resolved",
-        "category": "build",
-        "description": "Deterministic export now generates game-specific Godot scenes, runtime scripts, room cards, quest/item interactions, and this unfinished-work panel from the manifest.",
-        "location": "scenes/generated, scripts/generated",
-        "suggested_fix": "Next pass should replace the generic interaction buttons with genre-specific mechanics for this game."
+        "severity": "blocker",
+        "category": "content-data",
+        "description": "The dungeon references loot_table_id 'loot_coldstore_weighted', but no loot table is defined anywhere in the project. Every room lists container entities (loot_crate_common, loot_locker_shallow, loot_body_cache_rare, loot_crate_rare, loot_frozen_stock, loot_crate_uncommon) with no mapping to which item IDs they drop. Because the entire quest chain relies on collecting items out of these containers, no 'collect' objective can be resolved and the game cannot progress past quest_first_walk.",
+        "location": "world.dungeons[0].loot_table_id; all room 'entities' arrays",
+        "suggested_fix": "Author the weighted loot table 'loot_coldstore_weighted' that maps each container entity to a weighted list of concrete item IDs (cs_* items), tiered shallow/mid/deep. Confirm every quest-required item appears in at least one reachable container."
       },
       {
-        "severity": "medium",
+        "severity": "blocker",
+        "category": "quest-logic",
+        "description": "Collect objectives mix container-entity IDs with item IDs, so their targets are unresolvable. obj_first_walk_loot collects target 'loot_crate_common' (a container entity, not an item). obj_deep_cache collects target 'loot_body_cache_rare' (container entity). Meanwhile obj_fences_collect collects item 'cs_frozen_stock_tin', but that item is never placed anywhere — only the entity 'loot_frozen_stock' exists in freezer_core. There is no defined path from that entity to the tin, so 'The Fence's Cut' cannot be completed.",
+        "location": "quests[0].obj_first_walk_loot; quests[1].obj_fences_collect; quests[3].obj_deep_cache",
+        "suggested_fix": "Standardize collect targets to item IDs, and make containers drop those items via the loot table. Explicitly have loot_frozen_stock yield cs_frozen_stock_tin so the 3-tin objective is satisfiable."
+      },
+      {
+        "severity": "major",
         "category": "systems",
-        "description": "stat_system and combat_system are null. While the concept correctly states 'no combat,' there is no defined progression/resource system schema for mainspring charges, moonlight banking, engraved cog counts, or persistent unlocks. Without a formalized resource system, the meta-progression loop has no defined data model.",
-        "location": "project.stat_system, project.combat_system",
-        "suggested_fix": "Define a minimal stat_system describing mainspring_charges (per-run pool), moon_meter_seconds (per-run timer), engraved_cogs (persistent count), banked_moonlight (persistent vials), and unlocked starting tools. Leave combat_system as null intentionally with a comment."
+        "description": "stat_system is null and combat_system is null, yet the design depends on both. Items declare stat_modifiers (melee_damage, ranged_damage, armor, stealth, noise, aim_stability, cold_resistance, carry_slots, move_speed) with no stat system to consume them. The player has no defined HP, so The Listener's attack of 28 and the 120-HP boss fight in quest_silence_the_listener cannot be resolved. Rig 'limited-slot' is central to the loop but the slot count is never given numerically (style_guide vaguely says '4-6 slots'; cs_thawline_scattergun uses carry_slots -1 against an undefined total).",
+        "location": "stat_system: null; combat_system: null; world.global_properties.rig; items[2].stat_modifiers (carry_slots)",
+        "suggested_fix": "Define a minimal stat system (player HP, noise meter, exact rig slot count) and a combat resolution model (damage vs defense, noise generation on attack) so item modifiers and the boss fight have something to act on."
       },
       {
-        "severity": "low",
-        "category": "design",
-        "description": "The Stationmaster's riddle puzzle has no described mechanic — quest_engrave_the_ledger requires delivering a 'solved' riddle card, but no objective explains HOW the player solves the riddle (multiple choice? typed answer? card-matching?). All other spirits have defined puzzle types (memory_match, sliding_tile_timetable) but riddle resolution is hand-waved.",
-        "location": "room_conductors_office.properties.puzzle_type=riddle, quest_engrave_the_ledger.obj_deliver_riddle_cards",
-        "suggested_fix": "Specify a riddle interaction: e.g., multiple-choice card selection from 3 hand-lettered options, or symbol-matching the riddle's clue to an item from inventory (Wren's pocket items)."
+        "severity": "major",
+        "category": "quest-logic",
+        "description": "Several quests place the quest at a room the quest-giver can never physically reach, given the NPCs' own established constraints. quest_run_silent is given by Greta but has location_id 'loading_dock' — Greta's schedule is 'always' at gutting_floor and her whole character is that she never passes the first door. quest_deep_pull and quest_silence_the_listener are given by Marrow but have location_id 'freezer_core' — Marrow's defining rule is she 'never crosses the extraction line inward' and stays at the bay door. As written, the player cannot receive/turn in these quests where they are anchored.",
+        "location": "quests[2] (Run Silent), quests[3] (The Deep Pull), quests[5] (Silence the Listener)",
+        "suggested_fix": "Set each quest's location_id to the giver's actual room (gutting_floor for Greta, loading_dock for Marrow), and frame the objectives as taking place elsewhere. Handoff/turn-in should occur where the NPC stands."
       },
       {
-        "severity": "low",
-        "category": "balance",
-        "description": "Mainspring charge economy is undefined. quest_set_the_signal_levers requires spending at least 3 charges, but Wren starts with only 3 in her inventory and no quest defines how charges replenish during a run. If charges are consumed at Signal Box (3) plus the Arrival Clock wind (1), the player runs out before completing the loop.",
-        "location": "npc_wren_tallow.inventory, quest_wind_the_arrival_clock, quest_set_the_signal_levers",
-        "suggested_fix": "Add a Mainspring Dispenser interaction at entity_mainspring_dispenser in the Signal Box, or grant charges as rewards from each spirit puzzle. Verify that 4-6 charges per run is the intended budget."
+        "severity": "major",
+        "category": "consistency",
+        "description": "The USP promises exactly ONE sound-hunting hunter ('A single sound-hunting AI scavenger'), but the rooms each list a different enemy entity ID — enemy_scavenger_patrol (gutting_floor), enemy_scavenger (freezer_core), enemy_scavenger_lure (loading_dock) — in addition to the boss npc_the_listener. It is ambiguous whether these are one roaming entity or three separate spawns, which directly contradicts the single-hunter design pillar if instantiated literally.",
+        "location": "world room entities: gutting_floor/freezer_core/loading_dock; concept.core_mechanics[4]",
+        "suggested_fix": "Represent the hunter as one persistent entity that patrols the loop (npc_the_listener), and remove the per-room enemy_scavenger_* placeholders or clearly mark them as spawn hints for the same single actor."
       },
       {
-        "severity": "low",
-        "category": "navigation",
-        "description": "Two hidden/locked connections (Waiting Hall ↔ Signal Box via signal_pass, Lost Luggage ↔ Platform 3½ via porter_token) are described as shortcuts, but quest_engrave_the_ledger lists obj_earn_signal_pass as OPTIONAL and the porter token as a required reward of quest_match_the_humming_cases. The shortcut keys are inconsistently gated — one is optional, one is required for the same loop-shortening benefit.",
-        "location": "world.overworld.regions[0].connections (locked entries), quest_set_the_signal_levers.obj_earn_signal_pass",
-        "suggested_fix": "Either make both keys optional (rewards for excellence) or both mandatory (always granted on first puzzle clear). Clarify whether shortcuts persist across runs."
+        "severity": "major",
+        "category": "systems",
+        "description": "level_requirement gates exist (quest_deep_pull=2, quest_depot_remembers=2, quest_silence_the_listener=3) and quests award XP (100/80/150/220/260/500), but with no stat_system there is no leveling curve, XP-to-level thresholds, or persistence model across permadeath runs. There is no defined way for the player to actually reach level 2 or 3, so the gated quests may be permanently locked.",
+        "location": "quests[3].level_requirement; quests[4].level_requirement; quests[5].level_requirement; rewards.xp fields",
+        "suggested_fix": "Define XP thresholds and where levels persist (per-run vs meta-progression that survives death). Confirm the early quests grant enough XP to clear the level-2/3 gates before those quests unlock."
       },
       {
-        "severity": "low",
-        "category": "ui",
-        "description": "No HUD specification exists for the always-visible moon meter (12-minute countdown), current mainspring charge count, active drafted tool, or engraved-cog total. These are all core mechanics the player must reference constantly.",
-        "location": "style_guide (UI section), no dedicated hud entity",
-        "suggested_fix": "Add a HUD spec describing: top-right ink-on-paper moon meter ring tied to the 24-keyframe skylight sweep, top-left charge counter (tin icon + number), bottom-center drafted-tool slot with hover tooltip, and pause-menu workshop ledger view."
+        "severity": "minor",
+        "category": "consistency",
+        "description": "The unique key item cs_ghost_rig_tags (epic, stackable:false, max_stack:1) is duplicated and given circularly. It is in npc_frostbit_kell.inventory AND npc_the_listener.inventory, and quest_depot_remembers both COLLECTS it (obj_remember_tags) and awards it again as a reward item — the player receives the same unique item they were required to already hold.",
+        "location": "npcs[3].inventory; npcs[4].inventory; quests[4].objectives/rewards",
+        "suggested_fix": "Give quest_depot_remembers a distinct reward (e.g., the recovered ghost-rig loot or scrip), remove cs_ghost_rig_tags from The Listener's inventory, and treat Kell as the single source of the tags."
+      },
+      {
+        "severity": "minor",
+        "category": "consistency",
+        "description": "npc_the_listener is is_essential: true, yet quest_silence_the_listener requires killing it (objective_type 'kill', count 1). An essential flag typically prevents death; the two states contradict. If a build honors is_essential, the required boss kill becomes impossible.",
+        "location": "npcs[4].is_essential; quests[5].obj_silence_kill",
+        "suggested_fix": "Set is_essential: false for The Listener, or add a scripted despawn/defeat state so the kill objective can complete while preserving it for runs where the player never triggers the fight."
+      },
+      {
+        "severity": "minor",
+        "category": "economy",
+        "description": "Quest rewards use a generic 'gold' field (40/70/60/130/90/300) but the world's only currency is cs_harbor_scrip (brass scrip). The terminology mismatch could cause the reward payout to reference a currency that doesn't exist in-game.",
+        "location": "all quests[].rewards.gold; items[9] (cs_harbor_scrip)",
+        "suggested_fix": "Map the 'gold' reward field to Harbor Scrip explicitly, or rename to keep the fiction consistent."
+      },
+      {
+        "severity": "minor",
+        "category": "quest-logic",
+        "description": "obj_remember_find uses objective_type 'explore' with target 'loot_body_cache_rare' — an 'explore' objective is pointed at a loot container rather than a location/zone. This type/target mismatch may not resolve in an explore-tracking system that expects a room or POI.",
+        "location": "quests[4].obj_remember_find",
+        "suggested_fix": "Change the type to 'reach'/'interact' against the seeded cache, or point 'explore' at the freezer_core room and have the tags reveal the cache location."
       }
     ],
     "warnings": [
-      "The 12-minute moon meter is tight for first-time players solving three distinct puzzle types — playtest the first-run completion rate; if under 30% reach all three spirits, increase starting moonlight or add a tutorial-night softening.",
-      "Spirit dialogue trees are referenced by ID (e.g., dialogue_stationmaster_riddle) but no dialogue tree content is included in the project payload — these need to be authored.",
-      "Five rooms with shuffle_each_run=true plus three puzzle types plus tool drafting plus persistent unlocks is ambitious scope for 4 hours of estimated playtime; verify run variance is meaningful enough to sustain replays.",
-      "Platform 3½ phantom-teal lighting and the 'breaks 1-pixel outline every 3 frames' spirit shader are non-trivial to implement in Godot's 2D pipeline — budget time for a custom CanvasItem shader."
+      "estimated_playtime_hours is 6.0 while target_run_seconds is 300 (~72 runs). The meta-progression that would fill 6 hours (persistent scrip, gear carry-over, quest chain length) is not fully specified — the six quests alone will not sustain that runtime.",
+      "Permadeath spills the whole rig on death, but delivery quests (quest_fences_cut needs 3 tins delivered; quest_deep_pull needs the rare pull extracted) require carrying items out alive. This is intentional tension, but there is no partial-credit or per-run persistence defined, so these quests may feel punishingly RNG-dependent across many failed runs.",
+      "No player starting loadout/inventory is defined. quest_run_silent forbids firing the Sidearm/Scattergun and implies a silent option (Gutting Hook, decoys, door grease), but nothing guarantees the player starts with or can reliably find a silent weapon.",
+      "The extract chime draws the hunter for 8 seconds every extraction, which is also the failure condition for quest_first_walk (die before extraction). New players with no gear may find the very first tutorial extraction disproportionately lethal without a guaranteed safe window.",
+      "encounters, scenes_generated, and scripts_generated are all empty — this is a design spec only; none of the above systems have been implemented yet, so 'playable' cannot be verified against a build."
     ],
     "suggestions": [
-      "Add an explicit 'first-night' tutorial state where Wren has all three tools pre-drafted and the moon meter is paused during dialogue, easing new-player onboarding into the 12-minute pressure.",
-      "Consider a sixth 'Workshop' overworld room (separate from Conductor's Office) as the persistent meta hub between runs, so the in-run Conductor's Office stays purely diegetic.",
-      "Author the Stationmaster's riddles as a pool of 20-30 hand-lettered cards so repeat runs feel handcrafted rather than randomized; tie answers to ambient station details (e.g., 'I have hands but never wave — Arrival Clock').",
-      "Add quiet failure-state-adjacent feedback: when the moon meter expires mid-puzzle, fade to soft ink-wash with Wren saying 'Almost. Tomorrow, then.' rather than a hard fail screen — matches the 'no failure state' design promise.",
-      "The Banked Moonlight max_stack of 3 (45s each = 135s) is a thoughtful cap, but make sure UI surfaces this clearly so players know hoarding past 3 vials is wasted.",
-      "Pre-bake the 8-cardinal-angle sprite rotations as part of the asset pipeline rather than per-frame, since the style guide forbids runtime rotation."
+      "Author the missing loot table with explicit entity→item drop weights, tiered by room depth, and unit-test that every quest-required item (cs_frozen_stock_tin, the rare body-cache contents, cs_thawline_scattergun) is reachable.",
+      "Add a compact stat_system: player HP, a 0–100 noise meter the hunter reacts to, and an exact rig slot count (pick a number, e.g. 5, and reconcile cs_thawline_scattergun's carry_slots:-1 against it).",
+      "Add a combat_system defining damage vs defense and per-weapon noise, so the Sidearm (noise 45/2 rooms), Scattergun (noise 100/3 rooms, draws hunter), and the 120-HP Listener fight all resolve consistently.",
+      "Fix quest anchoring: set location_id to the giver's real room and describe far-room objectives in text (Greta briefs at the gutting floor, Marrow at the bay door).",
+      "Consolidate the hunter into a single persistent patrolling entity to honor the one-hunter USP, removing the three per-room enemy_scavenger_* placeholders.",
+      "Deduplicate the ghost-rig tags (single source: Kell) and give quest_depot_remembers a non-circular reward.",
+      "Define the cross-run meta-progression (persistent scrip bank at Marrow, unlockable starting gear) that justifies the 6-hour playtime and gives the level_requirement gates a way to be met."
     ],
-    "overall_score": 7,
+    "overall_score": 6,
     "playable": false,
-    "summary": "Strong, cohesive cozy roguelike design with a clear vision, rich worldbuilding, and well-aligned art/audio/mechanics — but the project is currently a design document only. No scenes or scripts have been generated, so it is not yet playable. Once the Godot implementation is produced and the riddle mechanic + charge economy are specified, this is a 9/10 candidate; as a design pass it is an 8, marked down to 7 because the unstated puzzle resolution for the Stationmaster and the unbalanced mainspring economy will block the first build. Exporter note: this build now includes generated scene/script files; remaining QA issues should be read as the next layer of specificity, not as a blank-template failure."
+    "summary": "Coldstore is an exceptionally cohesive and atmospheric design — the three-room extraction loop, sound-hunting Listener, noise/greed tension, and permadeath re-seeding all reinforce each other, and the NPC/item/lore layer is tight and evocative. However, it is not yet playable as specified. Two blockers stop progression: (1) the referenced loot table 'loot_coldstore_weighted' is undefined and containers have no drop mapping, and (2) collect objectives mix container-entity IDs with item IDs (notably cs_frozen_stock_tin is never actually spawnable), making core quests uncompletable. Major gaps compound this: stat_system and combat_system are both null despite items, a 120-HP boss kill, level gates (2/3), and rig slot mechanics all depending on them; and three quests are anchored to rooms their givers can never reach. Fix the loot/data integrity, define the missing stat/combat systems and rig slot count, and reconcile quest-giver locations, then re-run QA against an actual build. Strong foundation, blocked on implementation-level definitions. Exporter note: this build now includes generated scene/script files; remaining QA issues should be read as the next layer of specificity, not as a blank-template failure."
   },
   "created_at": "",
   "updated_at": ""

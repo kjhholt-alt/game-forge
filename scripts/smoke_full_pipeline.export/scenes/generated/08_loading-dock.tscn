@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[node name="Conductor_s_Office" type="Control"]
+[node name="Loading_Dock" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,14 +11,14 @@ offset_left = 32.0
 offset_top = 28.0
 offset_right = 900.0
 offset_bottom = 68.0
-text = "Conductor's Office"
+text = "Loading Dock"
 
 [node name="Kind" type="Label" parent="."]
 offset_left = 32.0
 offset_top = 74.0
 offset_right = 420.0
 offset_bottom = 106.0
-text = "Npc"
+text = "Exit"
 
 [node name="Description" type="RichTextLabel" parent="."]
 offset_left = 32.0
@@ -26,4 +26,4 @@ offset_top = 122.0
 offset_right = 980.0
 offset_bottom = 420.0
 fit_content = true
-text = "A small wood-paneled office stacked with logbooks, riddle-cards, and a stopped grandfather clock. The Stationmaster receives Wren here, trading riddles for repair tokens and engraving each completed cog into the workshop ledger."
+text = "The extraction point: one painted zone, hold for eight seconds, and a chime that rings through every room. The only way home, and the loudest place to stand in the depot."

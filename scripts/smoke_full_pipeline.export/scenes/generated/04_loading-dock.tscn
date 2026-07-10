@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[node name="Loading_Dock" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 900.0
+offset_bottom = 68.0
+text = "Loading Dock"
+
+[node name="Kind" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 420.0
+offset_bottom = 106.0
+text = "Exit"
+
+[node name="Description" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = 122.0
+offset_right = 980.0
+offset_bottom = 420.0
+fit_content = true
+text = "The far side of the freezer and the only way home. A concrete apron under a half-raised bay door, one painted extraction zone marked on the floor, a dead forklift and stacked pallets for whatever cover they're worth. Stand in the zone and hold for eight seconds — the extract chime rings through every room in the building, and the last stretch to this door becomes the tensest walk of the run. Mid-grade loot sits here too, tempting one more pickup before you commit."

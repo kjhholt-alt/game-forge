@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[node name="Signal_Box" type="Control"]
+[node name="Gutting_Floor" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,14 +11,14 @@ offset_left = 32.0
 offset_top = 28.0
 offset_right = 900.0
 offset_bottom = 68.0
-text = "Signal Box"
+text = "Gutting Floor"
 
 [node name="Kind" type="Label" parent="."]
 offset_left = 32.0
 offset_top = 74.0
 offset_right = 420.0
 offset_bottom = 106.0
-text = "Puzzle"
+text = "Entrance"
 
 [node name="Description" type="RichTextLabel" parent="."]
 offset_left = 32.0
@@ -26,4 +26,4 @@ offset_top = 122.0
 offset_right = 980.0
 offset_bottom = 420.0
 fit_content = true
-text = "A cramped tower of levers, dials, and a wall-sized track diagram lit by oil lamps. Mainspring charges spent here rewind the signal clock, nudging puzzle states in the rooms on either side."
+text = "Run entry. Gutting tables, swinging hooks, and clogged drains under one stuttering sodium lamp. Shallow, picked-over loot and the lowest danger in the loop — the room you spawn beside and the one you pray to reach again with a full back."

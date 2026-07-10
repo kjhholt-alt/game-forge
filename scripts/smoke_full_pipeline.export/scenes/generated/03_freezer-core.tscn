@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[node name="Freezer_Core" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 28.0
+offset_right = 900.0
+offset_bottom = 68.0
+text = "Freezer Core"
+
+[node name="Kind" type="Label" parent="."]
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 420.0
+offset_bottom = 106.0
+text = "Treasure"
+
+[node name="Description" type="RichTextLabel" parent="."]
+offset_left = 32.0
+offset_top = 122.0
+offset_right = 980.0
+offset_bottom = 420.0
+fit_content = true
+text = "The deep room — the coldest, darkest heart of the loop, where the richest gear is buried in frozen body-caches and sealed cold-crates that the fold left untouched. The single lamp here barely holds, guttering to near-black between pulses, and the silhouettes that swing across the shelving are not always yours. This is where reward scales with how far you overcommit, and where the scavenger hunts most. Every step in is a step you have to carry back out, loud rig and all."

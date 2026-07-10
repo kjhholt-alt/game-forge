@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[node name="Platform_3" type="Control"]
+[node name="Freezer_Core" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,14 +11,14 @@ offset_left = 32.0
 offset_top = 28.0
 offset_right = 900.0
 offset_bottom = 68.0
-text = "Platform 3½"
+text = "Freezer Core"
 
 [node name="Kind" type="Label" parent="."]
 offset_left = 32.0
 offset_top = 74.0
 offset_right = 420.0
 offset_bottom = 106.0
-text = "Puzzle"
+text = "Treasure"
 
 [node name="Description" type="RichTextLabel" parent="."]
 offset_left = 32.0
@@ -26,4 +26,4 @@ offset_top = 122.0
 offset_right = 980.0
 offset_bottom = 420.0
 fit_content = true
-text = "A narrow platform tucked between Platform 3 and Platform 4 that should not exist. The Last Passenger waits here on a bench, holding a sliding-tile timetable that never quite finishes resolving. Steam coils in slow parallax across the tracks."
+text = "The deep room and the scavenger's favored hunting ground. Frozen body-caches and sealed cold-crates hold the richest gear in the building, guarded by near-total dark between the lamp's dying pulses. Reward scales with how far you overcommit; so does the odds you never leave."

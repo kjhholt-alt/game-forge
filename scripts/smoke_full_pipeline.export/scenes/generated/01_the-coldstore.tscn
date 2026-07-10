@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[node name="The_Midnight_Interchange" type="Control"]
+[node name="The_Coldstore" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ offset_left = 32.0
 offset_top = 28.0
 offset_right = 900.0
 offset_bottom = 68.0
-text = "The Midnight Interchange"
+text = "The Coldstore"
 
 [node name="Kind" type="Label" parent="."]
 offset_left = 32.0
@@ -26,4 +26,4 @@ offset_top = 122.0
 offset_right = 980.0
 offset_bottom = 420.0
 fit_content = true
-text = "A moonlit threshold station of brass fittings, midnight-blue glass, and slow drifting steam. Five rooms loop around a central platform beneath a great skylight that frames the crossing moon. The 12-minute moon meter ticks softly overhead, and lantern bloom catches every polished gear."
+text = "A three-room refrigerated warehouse frozen mid-decay: frost-white rime creeping over rust-brown steel, sodium-lamp amber bleeding from one flickering fixture per room, dithered shadows swinging long across the floor. The rooms form a fixed loop joined by three heavy roller doors, each one a groaning announcement of where you are. There is exactly one way out, and it is the loudest place to stand in the building."

@@ -7,3 +7,66 @@
 └─────────────────────────────────────────────────────────────────────────────┘
   Regions: The Coldstore
   Items: 11 created
+  Quests: 6  |  NPCs: 5
+  Style: Tight 32x32px pixel art on a strict integer grid — every sprite, tile,
+and prop authored at 32x32 native and rendered at integer scale only (3x/4x, 
+nearest-neighbor, no bilinear, no sub-pixel camera). Characters occupy a 16w x 
+28h silhouette within their 32x32 cell, read-first (recognizable in one 
+flickering frame) with hunched, cold-braced posture. Environment is 
+orthographic top-down-3/4 (2:1 dimetric feel faked in flat tiles) so roller 
+doors, gutting tables, and shelving read as depth without true perspective. 
+Hard 1px outlines are selective, not universal: full dark outline (#1a1418) 
+only where a sprite meets lit floor; outlines DROP to interior shading where a 
+sprite sits in shadow, so figures visually dissolve into the dark exactly like 
+the Listener does. Dithering is the signature technique — 2x2 and 4x4 Bayer 
+checker dithers carry every shadow gradient and every frost-to-rust transition;
+never use smooth anti-aliased ramps, the grain IS the mood. Palette is 
+hard-capped: max 6 hues + 4 neutral values per sprite. Frost rime is painted as
+1-2px stippled highlight clusters on top edges of steel; rust is a dithered 
+mid-brown bleed pooling at bottom edges and weld seams. Loot containers use a 
+shared 32x32 silhouette language with tier-coded lid trim (see palette) so 
+players read value at a glance. Extraction zone is a 2x2 tile stencil of amber 
+hazard-chevrons that pulses. UI is diegetic-minimal: a bottom rig-slot strip 
+(4-6 slots, 24x24 item icons), a 3-segment thin outline map of the loop, and an
+8-second extract ring drawn as a depleting 32px arc.
+┌───────────────────────────────── QA Report ─────────────────────────────────┐
+│ Score: 6/10                                                                 │
+│ Coldstore is an exceptionally cohesive and atmospheric design — the         │
+│ three-room extraction loop, sound-hunting Listener, noise/greed tension,    │
+│ and permadeath re-seeding all reinforce each other, and the NPC/item/lore   │
+│ layer is tight and evocative. However, it is not yet playable as specified. │
+│ Two blockers stop progression: (1) the referenced loot table                │
+│ 'loot_coldstore_weighted' is undefined and containers have no drop mapping, │
+│ and (2) collect objectives mix container-entity IDs with item IDs (notably  │
+│ cs_frozen_stock_tin is never actually spawnable), making core quests        │
+│ uncompletable. Major gaps compound this: stat_system and combat_system are  │
+│ both null despite items, a 120-HP boss kill, level gates (2/3), and rig     │
+│ slot mechanics all depending on them; and three quests are anchored to      │
+│ rooms their givers can never reach. Fix the loot/data integrity, define the │
+│ missing stat/combat systems and rig slot count, and reconcile quest-giver   │
+│ locations, then re-run QA against an actual build. Strong foundation,       │
+│ blocked on implementation-level definitions.                                │
+│ Issues: 10  |  Playable: No                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+⠋ Done!
+Copied Godot template to 
+C:\Users\Kruz\Desktop\Projects\game-forge\scripts\smoke_full_pipeline.export
+Generated 9 scene(s) and 3 script(s) from manifest
+Wrote project manifest to 
+C:\Users\Kruz\Desktop\Projects\game-forge\scripts\smoke_full_pipeline.export\ga
+me_project.json
+============================================================
+FULL PIPELINE SMOKE — OK
+============================================================
+  title:    Coldstore
+  setting:  A decommissioned harbor cold-store: a three-room refrigerated warehouse abandoned when the cannery f
+  world:    The Coldstore
+  items:    11
+  quests:   6
+  npcs:     5
+  style:    OK
+  qa.playable: False
+  qa.issues:   10
+
+  elapsed: 453.65s
+  report:  C:\Users\Kruz\Desktop\Projects\game-forge\scripts\smoke_full_pipeline.report.json
